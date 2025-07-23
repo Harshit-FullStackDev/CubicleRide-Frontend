@@ -27,8 +27,13 @@ function Login() {
 
             const payload = JSON.parse(atob(token.split(".")[1]));
             const role = payload.role;
+            const empId = payload.empId;
+            const name = payload.name;
             localStorage.setItem("role", role);
-
+            localStorage.setItem("empId", empId);
+            if (name) {
+                localStorage.setItem("name", name);
+            }
             if (role === "EMPLOYEE") navigate("/employee/dashboard");
             else if (role === "ADMIN") navigate("/admin/dashboard");
             else alert("Unknown role");
