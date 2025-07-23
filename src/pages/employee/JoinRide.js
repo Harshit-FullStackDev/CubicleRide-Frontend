@@ -53,9 +53,14 @@ function JoinRide() {
                                 className="border border-gray-200 p-4 rounded-xl shadow-sm flex items-center justify-between hover:shadow-md transition"
                             >
                                 <div>
-                                    <p className="font-medium text-gray-800">🚗 Route: {ride.route}</p>
+                                    <p className="font-medium text-gray-800">
+                                        🛣 {ride.origin} → {ride.destination}
+                                    </p>
+                                    <p className="text-sm text-gray-600">📅 Date: {ride.date}</p>
+                                    <p className="text-sm text-gray-600">🚘 Car: {ride.carDetails}</p>
                                     <p className="text-sm text-gray-600">🪑 Seats Left: {ride.availableSeats}</p>
                                     <p className="text-sm text-gray-500">🕒 Arrival: {ride.arrivalTime}</p>
+
                                 </div>
                                 <button
                                     onClick={() => joinRide(ride.id)}
