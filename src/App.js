@@ -17,7 +17,6 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
 
-        {/* EMPLOYEE ROUTES */}
         <Route
             path="/employee/dashboard"
             element={<ProtectedRoute role="EMPLOYEE"><EmployeeDashboard /></ProtectedRoute>}
@@ -31,7 +30,6 @@ function App() {
             element={<ProtectedRoute role="EMPLOYEE"><JoinRide /></ProtectedRoute>}
         />
 
-        {/* ADMIN ROUTES */}
         <Route
             path="/admin/dashboard"
             element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>}

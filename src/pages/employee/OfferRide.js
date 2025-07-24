@@ -11,15 +11,36 @@ function OfferRide() {
         totalSeats: 1,
     });
 
+    const [success, setSuccess] = useState(false);
+    const [error, setError] = useState("");
+
     const handleChange = (e) => {
         setRide({ ...ride, [e.target.name]: e.target.value });
+        setSuccess(false); // clear success on change
+        setError("");
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const empId = localStorage.getItem("empId");
+        if (!empId) {
+            setError("Employee ID missing. Please log in again.");
+            return;
+        }
+
+        // Optional: Prevent past dates
+        const today = new Date().toISOString().split("T")[0];
+        if (ride.date < today) {
+            setError("Please select a valid future date.");
+            return;
+        }
+
         try {
-            await api.post("/ride/offer", ride);
-            alert("Ride offered successfully!");
+            await api.post("/ride/offer", {
+                ...ride,
+                empId, // backend expects this!
+            });
+            setSuccess(true);
             setRide({
                 origin: "",
                 destination: "",
@@ -29,7 +50,7 @@ function OfferRide() {
                 totalSeats: 1,
             });
         } catch (error) {
-            alert("Failed to offer ride. Please try again.");
+            setError("Failed to offer ride. Please try again.");
         }
     };
 
@@ -37,11 +58,23 @@ function OfferRide() {
         <div className="min-h-screen bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 flex justify-center items-center">
             <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-2xl">
                 <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">🚗 Offer a Ride</h2>
+
+                {success && (
+                    <div className="bg-green-100 text-green-800 px-4 py-2 rounded-xl mb-4 text-center font-medium">
+                        ✅ Ride offered successfully!
+                    </div>
+                )}
+                {error && (
+                    <div className="bg-red-100 text-red-800 px-4 py-2 rounded-xl mb-4 text-center font-medium">
+                        ❌ {error}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text"
                         name="origin"
-                        placeholder="Origin (e.g., Gurgaon)"
+                        placeholder="Pickup Location (e.g., Gurgaon Sector 29)"
                         value={ride.origin}
                         onChange={handleChange}
                         required
@@ -50,7 +83,7 @@ function OfferRide() {
                     <input
                         type="text"
                         name="destination"
-                        placeholder="Destination (e.g., Noida)"
+                        placeholder="Drop Location (e.g., Noida Sector 62)"
                         value={ride.destination}
                         onChange={handleChange}
                         required
@@ -60,6 +93,7 @@ function OfferRide() {
                         type="date"
                         name="date"
                         value={ride.date}
+                        min={new Date().toISOString().split("T")[0]}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
@@ -75,7 +109,7 @@ function OfferRide() {
                     <input
                         type="text"
                         name="carDetails"
-                        placeholder="Car Details (e.g., Maruti Swift DL8CAF1234)"
+                        placeholder="Car (e.g., Maruti Swift - DL8CAF1234)"
                         value={ride.carDetails}
                         onChange={handleChange}
                         required
