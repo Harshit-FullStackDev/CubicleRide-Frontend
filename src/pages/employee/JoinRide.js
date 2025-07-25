@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
+import { FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaUser, FaSignOutAlt } from "react-icons/fa";
 
 function JoinRide() {
     const [rides, setRides] = useState([]);
@@ -9,7 +10,6 @@ function JoinRide() {
     useEffect(() => {
         const id = localStorage.getItem("empId");
         if (id) setEmpId(id);
-
         api.get("/ride/all").then((res) => setRides(res.data));
     }, []);
 
@@ -18,11 +18,10 @@ function JoinRide() {
         try {
             await api.post(`/ride/join/${id}`, { empId });
             alert(`🎉 You have successfully joined the ride from ${ride.origin} to ${ride.destination}!`);
-            // Refresh available rides list after joining
             const updatedRides = await api.get("/ride/all");
             setRides(updatedRides.data);
         } catch {
-            alert("❌ Failed to join ride. You might already be part of it or it's full.");
+            setError("❌ Failed to join ride. You might already be part of it or it's full.");
         }
     };
 
@@ -32,42 +31,59 @@ function JoinRide() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-r from-yellow-400 via-red-400 to-pink-500 p-6 flex items-center justify-center">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl">
-                <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Join a Ride</h2>
-
-                <h3 className="text-xl font-semibold text-gray-700 mb-4">Available Rides</h3>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+            <div className="bg-white bg-opacity-95 p-8 rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col items-center">
+                <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
+                <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center">Join a Ride</h2>
+                <h3 className="text-xl font-semibold text-gray-700 mb-4 w-full text-left">Available Rides</h3>
                 {rides.length === 0 ? (
                     <p className="text-gray-500">No rides available right now.</p>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-4 w-full">
                         {rides.map((ride) => {
                             const isOwnRide = ride.ownerEmpId === empId;
                             const isFull = ride.availableSeats === 0;
                             return (
                                 <div
                                     key={ride.id}
-                                    className={`border p-4 rounded-xl shadow-sm flex items-center justify-between ${
-                                        isFull || isOwnRide ? "bg-gray-100" : "bg-white"
-                                    } hover:shadow-md transition`}
+                                    className={`bg-blue-50 rounded-xl shadow flex flex-col md:flex-row items-center justify-between p-5 gap-4 ${
+                                        isFull || isOwnRide ? "opacity-60" : "hover:shadow-lg"
+                                    } transition`}
                                 >
-                                    <div>
-                                        <p className="font-semibold text-gray-800">
-                                            🛣 {ride.origin} → {ride.destination}
-                                        </p>
-                                        <p className="text-sm text-gray-600">📅 {ride.date}</p>
-                                        <p className="text-sm text-gray-600">🚘 Car: {ride.carDetails}</p>
-                                        <p className="text-sm text-gray-600">🪑 Seats Left: {ride.availableSeats}</p>
-                                        <p className="text-sm text-gray-600">🧑 Owner: {ride.ownerEmpId}</p>
-                                        <p className="text-sm text-gray-500">🕒 Arrival: {ride.arrivalTime}</p>
+                                    <div className="flex-1 space-y-1">
+                                        <div className="flex items-center gap-2 text-lg font-semibold text-blue-700">
+                                            <FaMapMarkerAlt className="text-green-500" />
+                                            <span>{ride.origin}</span>
+                                            <span className="mx-2 text-gray-400">→</span>
+                                            <span>{ride.destination}</span>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-gray-600 text-sm mt-1">
+                                            <span className="flex items-center gap-1">
+                                                <FaCalendarAlt className="text-purple-500" /> {ride.date}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <FaClock className="text-yellow-500" /> {ride.arrivalTime}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-gray-600 text-sm">
+                                            <span className="flex items-center gap-1">
+                                                <FaCar className="text-gray-500" /> {ride.carDetails}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <FaChair className="text-pink-500" /> {ride.availableSeats} seats left
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <FaUser className="text-blue-400" /> Owner: {ride.ownerEmpId}
+                                            </span>
+                                        </div>
                                     </div>
                                     <button
                                         onClick={() => joinRide(ride.id, ride)}
                                         disabled={isOwnRide || isFull}
-                                        className={`px-5 py-2 rounded-xl font-semibold transition duration-300 ${
+                                        className={`px-6 py-2 rounded-xl font-semibold transition duration-300 mt-3 md:mt-0 ${
                                             isOwnRide || isFull
                                                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                : "bg-red-500 hover:bg-red-600 text-white"
+                                                : "bg-blue-600 hover:bg-blue-700 text-white"
                                         }`}
                                     >
                                         {isOwnRide
@@ -79,17 +95,16 @@ function JoinRide() {
                                 </div>
                             );
                         })}
-
-                        <button
-                            onClick={logout}
-                            className="mt-6 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-xl transition"
-                        >
-                            🔒 Logout
-                        </button>
                     </div>
                 )}
+                <button
+                    onClick={logout}
+                    className="mt-8 flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-semibold transition"
+                >
+                    <FaSignOutAlt /> Logout
+                </button>
+                {error && <div className="text-red-500 mt-4 text-center w-full">{error}</div>}
             </div>
-            {error && <div className="text-red-500 mt-4 text-center">{error}</div>}
         </div>
     );
 }

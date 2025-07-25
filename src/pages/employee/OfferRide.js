@@ -1,5 +1,12 @@
 import React, { useState } from "react";
 import api from "../../api/axios";
+import {
+    FaMapMarkerAlt,
+    FaCar,
+    FaChair,
+    FaCalendarAlt,
+    FaClock
+} from "react-icons/fa";
 
 function OfferRide() {
     const [ride, setRide] = useState({
@@ -16,7 +23,7 @@ function OfferRide() {
 
     const handleChange = (e) => {
         setRide({ ...ride, [e.target.name]: e.target.value });
-        setSuccess(false); // clear success on change
+        setSuccess(false);
         setError("");
     };
 
@@ -27,18 +34,15 @@ function OfferRide() {
             setError("Employee ID missing. Please log in again.");
             return;
         }
-
-        // Optional: Prevent past dates
         const today = new Date().toISOString().split("T")[0];
         if (ride.date < today) {
             setError("Please select a valid future date.");
             return;
         }
-
         try {
             await api.post("/ride/offer", {
                 ...ride,
-                empId, // backend expects this!
+                empId,
             });
             setSuccess(true);
             setRide({
@@ -49,16 +53,16 @@ function OfferRide() {
                 carDetails: "",
                 totalSeats: 1,
             });
-        } catch (error) {
+        } catch {
             setError("Failed to offer ride. Please try again.");
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 flex justify-center items-center">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-2xl">
-                <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">🚗 Offer a Ride</h2>
-
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+            <div className="bg-white bg-opacity-95 p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center">
+                <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
+                <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center">Offer a Ride</h2>
                 {success && (
                     <div className="bg-green-100 text-green-800 px-4 py-2 rounded-xl mb-4 text-center font-medium">
                         ✅ Ride offered successfully!
@@ -69,66 +73,83 @@ function OfferRide() {
                         ❌ {error}
                     </div>
                 )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input
-                        type="text"
-                        name="origin"
-                        placeholder="Pickup Location (e.g., Gurgaon Sector 29)"
-                        value={ride.origin}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                        type="text"
-                        name="destination"
-                        placeholder="Drop Location (e.g., Noida Sector 62)"
-                        value={ride.destination}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                        type="date"
-                        name="date"
-                        value={ride.date}
-                        min={new Date().toISOString().split("T")[0]}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                        type="time"
-                        name="arrivalTime"
-                        value={ride.arrivalTime}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                        type="text"
-                        name="carDetails"
-                        placeholder="Car (e.g., Maruti Swift - DL8CAF1234)"
-                        value={ride.carDetails}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                        type="number"
-                        name="totalSeats"
-                        min={1}
-                        value={ride.totalSeats}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    />
+                <form onSubmit={handleSubmit} className="space-y-4 w-full">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaMapMarkerAlt className="text-green-500" />
+                        <input
+                            type="text"
+                            name="origin"
+                            placeholder="Pickup Location"
+                            value={ride.origin}
+                            onChange={handleChange}
+                            required
+                            className="bg-transparent w-full outline-none"
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaMapMarkerAlt className="text-red-500" />
+                        <input
+                            type="text"
+                            name="destination"
+                            placeholder="Drop Location"
+                            value={ride.destination}
+                            onChange={handleChange}
+                            required
+                            className="bg-transparent w-full outline-none"
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaCalendarAlt className="text-purple-500" />
+                        <input
+                            type="date"
+                            name="date"
+                            value={ride.date}
+                            min={new Date().toISOString().split("T")[0]}
+                            onChange={handleChange}
+                            required
+                            className="bg-transparent w-full outline-none"
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaClock className="text-yellow-500" />
+                        <input
+                            type="time"
+                            name="arrivalTime"
+                            value={ride.arrivalTime}
+                            onChange={handleChange}
+                            required
+                            className="bg-transparent w-full outline-none"
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaCar className="text-gray-500" />
+                        <input
+                            type="text"
+                            name="carDetails"
+                            placeholder="Car (e.g., Maruti Swift - DL8CAF1234)"
+                            value={ride.carDetails}
+                            onChange={handleChange}
+                            required
+                            className="bg-transparent w-full outline-none"
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaChair className="text-pink-500" />
+                        <input
+                            type="number"
+                            name="totalSeats"
+                            min={1}
+                            value={ride.totalSeats}
+                            onChange={handleChange}
+                            required
+                            className="bg-transparent w-full outline-none"
+                        />
+                    </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition duration-300"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition mt-2"
                     >
-                        🚘 Submit Ride Offer
+                        Offer Ride
                     </button>
                 </form>
             </div>
