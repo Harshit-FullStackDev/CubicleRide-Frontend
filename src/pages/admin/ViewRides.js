@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { FaCarSide, FaUser, FaRoute, FaChair, FaUsers } from "react-icons/fa";
+import { FaUser, FaMapMarkerAlt, FaCar, FaChair, FaUsers, FaCalendarAlt, FaClock } from "react-icons/fa";
 
 function ViewRides() {
     const [rides, setRides] = useState([]);
@@ -31,49 +31,50 @@ function ViewRides() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
-            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-4xl">
-                <h2 className="text-2xl font-bold mb-6 text-blue-700 flex items-center gap-2">
-                    <FaCarSide className="text-blue-500" /> All Rides
-                </h2>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border rounded-lg">
-                        <thead>
-                        <tr>
-                            <th className="py-2 px-4 border-b text-left">Owner (Emp ID)</th>
-                            <th className="py-2 px-4 border-b text-left">Route</th>
-                            <th className="py-2 px-4 border-b text-left">Seats</th>
-                            <th className="py-2 px-4 border-b text-left">Joined Employees</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {rides.map(ride => (
-                            <tr key={ride.id} className="hover:bg-blue-50">
-                                <td className="py-2 px-4 border-b flex items-center gap-2">
-                                    <FaUser className="text-gray-400" />
-                                    {ride.ownerEmpId || <span className="text-gray-400 italic">N/A</span>}
-                                </td>
-                                <td className="py-2 px-4 border-b flex items-center gap-2">
-                                    <FaRoute className="text-gray-400" />
-                                    {ride.route || <span className="text-gray-400 italic">N/A</span>}
-                                </td>
-                                <td className="py-2 px-4 border-b flex items-center gap-2">
-                                    <FaChair className="text-gray-400" />
-                                    {(ride.availableSeats !== undefined && ride.totalSeats !== undefined)
-                                        ? `${ride.availableSeats}/${ride.totalSeats}`
-                                        : <span className="text-gray-400 italic">N/A</span>}
-                                </td>
-                                <td className="py-2 px-4 border-b flex items-center gap-2">
-                                    <FaUsers className="text-gray-400" />
-                                    {ride.joinedEmpIds && ride.joinedEmpIds.length > 0
-                                        ? ride.joinedEmpIds.join(", ")
-                                        : <span className="text-gray-400 italic">No joined employees</span>}
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-8">
+            <h2 className="text-3xl font-bold mb-8 text-blue-700 text-center">All Rides</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {rides.map(ride => (
+                    <div key={ride.id} className="bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-3 hover:shadow-2xl transition">
+                        <div className="flex items-center gap-3 mb-2">
+                            <FaUser className="text-blue-400" />
+                            <span className="font-semibold text-gray-700">Owner:</span>
+                            <span className="text-gray-800">{ride.ownerEmpId || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <FaMapMarkerAlt className="text-green-500" />
+                            <span className="font-semibold">{ride.origin || "?"}</span>
+                            <span className="mx-2 text-gray-400">→</span>
+                            <span className="font-semibold">{ride.destination || "?"}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <FaCalendarAlt className="text-purple-500" />
+                            <span>{ride.date || "N/A"}</span>
+                            <FaClock className="ml-4 text-yellow-500" />
+                            <span>{ride.arrivalTime || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <FaCar className="text-gray-500" />
+                            <span>{ride.carDetails || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <FaChair className="text-pink-500" />
+                            <span>
+                                {ride.availableSeats !== undefined && ride.totalSeats !== undefined
+                                    ? `${ride.availableSeats}/${ride.totalSeats} seats`
+                                    : "N/A"}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <FaUsers className="text-indigo-500" />
+                            <span>
+                                {ride.joinedEmpIds && ride.joinedEmpIds.length > 0
+                                    ? ride.joinedEmpIds.join(", ")
+                                    : <span className="text-gray-400 italic">No joined employees</span>}
+                            </span>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

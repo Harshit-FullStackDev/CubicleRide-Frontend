@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 
 function Login() {
     const [data, setData] = useState({ email: "", password: "" });
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const [loading,setLoading] = useState(false);
 
     useEffect(() => {
-        const checkToken = () => {
-            const token = localStorage.getItem("token");
-            const role = localStorage.getItem("role");
-
-            if (token && role === "EMPLOYEE") navigate("/employee/dashboard");
-            else if (token && role === "ADMIN") navigate("/admin/dashboard");
-        };
-        setTimeout(checkToken, 100);
-    },[navigate]);
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+        if (token && role === "EMPLOYEE") navigate("/employee/dashboard");
+        else if (token && role === "ADMIN") navigate("/admin/dashboard");
+    }, [navigate]);
 
     const handleChange = (e) =>
         setData({ ...data, [e.target.name]: e.target.value });
@@ -26,10 +23,8 @@ function Login() {
         setLoading(true);
         try {
             const res = await api.post("/auth/login", data);
-
             const token = res.data.token;
             localStorage.setItem("token", token);
-
             const payload = JSON.parse(atob(token.split(".")[1]));
             const role = payload.role;
             const empId = payload.empId;
@@ -38,71 +33,67 @@ function Login() {
             if (role === "EMPLOYEE") localStorage.setItem("empId", empId);
             else if (role === "ADMIN") localStorage.setItem("adminId", empId);
             localStorage.setItem("empId", empId);
-            if (name) {
-                localStorage.setItem("name", name);
-            }
+            if (name) localStorage.setItem("name", name);
             if (role === "EMPLOYEE") navigate("/employee/dashboard");
             else if (role === "ADMIN") navigate("/admin/dashboard");
             else alert("Unknown role");
-        } catch (err) {
+        } catch {
             alert("Invalid credentials");
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="relative min-h-screen">
-            {/* Background Image with Blur */}
-            <div
-                className="absolute inset-0 bg-cover bg-center blur-sm"
-                style={{ backgroundImage: `url('orangemantra Logo.png')` }}
-            ></div>
-            <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-                <div className="bg-white bg-opacity-90 p-8 rounded-2xl shadow-2xl w-full max-w-md">
-                    {loading ? (
-                        <div className="text-center text-blue-600 text-xl font-semibold animate-pulse">
-                            Logging in, please wait...
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+            <div className="bg-white bg-opacity-95 p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center">
+                <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
+                <h2 className="text-3xl font-bold text-orange-500 mb-6 text-center">Employee Login</h2>
+                {loading ? (
+                    <div className="text-center text-orange-600 text-xl font-semibold animate-pulse">
+                        Logging in, please wait...
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4 w-full">
+                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                            <FaEnvelope className="text-orange-400" />
+                            <input
+                                name="email"
+                                placeholder="Email"
+                                onChange={handleChange}
+                                required
+                                type="email"
+                                className="bg-transparent w-full outline-none"
+                            />
                         </div>
-                    ) : (
-                        <>
-                            <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Employee Login</h2>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <input
-                                    name="email"
-                                    placeholder="Email"
-                                    onChange={handleChange}
-                                    required
-                                    type="email"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <input
-                                    name="password"
-                                    placeholder="Password"
-                                    type="password"
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <button
-                                    type="submit"
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition duration-300 font-semibold"
-                                >
-                                    Login
-                                </button>
-                                <p className="text-center text-sm mt-4 text-gray-600">
-                                    Don't have an account?{" "}
-                                    <span
-                                        onClick={() => navigate("/register")}
-                                        className="text-blue-700 font-semibold cursor-pointer hover:underline"
-                                    >
-                                    Register
-                                </span>
-                                </p>
-                            </form>
-                        </>
-                    )}
-                </div>
+                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                            <FaLock className="text-orange-400" />
+                            <input
+                                name="password"
+                                placeholder="Password"
+                                type="password"
+                                onChange={handleChange}
+                                required
+                                className="bg-transparent w-full outline-none"
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full bg-orange-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-semibold mt-2"
+                        >
+                            Login
+                        </button>
+                        <p className="text-center text-sm mt-4 text-gray-600">
+                            Don&#39;t have an account?{" "}
+                            <span
+                                onClick={() => navigate("/register")}
+                                className="text-orange-700 font-semibold cursor-pointer hover:underline"
+                            >
+                                Register
+                            </span>
+                        </p>
+                    </form>
+                )}
             </div>
         </div>
     );
