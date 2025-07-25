@@ -89,6 +89,7 @@ function JoinRide() {
                     </div>
                 )}
             </div>
+            {error && <div className="text-red-500 mt-4 text-center">{error}</div>}
         </div>
     );
 }

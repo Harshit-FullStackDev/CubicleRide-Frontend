@@ -35,6 +35,8 @@ function Login() {
             const empId = payload.empId;
             const name = payload.name;
             localStorage.setItem("role", role);
+            if (role === "EMPLOYEE") localStorage.setItem("empId", empId);
+            else if (role === "ADMIN") localStorage.setItem("adminId", empId);
             localStorage.setItem("empId", empId);
             if (name) {
                 localStorage.setItem("name", name);

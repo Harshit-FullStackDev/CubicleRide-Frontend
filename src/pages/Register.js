@@ -42,7 +42,8 @@ function Register() {
                 className="absolute inset-0 bg-cover bg-center blur-sm"
                 style={{ backgroundImage: `url('/orangemantra Logo.png')` }}
             ></div>
-
+            {/* Overlay for background */}
+            <div className="absolute inset-0 bg-black bg-opacity-50"></div>
             {/* Overlay for form content */}
             <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
                 <div className="bg-white bg-opacity-90 p-8 rounded-2xl shadow-2xl w-full max-w-md">

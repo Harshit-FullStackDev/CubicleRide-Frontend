@@ -9,7 +9,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import ViewEmployees from "./pages/admin/ViewEmployees";
 import ViewRides from "./pages/admin/ViewRides";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import EditRide from "./pages/employee/EditRide";
 function App() {
   return (
       <Routes>
@@ -42,6 +42,7 @@ function App() {
             path="/admin/rides"
             element={<ProtectedRoute role="ADMIN"><ViewRides /></ProtectedRoute>}
         />
+            <Route path="/employee/edit/:id" element={<EditRide />} />
       </Routes>
   );
 }
