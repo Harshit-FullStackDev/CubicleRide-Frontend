@@ -10,6 +10,7 @@ import ViewEmployees from "./pages/admin/ViewEmployees";
 import ViewRides from "./pages/admin/ViewRides";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditRide from "./pages/employee/EditRide";
+import EditEmployee from "./pages/admin/EditEmployee";
 function App() {
   return (
       <Routes>
@@ -25,11 +26,12 @@ function App() {
             path="/employee/offer"
             element={<ProtectedRoute role="EMPLOYEE"><OfferRide /></ProtectedRoute>}
         />
+
         <Route
             path="/employee/join"
             element={<ProtectedRoute role="EMPLOYEE"><JoinRide /></ProtectedRoute>}
         />
-
+          <Route path="/admin/employees/edit/:id" element={<EditEmployee />} />
         <Route
             path="/admin/dashboard"
             element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>}
