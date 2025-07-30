@@ -34,6 +34,7 @@ function Login() {
             else if (role === "ADMIN") localStorage.setItem("adminId", empId);
             localStorage.setItem("empId", empId);
             if (name) localStorage.setItem("name", name);
+            localStorage.setItem("email", data.email);
             if (role === "EMPLOYEE") navigate("/employee/dashboard");
             else if (role === "ADMIN") navigate("/admin/dashboard");
             else alert("Unknown role");

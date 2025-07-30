@@ -1,15 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserShield, FaUsers, FaCarSide, FaSignOutAlt } from "react-icons/fa";
+import api from "../../api/axios";
 
 function AdminDashboard() {
     const navigate = useNavigate();
+    const [stats, setStats] = useState({ employees: 0, rides: 0 });
+    const [loading, setLoading] = useState(true);
 
-    // Dummy stats for illustration; replace with real data if available
-    const stats = [
-        { label: "Employees", value: 42, icon: <FaUsers className="text-blue-500" /> },
-        { label: "Rides", value: 128, icon: <FaCarSide className="text-green-500" /> },
-    ];
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const [empRes, rideRes] = await Promise.all([
+                    api.get("/admin/employees/count"),
+                    api.get("/admin/rides/count"),
+                ]);
+                setStats({
+                    employees: empRes.data.count,
+                    rides: rideRes.data.count,
+                });
+            } catch {
+                setStats({ employees: 0, rides: 0 });
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -32,15 +49,28 @@ function AdminDashboard() {
                 </div>
                 {/* Stats Section */}
                 <div className="grid grid-cols-2 gap-4 mb-8">
-                    {stats.map((stat) => (
-                        <div key={stat.label} className="flex items-center bg-gray-50 rounded-xl p-4 shadow">
-                            <div className="mr-3 text-2xl">{stat.icon}</div>
-                            <div>
-                                <div className="text-lg font-semibold">{stat.value}</div>
-                                <div className="text-gray-500 text-xs">{stat.label}</div>
-                            </div>
+                    <div className="flex items-center bg-gray-50 rounded-xl p-4 shadow">
+                        <div className="mr-3 text-2xl">
+                            <FaUsers className="text-blue-500" />
                         </div>
-                    ))}
+                        <div>
+                            <div className="text-lg font-semibold">
+                                {loading ? "..." : stats.employees}
+                            </div>
+                            <div className="text-gray-500 text-xs">Employees</div>
+                        </div>
+                    </div>
+                    <div className="flex items-center bg-gray-50 rounded-xl p-4 shadow">
+                        <div className="mr-3 text-2xl">
+                            <FaCarSide className="text-green-500" />
+                        </div>
+                        <div>
+                            <div className="text-lg font-semibold">
+                                {loading ? "..." : stats.rides}
+                            </div>
+                            <div className="text-gray-500 text-xs">Rides</div>
+                        </div>
+                    </div>
                 </div>
                 {/* Actions */}
                 <div className="flex flex-col gap-4">

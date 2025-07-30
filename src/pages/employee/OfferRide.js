@@ -5,8 +5,10 @@ import {
     FaCar,
     FaChair,
     FaCalendarAlt,
-    FaClock
+    FaClock,
+    FaArrowLeft
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function OfferRide() {
     const [ride, setRide] = useState({
@@ -17,9 +19,9 @@ function OfferRide() {
         carDetails: "",
         totalSeats: 1,
     });
-
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setRide({ ...ride, [e.target.name]: e.target.value });
@@ -60,21 +62,28 @@ function OfferRide() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-            <div className="bg-white bg-opacity-95 p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center">
+            <div className="bg-white bg-opacity-95 p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center border border-blue-100">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="self-start mb-2 flex items-center gap-2 text-blue-600 hover:text-blue-800 transition"
+                >
+                    <FaArrowLeft /> Back
+                </button>
                 <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
-                <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center">Offer a Ride</h2>
+                <h2 className="text-3xl font-bold text-blue-700 mb-2 text-center">Offer a Ride</h2>
+                <p className="text-gray-500 mb-6 text-center">Fill in the details to publish your ride for others to join.</p>
                 {success && (
-                    <div className="bg-green-100 text-green-800 px-4 py-2 rounded-xl mb-4 text-center font-medium">
+                    <div className="bg-green-100 text-green-800 px-4 py-2 rounded-xl mb-4 text-center font-medium border border-green-200 shadow">
                         ✅ Ride offered successfully!
                     </div>
                 )}
                 {error && (
-                    <div className="bg-red-100 text-red-800 px-4 py-2 rounded-xl mb-4 text-center font-medium">
+                    <div className="bg-red-100 text-red-800 px-4 py-2 rounded-xl mb-4 text-center font-medium border border-red-200 shadow">
                         ❌ {error}
                     </div>
                 )}
                 <form onSubmit={handleSubmit} className="space-y-4 w-full">
-                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 focus-within:ring-2 focus-within:ring-blue-300 transition">
                         <FaMapMarkerAlt className="text-green-500" />
                         <input
                             type="text"
@@ -86,7 +95,7 @@ function OfferRide() {
                             className="bg-transparent w-full outline-none"
                         />
                     </div>
-                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 focus-within:ring-2 focus-within:ring-blue-300 transition">
                         <FaMapMarkerAlt className="text-red-500" />
                         <input
                             type="text"
@@ -98,7 +107,7 @@ function OfferRide() {
                             className="bg-transparent w-full outline-none"
                         />
                     </div>
-                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 focus-within:ring-2 focus-within:ring-blue-300 transition">
                         <FaCalendarAlt className="text-purple-500" />
                         <input
                             type="date"
@@ -110,7 +119,7 @@ function OfferRide() {
                             className="bg-transparent w-full outline-none"
                         />
                     </div>
-                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 focus-within:ring-2 focus-within:ring-blue-300 transition">
                         <FaClock className="text-yellow-500" />
                         <input
                             type="time"
@@ -121,7 +130,7 @@ function OfferRide() {
                             className="bg-transparent w-full outline-none"
                         />
                     </div>
-                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 focus-within:ring-2 focus-within:ring-blue-300 transition">
                         <FaCar className="text-gray-500" />
                         <input
                             type="text"
@@ -133,7 +142,7 @@ function OfferRide() {
                             className="bg-transparent w-full outline-none"
                         />
                     </div>
-                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 focus-within:ring-2 focus-within:ring-blue-300 transition">
                         <FaChair className="text-pink-500" />
                         <input
                             type="number"
@@ -147,7 +156,7 @@ function OfferRide() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition mt-2"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition mt-2 shadow-lg hover:shadow-xl"
                     >
                         Offer Ride
                     </button>
