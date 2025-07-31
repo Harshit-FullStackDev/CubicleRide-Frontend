@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { FaUser, FaSearch, FaEdit, FaTrash, FaIdBadge, FaEnvelope } from "react-icons/fa";
+import { FaUser, FaSearch, FaEdit, FaTrash, FaIdBadge, FaEnvelope, FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function ViewEmployees() {
@@ -36,6 +36,10 @@ function ViewEmployees() {
         }
     };
 
+    const handleBackToDashboard = () => {
+        navigate("/admin/dashboard");
+    };
+
     const filteredEmployees = employees.filter(emp =>
         (emp.name && emp.name.toLowerCase().includes(search.toLowerCase())) ||
         (emp.email && emp.email.toLowerCase().includes(search.toLowerCase())) ||
@@ -63,6 +67,12 @@ function ViewEmployees() {
     return (
         <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
             <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
+                <button
+                    onClick={handleBackToDashboard}
+                    className="mb-6 flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+                >
+                    <FaArrowLeft /> Back to Dashboard
+                </button>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <h2 className="text-2xl font-bold text-blue-700 flex items-center gap-2">
                         <FaUser className="text-blue-500" /> Employees
