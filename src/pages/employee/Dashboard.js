@@ -102,6 +102,15 @@ function EmployeeDashboard() {
     if (loading) return <div className="text-center mt-10 text-lg text-blue-700 animate-pulse">Loading dashboard...</div>;
     if (error) return <div className="text-center text-red-600 mt-10">{error}</div>;
 
+    const handleClearNotification = async (id) => {
+        try {
+            await api.delete(`/notifications/${id}`);
+            setNotifications(notifications.filter(n => n.id !== id));
+        } catch {
+            alert("Failed to clear notification.");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-0">
             {/* Navbar */}
@@ -168,6 +177,13 @@ function EmployeeDashboard() {
                                 {notifications.map((n) => (
                                     <li key={n.id} className="text-gray-700 flex items-center gap-2">
                                         <FaCheckCircle className="text-green-400" /> {n.message}
+                                        <button
+                                            onClick={() => handleClearNotification(n.id)}
+                                            className="ml-2 text-red-500 hover:text-red-700 text-lg font-bold"
+                                            title="Clear Notification"
+                                        >
+                                            &#10006;
+                                        </button>
                                     </li>
                                 ))}
                             </ul>
