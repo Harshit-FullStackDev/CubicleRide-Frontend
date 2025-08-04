@@ -7,6 +7,7 @@ function EmployeeDashboard() {
     const navigate = useNavigate();
     const [empName, setEmpName] = useState("");
     const [empEmail, setEmpEmail] = useState("");
+    const [empId, setEmpId] = useState("");
     const [publishedRides, setPublishedRides] = useState([]);
     const [stats, setStats] = useState({ total: 0, seats: 0 });
     const [notifications, setNotifications] = useState([]);
@@ -21,15 +22,17 @@ function EmployeeDashboard() {
         }
         setEmpName(localStorage.getItem("name") || "Employee");
         setEmpEmail(localStorage.getItem("email") || "employee@company.com");
-        fetchDashboardData();
+        const id = localStorage.getItem("empId") || "";
+        setEmpId(id);
+        fetchDashboardData(id);
     }, [navigate]);
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (empId) => {
         setLoading(true);
         try {
             const [ridesRes, notifRes] = await Promise.all([
                 api.get("/ride/my-rides"),
-                api.get("/employee/notifications").catch(() => ({
+                api.get(`/notifications/${empId}`).catch(() => ({
                     data: [
                         { id: 1, message: "Your ride to Noida was joined by 2 employees." },
                         { id: 2, message: "You have 1 new ride request." }
@@ -61,7 +64,7 @@ function EmployeeDashboard() {
         if (!window.confirm("Are you sure you want to delete this ride?")) return;
         try {
             await api.delete(`/ride/${id}`);
-            fetchDashboardData();
+            fetchDashboardData(empId); // Use empId state here
         } catch (err) {
             alert("Failed to delete ride.");
         }
