@@ -7,12 +7,14 @@ import {
     FaEdit, FaTrash, FaBell, FaEnvelope, FaCheckCircle
 } from "react-icons/fa";
 
+
 function EmployeeDashboard() {
     const navigate = useNavigate();
     const [empName, setEmpName] = useState("");
     const [empEmail, setEmpEmail] = useState("");
     const [empId, setEmpId] = useState("");
     const [publishedRides, setPublishedRides] = useState([]);
+    const [joinedRides, setJoinedRides] = useState([]);
     const [stats, setStats] = useState({ total: 0, seats: 0 });
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,8 +38,9 @@ function EmployeeDashboard() {
     const fetchDashboardData = async (empId) => {
         setLoading(true);
         try {
-            const [ridesRes, notifRes] = await Promise.all([
+            const [ridesRes, joinedRes, notifRes] = await Promise.all([
                 api.get("/ride/my-rides"),
+                api.get(`/ride/joined/${empId}`),
                 api.get(`/notifications/${empId}`).catch(() => ({
                     data: [
                         { id: 1, message: "Your ride to Noida was joined by 2 employees." },
@@ -46,6 +49,7 @@ function EmployeeDashboard() {
                 }))
             ]);
             setPublishedRides(ridesRes.data);
+            setJoinedRides(joinedRes.data);
             let total = ridesRes.data.length;
             let seats = ridesRes.data.reduce((sum, ride) => sum + ride.availableSeats, 0);
             setStats({ total, seats });
@@ -76,6 +80,16 @@ function EmployeeDashboard() {
         }
     };
 
+    const handleLeave = async (id) => {
+        if (!window.confirm("Leave this ride?")) return;
+        try {
+            await api.post(`/ride/leave/${id}`, { empId });
+            fetchDashboardData(empId);
+        } catch (err) {
+            alert("Failed to leave ride.");
+        }
+    };
+
     const formatDate = (dateStr) => {
         const d = new Date(dateStr);
         return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
@@ -91,6 +105,7 @@ function EmployeeDashboard() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-0">
             {/* Navbar */}
+
             <nav className="flex justify-between items-center bg-white bg-opacity-95 shadow-md px-8 py-4 sticky top-0 z-10">
                 <h1 className="text-2xl font-bold text-blue-700 flex items-center gap-2">
                     <img src="/orangemantra%20Logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
@@ -232,6 +247,58 @@ function EmployeeDashboard() {
                                         title="Delete Ride"
                                     >
                                         <FaTrash /> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+            <section className="max-w-4xl mx-auto mt-10 mb-10">
+                <h3 className="text-2xl font-bold text-green-700 mb-4 text-center">Rides You've Joined</h3>
+                {joinedRides.length === 0 ? (
+                    <p className="text-gray-500 text-center">You haven’t joined any rides yet.</p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {joinedRides.map((ride) => (
+                            <div
+                                key={ride.id}
+                                className="bg-green-50 rounded-2xl shadow-lg p-6 flex flex-col gap-2 hover:shadow-2xl transition border border-green-200 group"
+                            >
+                                <div className="flex items-center gap-3 mb-2">
+                                    <FaMapMarkerAlt className="text-green-500" />
+                                    <span className="font-semibold">{ride.origin}</span>
+                                    <span className="mx-2 text-gray-400">→</span>
+                                    <span className="font-semibold">{ride.destination}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <FaCalendarAlt className="text-purple-500" />
+                                    <span>{formatDate(ride.date)}</span>
+                                    <FaClock className="ml-4 text-yellow-500" />
+                                    <span>{formatTime(ride.arrivalTime)}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <FaCar className="text-gray-500" />
+                                    <span>{ride.carDetails}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <FaChair className="text-pink-500" />
+                                    <span>
+                            {ride.availableSeats}/{ride.totalSeats} seats available
+                        </span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${ride.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
+                            {ride.status || "Active"}
+                        </span>
+                                </div>
+                                <div className="flex gap-2 mt-3">
+                                    <button
+                                        onClick={() => handleLeave(ride.id)}
+                                        className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition"
+                                        title="Leave Ride"
+                                    >
+                                        <FaUser /> Leave
                                     </button>
                                 </div>
                             </div>

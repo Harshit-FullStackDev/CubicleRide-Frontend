@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
 import {
-    FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaSignOutAlt, FaArrowLeft, FaUser, FaCheckCircle
+    FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaSignOutAlt, FaArrowLeft, FaCheckCircle
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
