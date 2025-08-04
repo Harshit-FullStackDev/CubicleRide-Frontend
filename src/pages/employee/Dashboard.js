@@ -1,7 +1,11 @@
+// src/pages/employee/Dashboard.js
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import { FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTrash, FaBell, FaEnvelope } from "react-icons/fa";
+import {
+    FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock,
+    FaEdit, FaTrash, FaBell, FaEnvelope, FaCheckCircle
+} from "react-icons/fa";
 
 function EmployeeDashboard() {
     const navigate = useNavigate();
@@ -13,6 +17,7 @@ function EmployeeDashboard() {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [lastLogin, setLastLogin] = useState("");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -24,6 +29,7 @@ function EmployeeDashboard() {
         setEmpEmail(localStorage.getItem("email") || "employee@company.com");
         const id = localStorage.getItem("empId") || "";
         setEmpId(id);
+        setLastLogin(localStorage.getItem("lastLogin") || new Date().toLocaleString());
         fetchDashboardData(id);
     }, [navigate]);
 
@@ -64,7 +70,7 @@ function EmployeeDashboard() {
         if (!window.confirm("Are you sure you want to delete this ride?")) return;
         try {
             await api.delete(`/ride/${id}`);
-            fetchDashboardData(empId); // Use empId state here
+            fetchDashboardData(empId);
         } catch (err) {
             alert("Failed to delete ride.");
         }
@@ -75,9 +81,9 @@ function EmployeeDashboard() {
         return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
     };
 
-    const formatTime = (timeStr) => {
-        return timeStr?.slice(0, 5); // HH:mm
-    };
+    const formatTime = (timeStr) => timeStr?.slice(0, 5);
+
+    const getInitials = (name) => name.split(" ").map(n => n[0]).join("").toUpperCase();
 
     if (loading) return <div className="text-center mt-10 text-lg text-blue-700 animate-pulse">Loading dashboard...</div>;
     if (error) return <div className="text-center text-red-600 mt-10">{error}</div>;
@@ -93,6 +99,7 @@ function EmployeeDashboard() {
                 <button
                     onClick={handleLogout}
                     className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-semibold transition"
+                    title="Logout"
                 >
                     <span className="mr-2">🔒</span> Logout
                 </button>
@@ -100,17 +107,24 @@ function EmployeeDashboard() {
             {/* Profile Card */}
             <section className="max-w-4xl mx-auto mt-8">
                 <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row items-center gap-8 p-8 border border-blue-100">
-                    <img
-                        src="/orangemantra%20Logo.png"
-                        alt="Avatar"
-                        className="w-24 h-24 rounded-full border-4 border-blue-400 shadow"
-                    />
+                    {empName !== "Employee" ? (
+                        <img
+                            src="/orangemantra%20Logo.png"
+                            alt="Avatar"
+                            className="w-24 h-24 rounded-full border-4 border-blue-400 shadow"
+                        />
+                    ) : (
+                        <div className="w-24 h-24 rounded-full bg-blue-200 flex items-center justify-center text-3xl font-bold text-blue-700 border-4 border-blue-400 shadow">
+                            {getInitials(empName)}
+                        </div>
+                    )}
                     <div className="flex-1">
                         <h2 className="text-2xl font-bold text-blue-700">{empName}</h2>
                         <div className="flex items-center gap-2 text-gray-500 mt-1">
                             <FaEnvelope /> <span>{empEmail}</span>
                         </div>
                         <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Employee</span>
+                        <div className="mt-2 text-gray-400 text-sm">Last login: {lastLogin}</div>
                         <div className="flex gap-8 mt-4">
                             <div className="flex items-center gap-2">
                                 <FaCar className="text-blue-500" />
@@ -128,8 +142,8 @@ function EmployeeDashboard() {
             </section>
             {/* Notifications */}
             <section className="max-w-4xl mx-auto mt-6">
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-xl shadow flex items-center gap-4">
-                    <FaBell className="text-yellow-500 text-2xl" />
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-xl shadow flex items-center gap-4 animate-fade-in">
+                    <FaBell className="text-yellow-500 text-2xl animate-bounce" />
                     <div>
                         <h3 className="font-semibold text-yellow-700 mb-1">Notifications</h3>
                         {notifications.length === 0 ? (
@@ -137,7 +151,9 @@ function EmployeeDashboard() {
                         ) : (
                             <ul className="list-disc pl-5 space-y-1">
                                 {notifications.map((n) => (
-                                    <li key={n.id} className="text-gray-700">{n.message}</li>
+                                    <li key={n.id} className="text-gray-700 flex items-center gap-2">
+                                        <FaCheckCircle className="text-green-400" /> {n.message}
+                                    </li>
                                 ))}
                             </ul>
                         )}
@@ -148,17 +164,17 @@ function EmployeeDashboard() {
             <section className="max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Link
                     to="/employee/offer"
-                    className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center hover:shadow-2xl transition border border-blue-100 hover:border-blue-300"
+                    className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center hover:shadow-2xl transition border border-blue-100 hover:border-blue-300 group"
                 >
-                    <FaCar className="text-blue-500 text-4xl mb-2" />
+                    <FaCar className="text-blue-500 text-4xl mb-2 group-hover:scale-110 transition-transform" />
                     <h3 className="text-xl font-bold text-gray-800 mb-1">Offer a Ride</h3>
                     <p className="text-gray-600 text-center">Have a seat available? Let others join you!</p>
                 </Link>
                 <Link
                     to="/employee/join"
-                    className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center hover:shadow-2xl transition border border-green-100 hover:border-green-300"
+                    className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center hover:shadow-2xl transition border border-green-100 hover:border-green-300 group"
                 >
-                    <FaUser className="text-green-500 text-4xl mb-2" />
+                    <FaUser className="text-green-500 text-4xl mb-2 group-hover:scale-110 transition-transform" />
                     <h3 className="text-xl font-bold text-gray-800 mb-1">Join a Ride</h3>
                     <p className="text-gray-600 text-center">Looking for a ride? Find one nearby!</p>
                 </Link>
@@ -173,7 +189,7 @@ function EmployeeDashboard() {
                         {publishedRides.map((ride) => (
                             <div
                                 key={ride.id}
-                                className="bg-white rounded-2xl shadow-lg p-6 flex flex-col gap-2 hover:shadow-2xl transition border border-gray-100 hover:border-blue-200"
+                                className="bg-white rounded-2xl shadow-lg p-6 flex flex-col gap-2 hover:shadow-2xl transition border border-gray-100 hover:border-blue-200 group"
                             >
                                 <div className="flex items-center gap-3 mb-2">
                                     <FaMapMarkerAlt className="text-green-500" />
@@ -206,12 +222,14 @@ function EmployeeDashboard() {
                                     <button
                                         onClick={() => handleEdit(ride.id)}
                                         className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition"
+                                        title="Edit Ride"
                                     >
                                         <FaEdit /> Edit
                                     </button>
                                     <button
                                         onClick={() => handleDelete(ride.id)}
                                         className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition"
+                                        title="Delete Ride"
                                     >
                                         <FaTrash /> Delete
                                     </button>
