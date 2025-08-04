@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaMapMarkerAlt } from "react-icons/fa";
 
 function Login() {
-    const [data, setData] = useState({ email: "", password: "" });
+    const [data, setData] = useState({ email: "", password: "", pickup: "", drop: "" });
+    const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -13,6 +14,10 @@ function Login() {
         const role = localStorage.getItem("role");
         if (token && role === "EMPLOYEE") navigate("/employee/dashboard");
         else if (token && role === "ADMIN") navigate("/admin/dashboard");
+
+        api.get("/locations")
+            .then(res => setLocations(res.data))
+            .catch(err => console.error("Locations load failed", err));
     }, [navigate]);
 
     const handleChange = (e) =>
@@ -22,22 +27,22 @@ function Login() {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await api.post("/auth/login", data);
+            const res = await api.post("/auth/login", {
+                email: data.email,
+                password: data.password
+            });
             const token = res.data.token;
             localStorage.setItem("token", token);
             const payload = JSON.parse(atob(token.split(".")[1]));
-            const role = payload.role;
-            const empId = payload.empId;
-            const name = payload.name;
-            localStorage.setItem("role", role);
-            if (role === "EMPLOYEE") localStorage.setItem("empId", empId);
-            else if (role === "ADMIN") localStorage.setItem("adminId", empId);
-            localStorage.setItem("empId", empId);
-            if (name) localStorage.setItem("name", name);
+            localStorage.setItem("role", payload.role);
+            localStorage.setItem("empId", payload.empId);
+            localStorage.setItem("name", payload.name);
             localStorage.setItem("email", data.email);
-            if (role === "EMPLOYEE") navigate("/employee/dashboard");
-            else if (role === "ADMIN") navigate("/admin/dashboard");
-            else alert("Unknown role");
+            localStorage.setItem("pickup", data.pickup);
+            localStorage.setItem("drop", data.drop);
+
+            if (payload.role === "EMPLOYEE") navigate("/employee/dashboard");
+            else navigate("/admin/dashboard");
         } catch {
             alert("Invalid credentials");
         } finally {
@@ -49,7 +54,8 @@ function Login() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
             <div className="bg-white bg-opacity-95 p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center">
                 <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
-                <h2 className="text-3xl font-bold text-orange-500 mb-6 text-center">Employee Login</h2>
+                <h2 className="text-3xl font-bold text-orange-500 mb-6 text-center">Welcome Back!</h2>
+                <p className="mb-6 text-gray-600 text-center">Login to continue and select your ride locations.</p>
                 {loading ? (
                     <div className="text-center text-orange-600 text-xl font-semibold animate-pulse">
                         Logging in, please wait...
@@ -58,30 +64,34 @@ function Login() {
                     <form onSubmit={handleSubmit} className="space-y-4 w-full">
                         <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
                             <FaEnvelope className="text-orange-400" />
-                            <input
-                                name="email"
-                                placeholder="Email"
-                                onChange={handleChange}
-                                required
-                                type="email"
-                                className="bg-transparent w-full outline-none"
-                            />
+                            <input name="email" type="email" placeholder="Email"
+                                   className="bg-transparent w-full outline-none"
+                                   value={data.email} onChange={handleChange} required />
                         </div>
                         <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
                             <FaLock className="text-orange-400" />
-                            <input
-                                name="password"
-                                placeholder="Password"
-                                type="password"
-                                onChange={handleChange}
-                                required
-                                className="bg-transparent w-full outline-none"
-                            />
+                            <input name="password" type="password" placeholder="Password"
+                                   className="bg-transparent w-full outline-none"
+                                   value={data.password} onChange={handleChange} required />
                         </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-orange-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-semibold mt-2"
-                        >
+                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                            <FaMapMarkerAlt className="text-green-500" />
+                            <select name="pickup" value={data.pickup} onChange={handleChange} required
+                                    className="bg-transparent w-full outline-none">
+                                <option value="">Select Pickup Location</option>
+                                {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                            <FaMapMarkerAlt className="text-red-500" />
+                            <select name="drop" value={data.drop} onChange={handleChange} required
+                                    className="bg-transparent w-full outline-none">
+                                <option value="">Select Drop Location</option>
+                                {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+                            </select>
+                        </div>
+                        <button type="submit"
+                                className="w-full bg-orange-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-semibold mt-2">
                             Login
                         </button>
                         <p className="text-center text-sm mt-4 text-gray-600">

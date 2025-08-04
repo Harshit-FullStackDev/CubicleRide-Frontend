@@ -6,11 +6,14 @@ import api from "../../api/axios";
 function EditRide() {
     const { id } = useParams();
     const navigate = useNavigate();
+
     const [ride, setRide] = useState(null);
+    const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
 
+    // Fetch ride details
     useEffect(() => {
         const fetchRide = async () => {
             try {
@@ -25,6 +28,19 @@ function EditRide() {
         };
         fetchRide();
     }, [id, navigate]);
+
+    // Fetch location list
+    useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+                const res = await api.get("/locations");
+                setLocations(res.data);
+            } catch (err) {
+                console.error("Failed to load locations", err);
+            }
+        };
+        fetchLocations();
+    }, []);
 
     const handleChange = (e) => {
         setRide({ ...ride, [e.target.name]: e.target.value });
@@ -61,12 +77,11 @@ function EditRide() {
         }
     };
 
-    if (loading) return (
+    if (loading || !ride) return (
         <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
     );
-    if (!ride) return null;
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
@@ -80,28 +95,38 @@ function EditRide() {
                             <label className="block mb-1 font-medium flex items-center gap-1">
                                 <FaMapMarkerAlt /> Origin
                             </label>
-                            <input
+                            <select
                                 name="origin"
                                 value={ride.origin}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded"
-                                placeholder="Origin"
-                            />
+                            >
+                                <option value="">Select Origin</option>
+                                {locations.map((loc) => (
+                                    <option key={loc.id} value={loc.name}>{loc.name}</option>
+                                ))}
+                            </select>
                             {errors.origin && <span className="text-red-500 text-xs">{errors.origin}</span>}
                         </div>
+
                         <div>
                             <label className="block mb-1 font-medium flex items-center gap-1">
                                 <FaMapMarkerAlt /> Destination
                             </label>
-                            <input
+                            <select
                                 name="destination"
                                 value={ride.destination}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded"
-                                placeholder="Destination"
-                            />
+                            >
+                                <option value="">Select Destination</option>
+                                {locations.map((loc) => (
+                                    <option key={loc.id} value={loc.name}>{loc.name}</option>
+                                ))}
+                            </select>
                             {errors.destination && <span className="text-red-500 text-xs">{errors.destination}</span>}
                         </div>
+
                         <div>
                             <label className="block mb-1 font-medium flex items-center gap-1">
                                 <FaCalendarAlt /> Date
@@ -115,6 +140,7 @@ function EditRide() {
                             />
                             {errors.date && <span className="text-red-500 text-xs">{errors.date}</span>}
                         </div>
+
                         <div>
                             <label className="block mb-1 font-medium flex items-center gap-1">
                                 <FaClock /> Arrival Time
@@ -128,6 +154,7 @@ function EditRide() {
                             />
                             {errors.arrivalTime && <span className="text-red-500 text-xs">{errors.arrivalTime}</span>}
                         </div>
+
                         <div>
                             <label className="block mb-1 font-medium flex items-center gap-1">
                                 <FaCar /> Car Details
@@ -141,6 +168,7 @@ function EditRide() {
                             />
                             {errors.carDetails && <span className="text-red-500 text-xs">{errors.carDetails}</span>}
                         </div>
+
                         <div>
                             <label className="block mb-1 font-medium flex items-center gap-1">
                                 <FaUsers /> Total Seats
@@ -149,6 +177,7 @@ function EditRide() {
                                 name="totalSeats"
                                 type="number"
                                 min={1}
+                                max={8}
                                 value={ride.totalSeats}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded"
@@ -156,6 +185,7 @@ function EditRide() {
                             />
                             {errors.totalSeats && <span className="text-red-500 text-xs">{errors.totalSeats}</span>}
                         </div>
+
                         <div>
                             <label className="block mb-1 font-medium flex items-center gap-1">
                                 <FaUsers /> Available Seats
@@ -173,6 +203,7 @@ function EditRide() {
                             {errors.availableSeats && <span className="text-red-500 text-xs">{errors.availableSeats}</span>}
                         </div>
                     </div>
+
                     <div className="flex gap-4 mt-6">
                         <button
                             type="submit"
