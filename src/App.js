@@ -11,6 +11,8 @@ import ViewRides from "./pages/admin/ViewRides";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditRide from "./pages/employee/EditRide";
 import EditEmployee from "./pages/admin/EditEmployee";
+import OtpVerify from "./components/OTPVerify";
+
 function App() {
   return (
       <Routes>
@@ -45,6 +47,7 @@ function App() {
             element={<ProtectedRoute role="ADMIN"><ViewRides /></ProtectedRoute>}
         />
             <Route path="/employee/edit/:id" element={<EditRide />} />
+          <Route path="/otp-verify" element={<OtpVerify />} />
       </Routes>
   );
 }

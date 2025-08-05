@@ -28,8 +28,8 @@ function Register() {
         e.preventDefault();
         try {
             await api.post("/auth/register", data);
-            alert("Registered! Please login.");
-            navigate("/login");
+            alert("Registered! Please check your email for OTP.");
+            navigate("/otp-verify", { state: { email: data.email } });
         } catch (err) {
             alert("Registration failed");
         }
