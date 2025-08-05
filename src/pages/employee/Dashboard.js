@@ -243,11 +243,42 @@ function EmployeeDashboard() {
                                     <span>
                                         {ride.availableSeats}/{ride.totalSeats} seats available
                                     </span>
+                                    {/* Seat occupancy progress bar */}
+                                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
+                                        <div
+                                            className="h-2 bg-blue-400"
+                                            style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}
+                                        ></div>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${ride.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
-                                        {ride.status || "Active"}
+                                    <span className={`px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 ${ride.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
+                                        {ride.status === "Active" ? <FaCheckCircle className="text-green-500" /> : <FaClock className="text-gray-400" />} {ride.status || "Active"}
                                     </span>
+                                </div>
+                                {/* Show joined employees */}
+                                <div className="mt-2">
+                                    <h4 className="text-sm font-semibold text-blue-600 mb-1">Joined Employees:</h4>
+                                    {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
+                                        <ul className="pl-4 list-disc text-sm text-gray-700">
+                                            {ride.joinedEmployees.map(emp => (
+                                                <li key={emp.empId} className="flex items-center gap-2" title={`Email: ${emp.email || 'N/A'}`}>
+                                                    {/* Show profile pic if available, else initials */}
+                                                    {emp.profilePic ? (
+                                                        <img src={emp.profilePic} alt={emp.name} className="w-6 h-6 rounded-full border-2 border-blue-300" />
+                                                    ) : (
+                                                        <div className="w-6 h-6 rounded-full bg-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 border-2 border-blue-300">
+                                                            {emp.name ? emp.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
+                                                        </div>
+                                                    )}
+                                                    <span className="font-bold" title={emp.name}>{emp.name || "Unknown"}</span>
+                                                    <span className="text-xs text-gray-500">({emp.empId})</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <span className="text-xs text-gray-400">No employees have joined this ride yet.</span>
+                                    )}
                                 </div>
                                 <div className="flex gap-2 mt-3">
                                     <button
