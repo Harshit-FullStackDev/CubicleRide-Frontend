@@ -271,7 +271,7 @@ function EmployeeDashboard() {
                                                             {emp.name ? emp.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
                                                         </div>
                                                     )}
-                                                    <span className="font-bold" title={emp.name}>{emp.name || "Unknown"}</span>
+                                                    <span className="font-bold" title={emp.name}>{emp.name}</span>
                                                     <span className="text-xs text-gray-500">({emp.empId})</span>
                                                 </li>
                                             ))}
