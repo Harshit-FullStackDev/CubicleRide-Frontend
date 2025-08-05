@@ -75,6 +75,7 @@ function JoinRide() {
                     {rides.map(ride => {
                         const isFull = ride.availableSeats === 0;
                         const isOwn = ride.ownerEmpId === empId;
+                        const hasJoined = ride.joinedEmpIds?.includes(empId);
                         return (
                             <div key={ride.id}
                                  className={`bg-blue-50 rounded-xl p-5 flex justify-between items-center border-2 transition-all ${
@@ -108,17 +109,17 @@ function JoinRide() {
                                             isFull ? "bg-red-100 text-red-700" :
                                                 "bg-green-100 text-green-700"
                                     }`}>
-                                        {isOwn ? "Your Ride" : (isFull ? "Full" : "Available")}
+                                        {isOwn ? "Your Ride" : (isFull ? "Full" : (hasJoined ? "Already Joined" : "Available"))}
                                     </span>
                                     <button
                                         onClick={() => joinRide(ride.id, ride)}
-                                        disabled={isFull || isOwn}
+                                        disabled={isFull || isOwn || hasJoined}
                                         className={`px-6 py-2 rounded font-semibold transition ${
-                                            (isFull || isOwn) ? "bg-gray-300 text-gray-500 cursor-not-allowed" :
+                                            (isFull || isOwn || hasJoined) ? "bg-gray-300 text-gray-500 cursor-not-allowed" :
                                                 "bg-blue-600 hover:bg-blue-700 text-white"
                                         }`}
                                     >
-                                        {isOwn ? "Your Ride" : (isFull ? "Full" : "Join")}
+                                        {isOwn ? "Your Ride" : (isFull ? "Full" : (hasJoined ? "Already Joined" : "Join"))}
                                     </button>
                                 </div>
                             </div>
