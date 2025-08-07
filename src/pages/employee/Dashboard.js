@@ -1,12 +1,10 @@
-// src/pages/employee/Dashboard.js
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import {
     FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock,
-    FaEdit, FaTrash, FaBell,FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers
+    FaEdit, FaTrash, FaBell, FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers
 } from "react-icons/fa";
-
 
 function EmployeeDashboard() {
     const navigate = useNavigate();
@@ -248,19 +246,25 @@ function EmployeeDashboard() {
                                             {ride.status === "Active" ? <FaCheckCircle className="text-green-500" /> : <FaClock className="text-gray-400" />} {ride.status || "Active"}
                                         </span>
                                     </div>
-                                    {/* Joined Employees Avatars */}
-                                    <div className="flex items-center gap-2 mt-2">
+                                    {/* Owner info */}
+                                    <div className="mt-2 text-xs text-blue-700">
+                                        <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                    </div>
+                                    {/* Joined Employees Avatars + Details */}
+                                    <div className="flex flex-col gap-1 mt-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-semibold text-blue-700">Joined Employees:</span>
+                                        </div>
                                         {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
-                                            ride.joinedEmployees.slice(0, 3).map(emp => (
-                                                <div key={emp.empId} className="w-auto px-2 h-8 rounded-full bg-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 border-2 border-blue-300 shadow" title={emp.name}>
-                                                    {emp.name || 'Unknown'}
-                                                </div>
-                                            ))
+                                            <ul className="ml-2 list-disc text-xs text-gray-700">
+                                                {ride.joinedEmployees.map(emp => (
+                                                    <li key={emp.empId}>
+                                                        {emp.name} ({emp.empId})
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         ) : (
-                                            <span className="text-xs text-gray-400">No employees joined</span>
-                                        )}
-                                        {ride.joinedEmployees && ride.joinedEmployees.length > 3 && (
-                                            <span className="text-xs text-blue-600 font-bold ml-1">+{ride.joinedEmployees.length - 3}</span>
+                                            <span className="text-xs text-gray-400 ml-2">No employees joined</span>
                                         )}
                                     </div>
                                     {/* Actions */}
@@ -322,6 +326,27 @@ function EmployeeDashboard() {
                                             {ride.status || "Active"}
                                         </span>
                                     </div>
+                                    {/* Owner info */}
+                                    <div className="mt-2 text-xs text-blue-700">
+                                        <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                    </div>
+                                    {/* Joined Employees */}
+                                    <div className="mt-2">
+                                        <div className="flex items-center text-green-700 font-semibold text-xs mb-1">
+                                            <FaUsers className="mr-1" /> Joined Employees:
+                                        </div>
+                                        {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
+                                            <ul className="ml-6 list-disc text-xs text-gray-700">
+                                                {ride.joinedEmployees.map(emp => (
+                                                    <li key={emp.empId}>
+                                                        {emp.name} ({emp.empId})
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span className="ml-6 text-gray-400 text-xs">No one has joined yet.</span>
+                                        )}
+                                    </div>
                                     <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => handleLeave(ride.id)}
@@ -340,5 +365,5 @@ function EmployeeDashboard() {
         </div>
     );
 }
-
 export default EmployeeDashboard;
+

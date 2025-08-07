@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
 import {
-    FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaSignOutAlt, FaArrowLeft, FaCheckCircle
+    FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaSignOutAlt, FaArrowLeft, FaCheckCircle, FaUserFriends
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -75,10 +75,10 @@ function JoinRide() {
                     {rides.map(ride => {
                         const isFull = ride.availableSeats === 0;
                         const isOwn = ride.ownerEmpId === empId;
-                        const hasJoined = ride.joinedEmpIds?.includes(empId);
+                        const hasJoined = ride.joinedEmployees?.some(e => e.empId === empId);
                         return (
                             <div key={ride.id}
-                                 className={`bg-blue-50 rounded-xl p-5 flex justify-between items-center border-2 transition-all ${
+                                 className={`bg-blue-50 rounded-xl p-5 flex flex-col border-2 transition-all ${
                                      isFull ? "border-red-300 opacity-60" :
                                          isOwn ? "border-yellow-300 opacity-80" :
                                              "border-green-300 hover:shadow-2xl"
@@ -101,7 +101,26 @@ function JoinRide() {
                                             <FaCar /> {ride.carDetails}
                                             <FaChair /> {ride.availableSeats} seats left
                                         </div>
+                                        <div className="text-gray-700 text-xs mt-2">
+                                            <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                        </div>
                                     </div>
+                                </div>
+                                <div className="mt-3 mb-2">
+                                    <div className="flex items-center text-blue-600 font-semibold text-sm mb-1">
+                                        <FaUserFriends className="mr-1" /> Joined Employees:
+                                    </div>
+                                    {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
+                                        <ul className="ml-6 list-disc text-xs text-gray-700">
+                                            {ride.joinedEmployees.map(emp => (
+                                                <li key={emp.empId}>
+                                                    {emp.name} ({emp.empId})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <span className="ml-6 text-gray-400 text-xs">No one has joined yet.</span>
+                                    )}
                                 </div>
                                 <div className="flex flex-col items-end gap-2">
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold mb-2 ${
@@ -135,3 +154,4 @@ function JoinRide() {
 }
 
 export default JoinRide;
+
