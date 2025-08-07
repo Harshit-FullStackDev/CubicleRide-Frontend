@@ -47,9 +47,9 @@ function Register() {
             justifyContent: "center",
             padding: "1rem"
         }}>
-            <div className="bg-white bg-opacity-95 p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center">
+            <div className=" p-8 rounded-2xl shadow-1xl w-full max-w-md flex flex-col items-center">
                 <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
-                <h2 className="text-3xl font-bold text-orange-500 mb-6 text-center">Employee Registration</h2>
+                <h2 className="text-2xl font-bold text-orange-500 mb-6 text-center px-6 font-serif">Employee Registration</h2>
                 <form onSubmit={handleSubmit} className="space-y-4 w-full">
                     <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
                         <FaIdBadge className="text-orange-400" />

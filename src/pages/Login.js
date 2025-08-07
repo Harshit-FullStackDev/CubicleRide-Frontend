@@ -64,7 +64,7 @@ function Login() {
         }}>
             <div className="bg-white-400 bg-opacity-95 p-8 rounded-2xl shadow-1xl w-fit max-w-md flex flex-col items-center">
                 <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
-                <h2 className="text-3xl font-bold text-orange-500 mb-6 text-center">Welcome Back!</h2>
+                <h2 className="text-3xl font-bold text-orange-500 mb-6 text-center font-serif italic">Welcome Back!</h2>
                 <p className="mb-6 text-white font-bold text-center">Login to continue and select your ride locations.</p>
                 {loading ? (
                     <div className="text-center text-orange-600 text-xl font-semibold animate-pulse">
