@@ -126,10 +126,10 @@ function EmployeeDashboard() {
                     <img src="/orangemantra%20Logo.png" alt="Logo" className="w-10 h-10 rounded-full shadow-lg border-2 border-blue-200" />
                     <span className="text-2xl font-bold text-orange-500 tracking-tight select-none">Orange<span className='text-blue-400'>Mantra</span></span>
                 </div>
-                <nav className="flex flex-col gap-4 text-blue-700 font-semibold">
-                    <Link to="/employee/dashboard" className="flex items-center gap-3 hover:text-blue-900 transition"><FaUser /> Dashboard</Link>
-                    <Link to="/employee/offer" className="flex items-center gap-3 hover:text-blue-900 transition"><FaPlus /> Offer a Ride</Link>
-                    <Link to="/employee/join" className="flex items-center gap-3 hover:text-blue-900 transition"><FaUsers /> Join a Ride</Link>
+                <nav className="flex flex-col gap-4 text-orange-500 font-semibold">
+                    <Link to="/employee/dashboard" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUser /> Dashboard</Link>
+                    <Link to="/employee/offer" className="flex items-center gap-3 hover:text-orange-400 transition"><FaPlus /> Offer a Ride</Link>
+                    <Link to="/employee/join" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUsers /> Join a Ride</Link>
                 </nav>
                 <div className="mt-auto flex flex-col gap-2">
                     <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold shadow hover:from-red-600 hover:to-orange-600 transition"><FaSignOutAlt /> Logout</button>
