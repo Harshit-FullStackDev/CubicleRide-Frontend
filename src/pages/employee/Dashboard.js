@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import {
     FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock,
-    FaEdit, FaTrash, FaBell, FaEnvelope, FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers
+    FaEdit, FaTrash, FaBell,FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers
 } from "react-icons/fa";
 
 
@@ -117,12 +117,14 @@ function EmployeeDashboard() {
     if (error) return <div className="flex items-center justify-center min-h-screen text-red-600 text-lg">{error}</div>;
 
     return (
-        <div className="min-h-screen flex bg-gradient-to-br from-blue-50 via-white to-blue-100">
+        <div className="min-h-screen flex bg-gradient-to-br from-blue-50 via-white to-blue-100 relative overflow-hidden">
+            {/* Background image */}
+            <img src="/microsoft.jpg" alt="background" className="fixed inset-0 w-full h-full object-cover z-0 opacity-60 pointer-events-none select-none" style={{filter: 'blur(2px)'}} />
             {/* Sidebar */}
             <aside className={`fixed z-30 top-0 left-0 h-full w-64 p-6 flex flex-col gap-8 ${glass} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>
                 <div className="flex items-center gap-3 mb-8">
-                    <img src="/logo192.png" alt="Logo" className="w-10 h-10 rounded-full shadow-lg border-2 border-blue-200" />
-                    <span className="text-2xl font-extrabold text-blue-700 tracking-tight select-none">Carpool<span className='text-orange-500'>Pro</span></span>
+                    <img src="/orangemantra%20Logo.png" alt="Logo" className="w-10 h-10 rounded-full shadow-lg border-2 border-blue-200" />
+                    <span className="text-2xl font-bold text-orange-500 tracking-tight select-none">Orange<span className='text-blue-400'>Mantra</span></span>
                 </div>
                 <nav className="flex flex-col gap-4 text-blue-700 font-semibold">
                     <Link to="/employee/dashboard" className="flex items-center gap-3 hover:text-blue-900 transition"><FaUser /> Dashboard</Link>

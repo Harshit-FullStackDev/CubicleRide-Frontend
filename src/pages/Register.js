@@ -38,7 +38,7 @@ function Register() {
     return (
         <div style={{
             minHeight: "100vh",
-            backgroundImage: "url('/microsoft-background.jpg')",
+            backgroundImage: "url('/microsoft-background.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
