@@ -113,24 +113,26 @@ function EmployeeDashboard() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-0">
-            {/* Navbar */}
-
-            <nav className="flex justify-between items-center bg-white bg-opacity-95 shadow-md px-8 py-4 sticky top-0 z-10">
-                <h1 className="text-2xl font-bold text-blue-700 flex items-center gap-2">
-                    <img src="/orangemantra%20Logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
-                    Orangemantra Carpool
-                </h1>
-                <button
-                    onClick={handleLogout}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-semibold transition"
-                    title="Logout"
-                >
-                    <span className="mr-2">🔒</span> Logout
-                </button>
+            {/* Navbar - Modern, glassmorphic, shadow, rounded, mobile responsive */}
+            <nav className="flex flex-wrap justify-between items-center bg-white/70 backdrop-blur-md shadow-xl rounded-b-2xl px-4 md:px-10 py-3 md:py-5 sticky top-0 z-20 border-b border-blue-100">
+                <div className="flex items-center gap-3">
+                    <img src="/orangemantra%20Logo.png" alt="Logo" className="w-10 h-10 rounded-full shadow-lg border-2 border-blue-200" />
+                    <span className="text-2xl md:text-3xl font-extrabold text-blue-700 tracking-tight drop-shadow-sm select-none">Orangemantra <span className='text-orange-500'>Carpool</span></span>
+                </div>
+                <div className="flex items-center gap-2 md:gap-4">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 md:px-6 py-2 rounded-xl font-bold shadow-lg transition-all duration-200 text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-red-300"
+                        title="Logout"
+                    >
+                        <span className="text-lg md:text-xl">🔒</span>
+                        <span className="hidden sm:inline">Logout</span>
+                    </button>
+                </div>
             </nav>
             {/* Profile Card */}
-            <section className="max-w-4xl mx-auto mt-8">
-                <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row items-center gap-8 p-8 border border-blue-100">
+            <section className="max-w-4xl mx-auto mt-6 md:mt-8 px-2 md:px-0">
+                <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row items-center gap-6 md:gap-8 p-4 md:p-8 border border-blue-100 w-full">
                     {empName !== "Employee" ? (
                         <img
                             src="/orangemantra%20Logo.png"
@@ -165,8 +167,8 @@ function EmployeeDashboard() {
                 </div>
             </section>
             {/* Notifications */}
-            <section className="max-w-4xl mx-auto mt-6">
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-xl shadow flex items-center gap-4 animate-fade-in">
+            <section className="max-w-4xl mx-auto mt-4 md:mt-6 px-2 md:px-0">
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 md:p-4 rounded-xl shadow flex flex-col md:flex-row items-center gap-3 md:gap-4 animate-fade-in">
                     <FaBell className="text-yellow-500 text-2xl animate-bounce" />
                     <div>
                         <h3 className="font-semibold text-yellow-700 mb-1">Notifications</h3>
@@ -192,7 +194,7 @@ function EmployeeDashboard() {
                 </div>
             </section>
             {/* Dashboard Actions */}
-            <section className="max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <section className="max-w-4xl mx-auto mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 px-2 md:px-0">
                 <Link
                     to="/employee/offer"
                     className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center hover:shadow-2xl transition border border-blue-100 hover:border-blue-300 group"
@@ -211,7 +213,7 @@ function EmployeeDashboard() {
                 </Link>
             </section>
             {/* Published Rides */}
-            <section className="max-w-4xl mx-auto mt-10 mb-10">
+            <section className="max-w-4xl mx-auto mt-8 md:mt-10 mb-8 md:mb-10 px-2 md:px-0">
                 <h3 className="text-2xl font-bold text-blue-700 mb-4 text-center">Your Published Rides</h3>
                 {publishedRides.length === 0 ? (
                     <p className="text-gray-500 text-center">You haven’t published any rides yet.</p>
@@ -301,7 +303,7 @@ function EmployeeDashboard() {
                     </div>
                 )}
             </section>
-            <section className="max-w-4xl mx-auto mt-10 mb-10">
+            <section className="max-w-4xl mx-auto mt-8 md:mt-10 mb-8 md:mb-10 px-2 md:px-0">
                 <h3 className="text-2xl font-bold text-green-700 mb-4 text-center">Rides You've Joined</h3>
                 {joinedRides.length === 0 ? (
                     <p className="text-gray-500 text-center">You haven’t joined any rides yet.</p>
