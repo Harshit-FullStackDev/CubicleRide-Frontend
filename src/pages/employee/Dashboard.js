@@ -13,8 +13,7 @@ function EmployeeDashboard() {
     const [empId, setEmpId] = useState("");
     const [publishedRides, setPublishedRides] = useState([]);
     const [joinedRides, setJoinedRides] = useState([]);
-    const [stats, setStats] = useState({ total: 0, seats: 0 });
-    const [notifications, setNotifications] = useState([]);
+    const [stats, setStats] = useState({ total: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastLogin, setLastLogin] = useState("");
@@ -37,22 +36,14 @@ function EmployeeDashboard() {
     const fetchDashboardData = async (empId) => {
         setLoading(true);
         try {
-            const [ridesRes, joinedRes, notifRes] = await Promise.all([
+            const [ridesRes, joinedRes] = await Promise.all([
                 api.get("/ride/my-rides"),
-                api.get(`/ride/joined/${empId}`),
-                api.get(`/notifications/${empId}`).catch(() => ({
-                    data: [
-                        { id: 1, message: "Your ride to Noida was joined by 2 employees." },
-                        { id: 2, message: "You have 1 new ride request." }
-                    ]
-                }))
+                api.get(`/ride/joined/${empId}`)
             ]);
             setPublishedRides(ridesRes.data);
             setJoinedRides(joinedRes.data);
             let total = ridesRes.data.length;
-            let seats = ridesRes.data.reduce((sum, ride) => sum + ride.availableSeats, 0);
-            setStats({ total, seats });
-            setNotifications(notifRes.data);
+            setStats({ total });
             setError(null);
         } catch (err) {
             setError("Failed to load dashboard data.");
@@ -98,15 +89,6 @@ function EmployeeDashboard() {
 
     const getInitials = (name) => name.split(" ").map(n => n[0]).join("").toUpperCase();
 
-    const handleClearNotification = async (id) => {
-        try {
-            await api.delete(`/notifications/${id}`);
-            setNotifications(notifications.filter(n => n.id !== id));
-        } catch {
-            alert("Failed to clear notification.");
-        }
-    };
-
     // Animated card classes
     const cardAnim = "transition-all duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl";
     const glass = "bg-white/70 backdrop-blur-lg shadow-xl border border-blue-100";
@@ -128,6 +110,9 @@ function EmployeeDashboard() {
                     <Link to="/employee/dashboard" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUser /> Dashboard</Link>
                     <Link to="/employee/offer" className="flex items-center gap-3 hover:text-orange-400 transition"><FaPlus /> Offer a Ride</Link>
                     <Link to="/employee/join" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUsers /> Join a Ride</Link>
+                    <Link to="/employee/notifications" className="flex items-center gap-3 hover:text-orange-400 transition"><FaBell /> Notifications</Link>
+                    <Link to="/employee/history/published" className="flex items-center gap-3 hover:text-orange-400 transition"><FaCar /> Published History</Link>
+                    <Link to="/employee/history/joined" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUsers /> Joined History</Link>
                 </nav>
                 <div className="mt-auto flex flex-col gap-2">
                     <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold shadow hover:from-red-600 hover:to-orange-600 transition"><FaSignOutAlt /> Logout</button>
@@ -166,42 +151,16 @@ function EmployeeDashboard() {
                         <div className="text-3xl font-bold text-blue-700">{stats.total}</div>
                         <div className="text-gray-500 font-semibold">Rides Published</div>
                     </div>
-                    <div className={`${glass} ${cardAnim} flex flex-col items-center p-6 rounded-2xl text-center`}>
-                        <FaChair className="text-pink-500 text-4xl mb-2 animate-bounce" />
-                        <div className="text-3xl font-bold text-pink-600">{stats.seats}</div>
-                        <div className="text-gray-500 font-semibold">Seats Available</div>
-                    </div>
-                    <div className={`${glass} ${cardAnim} flex flex-col items-center p-6 rounded-2xl text-center relative`}>
-                        <FaBell className="text-yellow-500 text-4xl mb-2 animate-bounce" />
-                        <div className="text-3xl font-bold text-yellow-600">{notifications.length}</div>
-                        <div className="text-gray-500 font-semibold">Notifications</div>
-                        {notifications.length > 0 && <span className="absolute top-3 right-4 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full animate-pulse">{notifications.length}</span>}
-                    </div>
-                </section>
-                {/* Notifications */}
-                <section className="w-full max-w-6xl mx-auto mt-8 px-4 animate-fade-in-up">
-                    <div className={`${glass} ${cardAnim} rounded-2xl p-5 flex flex-col gap-2`}>
-                        <div className="flex items-center gap-2 mb-2">
-                            <FaBell className="text-yellow-500 text-xl animate-bounce" />
-                            <span className="font-semibold text-yellow-700">Notifications</span>
-                        </div>
-                        {notifications.length === 0 ? (
-                            <p className="text-gray-400">No new notifications.</p>
-                        ) : (
-                            <ul className="space-y-2">
-                                {notifications.map((n) => (
-                                    <li key={n.id} className="flex items-center gap-2 bg-yellow-50 rounded-lg px-3 py-2 shadow-sm">
-                                        <FaCheckCircle className="text-green-400" /> {n.message}
-                                        <button
-                                            onClick={() => handleClearNotification(n.id)}
-                                            className="ml-auto text-red-500 hover:text-red-700 text-lg font-bold"
-                                            title="Clear Notification"
-                                        >&#10006;</button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
+                    <Link to="/employee/notifications" className={`${glass} ${cardAnim} flex flex-col items-center p-6 rounded-2xl text-center`}>
+                        <FaBell className="text-yellow-500 text-4xl mb-2" />
+                        <div className="text-xl font-bold text-yellow-600">View Notifications</div>
+                        <div className="text-gray-500 font-semibold">Go to notifications</div>
+                    </Link>
+                    <Link to="/employee/history/joined" className={`${glass} ${cardAnim} flex flex-col items-center p-6 rounded-2xl text-center`}>
+                        <FaUsers className="text-green-500 text-4xl mb-2" />
+                        <div className="text-xl font-bold text-green-700">Joined Rides History</div>
+                        <div className="text-gray-500 font-semibold">See past joined rides</div>
+                    </Link>
                 </section>
                 {/* Published Rides */}
                 <section className="w-full max-w-6xl mx-auto mt-10 px-4 animate-fade-in-up">

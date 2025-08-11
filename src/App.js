@@ -12,6 +12,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import EditRide from "./pages/employee/EditRide";
 import EditEmployee from "./pages/admin/EditEmployee";
 import OtpVerify from "./components/OTPVerify";
+import Notifications from "./pages/employee/Notifications";
+import PublishedHistory from "./pages/employee/PublishedHistory";
+import JoinedHistory from "./pages/employee/JoinedHistory";
 
 function App() {
   return (
@@ -32,6 +35,18 @@ function App() {
         <Route
             path="/employee/join"
             element={<ProtectedRoute role="EMPLOYEE"><JoinRide /></ProtectedRoute>}
+        />
+        <Route
+            path="/employee/notifications"
+            element={<ProtectedRoute role="EMPLOYEE"><Notifications /></ProtectedRoute>}
+        />
+        <Route
+            path="/employee/history/published"
+            element={<ProtectedRoute role="EMPLOYEE"><PublishedHistory /></ProtectedRoute>}
+        />
+        <Route
+            path="/employee/history/joined"
+            element={<ProtectedRoute role="EMPLOYEE"><JoinedHistory /></ProtectedRoute>}
         />
           <Route path="/admin/employees/edit/:id" element={<EditEmployee />} />
         <Route

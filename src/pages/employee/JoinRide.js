@@ -9,23 +9,44 @@ function JoinRide() {
     const [rides, setRides] = useState([]);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [locations, setLocations] = useState([]);
+    const [filters, setFilters] = useState({ pickup: localStorage.getItem("pickup") || "", drop: localStorage.getItem("drop") || "" });
     const navigate = useNavigate();
     const empId = localStorage.getItem("empId");
-    const pickup = localStorage.getItem("pickup");
-    const drop = localStorage.getItem("drop");
 
     useEffect(() => {
         if (!empId) {
             navigate("/login");
             return;
         }
-        api.get("/ride/all").then(res => {
-            const filtered = res.data.filter(r => r.origin === pickup && r.destination === drop);
-            setRides(filtered);
-        }).catch(() => {
+        api.get("/locations").then(res => setLocations(res.data)).catch(() => {});
+        loadRides();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [empId, navigate]);
+
+    const loadRides = async () => {
+        try {
+            const res = await api.get("/ride/all");
+            let list = res.data;
+            if (filters.pickup) list = list.filter(r => r.origin === filters.pickup);
+            if (filters.drop) list = list.filter(r => r.destination === filters.drop);
+            setRides(list);
+        } catch {
             setError("Failed to load rides.");
-        });
-    }, [pickup, drop, empId, navigate]);
+        }
+    };
+
+    const handleFilterChange = (e) => {
+        const next = { ...filters, [e.target.name]: e.target.value };
+        setFilters(next);
+        localStorage.setItem("pickup", next.pickup);
+        localStorage.setItem("drop", next.drop);
+    };
+
+    useEffect(() => {
+        loadRides();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters.pickup, filters.drop]);
 
     const joinRide = async (id, ride) => {
         setError("");
@@ -34,7 +55,10 @@ function JoinRide() {
             await api.post(`/ride/join/${id}`, { empId });
             setSuccess(`Joined ride from ${ride.origin} to ${ride.destination}!`);
             const updated = await api.get("/ride/all");
-            const filtered = updated.data.filter(r => r.origin === pickup && r.destination === drop);
+            const filtered = updated.data.filter(r => (
+                (!filters.pickup || r.origin === filters.pickup) &&
+                (!filters.drop || r.destination === filters.drop)
+            ));
             setRides(filtered);
         } catch {
             setError("Failed to join ride—maybe it's full or you're already in.");
@@ -55,7 +79,23 @@ function JoinRide() {
                     <FaArrowLeft /> Back
                 </button>
                 <h2 className="text-3xl font-bold text-blue-700 mb-4">Join a Ride</h2>
-                <p className="mb-6">Showing rides matching your <strong>{pickup}</strong> → <strong>{drop}</strong> preference</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaMapMarkerAlt className="text-green-500" />
+                        <select name="pickup" value={filters.pickup} onChange={handleFilterChange} className="bg-transparent w-full outline-none">
+                            <option value="">Select Pickup Location</option>
+                            {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+                        </select>
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+                        <FaMapMarkerAlt className="text-red-500" />
+                        <select name="drop" value={filters.drop} onChange={handleFilterChange} className="bg-transparent w-full outline-none">
+                            <option value="">Select Drop Location</option>
+                            {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+                        </select>
+                    </div>
+                </div>
+                <p className="mb-6">Showing rides {filters.pickup || filters.drop ? `matching ${filters.pickup || 'any'} → ${filters.drop || 'any'}` : 'for all locations'}</p>
 
                 {success && (
                     <div className="flex items-center bg-green-100 text-green-800 p-3 rounded mb-4 animate-bounce">
@@ -73,7 +113,7 @@ function JoinRide() {
 
                 <div className="space-y-4">
                     {rides.map(ride => {
-                        const isFull = ride.availableSeats === 0;
+                        const isFull = ride.availableSeats === 0 || (ride.status && ride.status !== "Active");
                         const isOwn = ride.ownerEmpId === empId;
                         const hasJoined = ride.joinedEmployees?.some(e => e.empId === empId);
                         return (
@@ -128,7 +168,7 @@ function JoinRide() {
                                             isFull ? "bg-red-100 text-red-700" :
                                                 "bg-green-100 text-green-700"
                                     }`}>
-                                        {isOwn ? "Your Ride" : (isFull ? "Full" : (hasJoined ? "Already Joined" : "Available"))}
+                                        {isOwn ? "Your Ride" : (isFull ? (ride.status && ride.status !== "Active" ? ride.status : "Full") : (hasJoined ? "Already Joined" : "Available"))}
                                     </span>
                                     <button
                                         onClick={() => joinRide(ride.id, ride)}
