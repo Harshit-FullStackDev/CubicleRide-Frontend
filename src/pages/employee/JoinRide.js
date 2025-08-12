@@ -26,7 +26,7 @@ function JoinRide() {
 
     const loadRides = async () => {
         try {
-            const res = await api.get("/ride/all");
+            const res = await api.get("/ride/active");
             let list = res.data;
             if (filters.pickup) list = list.filter(r => r.origin === filters.pickup);
             if (filters.drop) list = list.filter(r => r.destination === filters.drop);
@@ -54,7 +54,7 @@ function JoinRide() {
         try {
             await api.post(`/ride/join/${id}`, { empId });
             setSuccess(`Joined ride from ${ride.origin} to ${ride.destination}!`);
-            const updated = await api.get("/ride/all");
+            const updated = await api.get("/ride/active");
             const filtered = updated.data.filter(r => (
                 (!filters.pickup || r.origin === filters.pickup) &&
                 (!filters.drop || r.destination === filters.drop)
@@ -194,4 +194,3 @@ function JoinRide() {
 }
 
 export default JoinRide;
-

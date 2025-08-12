@@ -23,12 +23,42 @@ function OfferRide() {
     const [locations, setLocations] = useState([]);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
+    const [checking, setChecking] = useState(true);
+    const [activeRide, setActiveRide] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         api.get("/locations")
             .then(res => setLocations(res.data))
             .catch(() => setError("Failed to load locations"));
+    }, []);
+
+    // Check if user already has an active (upcoming) ride
+    useEffect(() => {
+        let ignore = false;
+        const fetchMyRides = async () => {
+            try {
+                const res = await api.get("/ride/my-rides");
+                const now = new Date();
+                const upcoming = res.data.filter(r => r.status === 'Active' && r.date && r.arrivalTime);
+                // Ensure still before arrival time
+                for (const r of upcoming) {
+                    try {
+                        const scheduled = new Date(`${r.date}T${r.arrivalTime}`);
+                        if (scheduled > now) {
+                            if (!ignore) setActiveRide(r);
+                            break;
+                        }
+                    } catch (e) { /* ignore parse issues */ }
+                }
+            } catch (e) {
+                // If unauthorized, show generic message handled later on submit
+            } finally {
+                if (!ignore) setChecking(false);
+            }
+        };
+        fetchMyRides();
+        return () => { ignore = true; };
     }, []);
 
     const handleChange = (e) => {
@@ -70,10 +100,48 @@ function OfferRide() {
                 carDetails: "",
                 totalSeats: 1,
             });
-        } catch {
-            setError("Failed to offer ride. Please try again.");
+        } catch (err) {
+            if (err.response && err.response.status === 409) {
+                setError(err.response.data && err.response.data.message ? err.response.data.message : "You already have a published ride. Please publish a new ride after the active ride ends.");
+            } else if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message);
+            } else {
+                setError("Failed to offer ride. Please try again.");
+            }
         }
     };
+
+    if (checking) {
+        return (
+            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full text-center">Checking your current rides...</div>
+            </div>
+        );
+    }
+
+    if (activeRide) {
+        return (
+            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full flex flex-col items-center">
+                    <button onClick={() => navigate(-1)} className="text-blue-600 mb-4 flex items-center self-start">
+                        <FaArrowLeft className="mr-2" /> Back
+                    </button>
+                    <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">Active Ride Already Published</h2>
+                    <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded w-full text-sm mb-4">
+                        You already have a published ride. Please publish a new ride after the active ride ends.
+                    </div>
+                    <div className="w-full text-left text-sm mb-4">
+                        <p className="font-semibold mb-1">Current Active Ride:</p>
+                        <p><strong>Route:</strong> {activeRide.origin} → {activeRide.destination}</p>
+                        <p><strong>Date:</strong> {activeRide.date} at {activeRide.arrivalTime}</p>
+                        <p><strong>Seats Left:</strong> {activeRide.availableSeats}</p>
+                    </div>
+                    <button onClick={() => navigate('/employee/dashboard')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition mb-2">Go to Dashboard</button>
+                    <button onClick={() => navigate('/employee/join')} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold transition">Browse Rides</button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
