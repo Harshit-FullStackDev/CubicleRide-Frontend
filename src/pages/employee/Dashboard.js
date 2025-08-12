@@ -90,8 +90,8 @@ function EmployeeDashboard() {
     const getInitials = (name) => name.split(" ").map(n => n[0]).join("").toUpperCase();
 
     // Animated card classes
-    const cardAnim = "transition-all duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl";
-    const glass = "bg-white/70 backdrop-blur-lg shadow-xl border border-blue-100";
+    const cardAnim = "transition-transform duration-300 ease-out transform hover:scale-[1.015]";
+    const glass = "om-glass";
 
     if (loading) return <div className="flex items-center justify-center min-h-screen text-blue-700 animate-pulse text-xl font-bold">Loading dashboard...</div>;
     if (error) return <div className="flex items-center justify-center min-h-screen text-red-600 text-lg">{error}</div>;
@@ -104,18 +104,18 @@ function EmployeeDashboard() {
             <aside className={`fixed z-30 top-0 left-0 h-full w-64 p-6 flex flex-col gap-8 ${glass} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>
                 <div className="flex items-center gap-3 mb-8">
                     <img src="/orangemantra%20Logo.png" alt="Logo" className="w-10 h-10 rounded-full shadow-lg border-2 border-blue-200" />
-                    <span className="text-2xl font-bold text-orange-500 tracking-tight select-none">Orange<span className='text-blue-400'>Mantra</span></span>
+                    <span className="text-2xl font-bold tracking-tight select-none bg-gradient-to-r from-orange-500 to-indigo-500 bg-clip-text text-transparent">Orange<span className='text-blue-400'>Mantra</span></span>
                 </div>
-                <nav className="flex flex-col gap-4 text-orange-500 font-semibold">
-                    <Link to="/employee/dashboard" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUser /> Dashboard</Link>
-                    <Link to="/employee/offer" className="flex items-center gap-3 hover:text-orange-400 transition"><FaPlus /> Offer a Ride</Link>
-                    <Link to="/employee/join" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUsers /> Join a Ride</Link>
-                    <Link to="/employee/notifications" className="flex items-center gap-3 hover:text-orange-400 transition"><FaBell /> Notifications</Link>
-                    <Link to="/employee/history/published" className="flex items-center gap-3 hover:text-orange-400 transition"><FaCar /> Published History</Link>
-                    <Link to="/employee/history/joined" className="flex items-center gap-3 hover:text-orange-400 transition"><FaUsers /> Joined History</Link>
+                <nav className="flex flex-col gap-2 font-medium">
+                    <Link to="/employee/dashboard" className="nav-link nav-link-active"><FaUser /> <span>Dashboard</span></Link>
+                    <Link to="/employee/offer" className="nav-link"><FaPlus /> <span>Offer a Ride</span></Link>
+                    <Link to="/employee/join" className="nav-link"><FaUsers /> <span>Join a Ride</span></Link>
+                    <Link to="/employee/notifications" className="nav-link"><FaBell /> <span>Notifications</span></Link>
+                    <Link to="/employee/history/published" className="nav-link"><FaCar /> <span>Published History</span></Link>
+                    <Link to="/employee/history/joined" className="nav-link"><FaUsers /> <span>Joined History</span></Link>
                 </nav>
                 <div className="mt-auto flex flex-col gap-2">
-                    <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold shadow hover:from-red-600 hover:to-orange-600 transition"><FaSignOutAlt /> Logout</button>
+                    <button onClick={handleLogout} className="btn btn-danger font-semibold"><FaSignOutAlt /> Logout</button>
                 </div>
             </aside>
             {/* Overlay for mobile sidebar */}
@@ -133,33 +133,55 @@ function EmployeeDashboard() {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="relative group">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-200 flex items-center justify-center text-xl font-bold text-white border-2 border-blue-300 cursor-pointer shadow-lg">
+                            <div className="icon-pill" style={{border:'2px solid #6366f1'}}>
                                 {getInitials(empName)}
                             </div>
                             <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg p-3 hidden group-hover:block z-50">
                                 <div className="text-blue-700 font-bold mb-2">{empName}</div>
                                 <div className="text-xs text-gray-500 mb-2">{empEmail}</div>
-                                <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold shadow hover:from-red-600 hover:to-orange-600 transition"><FaSignOutAlt /> Logout</button>
+                                <button onClick={handleLogout} className="btn btn-danger w-full justify-center font-semibold"><FaSignOutAlt /> Logout</button>
                             </div>
                         </div>
                     </div>
                 </header>
                 {/* Stats Cards */}
-                <section className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 px-4 animate-fade-in-up">
-                    <div className={`${glass} ${cardAnim} flex flex-col items-center p-6 rounded-2xl text-center`}>
-                        <FaCar className="text-blue-500 text-4xl mb-2 animate-bounce" />
-                        <div className="text-3xl font-bold text-blue-700">{stats.total}</div>
-                        <div className="text-gray-500 font-semibold">Rides Published</div>
+                <section className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 px-4 fade-in">
+                    <div className={`card card-gradient-blue ${cardAnim} text-center flex items-center gap-5`}>
+                        <div className="metric-pill">
+                            <small>Total</small>
+                            {stats.total}
+                            <FaCar className="metric-icon" />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <p className="text-sm tracking-wide text-subtle font-semibold uppercase">Published</p>
+                            <h3 className="text-lg font-bold text-indigo-700">Rides</h3>
+                            <p className="text-xs text-subtle mt-1">All rides you have offered.</p>
+                        </div>
                     </div>
-                    <Link to="/employee/notifications" className={`${glass} ${cardAnim} flex flex-col items-center p-6 rounded-2xl text-center`}>
-                        <FaBell className="text-yellow-500 text-4xl mb-2" />
-                        <div className="text-xl font-bold text-yellow-600">View Notifications</div>
-                        <div className="text-gray-500 font-semibold">Go to notifications</div>
+                    <Link to="/employee/notifications" className={`card card-gradient-amber ${cardAnim} text-center flex items-center gap-5`}>
+                        <div className="metric-pill orange">
+                            <small>Now</small>
+                            <FaBell className="metric-icon" />
+                            {/** Placeholder count if needed later */}
+                            <span style={{position:'absolute', inset:'0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem', fontWeight:700}}>⚡</span>
+                        </div>
+                        <div className="flex-1 text-left">
+                            <p className="text-sm tracking-wide text-subtle font-semibold uppercase">Notifications</p>
+                            <h3 className="text-lg font-bold text-amber-600">Updates</h3>
+                            <p className="text-xs text-subtle mt-1">See ride activity & alerts.</p>
+                        </div>
                     </Link>
-                    <Link to="/employee/history/joined" className={`${glass} ${cardAnim} flex flex-col items-center p-6 rounded-2xl text-center`}>
-                        <FaUsers className="text-green-500 text-4xl mb-2" />
-                        <div className="text-xl font-bold text-green-700">Joined Rides History</div>
-                        <div className="text-gray-500 font-semibold">See past joined rides</div>
+                    <Link to="/employee/history/joined" className={`card card-gradient-green ${cardAnim} text-center flex items-center gap-5`}>
+                        <div className="metric-pill green">
+                            <small>Joined</small>
+                            <FaUsers className="metric-icon" />
+                            <span style={{position:'absolute', inset:'0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem', fontWeight:700}}>👥</span>
+                        </div>
+                        <div className="flex-1 text-left">
+                            <p className="text-sm tracking-wide text-subtle font-semibold uppercase">History</p>
+                            <h3 className="text-lg font-bold text-green-700">Rides</h3>
+                            <p className="text-xs text-subtle mt-1">List of rides you joined.</p>
+                        </div>
                     </Link>
                 </section>
                 {/* Published Rides */}
@@ -192,17 +214,14 @@ function EmployeeDashboard() {
                                     </div>
                                     <div className="flex items-center gap-3 text-sm">
                                         <FaChair className="text-pink-500" />
-                                        <span>{ride.availableSeats}/{ride.totalSeats} seats available</span>
-                                        <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
-                                            <div
-                                                className="h-2 bg-blue-400 transition-all duration-500"
-                                                style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}
-                                            ></div>
+                                        <span>{ride.availableSeats}/{ride.totalSeats} seats</span>
+                                        <div className="progress-track ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
+                                            <div className="progress-bar" style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}></div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className={`px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 ${ride.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
-                                            {ride.status === "Active" ? <FaCheckCircle className="text-green-500" /> : <FaClock className="text-gray-400" />} {ride.status || "Active"}
+                                        <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>
+                                            {ride.status === 'Active' ? <FaCheckCircle /> : <FaClock />} {ride.status || 'Active'}
                                         </span>
                                     </div>
                                     {/* Owner info */}
@@ -228,20 +247,8 @@ function EmployeeDashboard() {
                                     </div>
                                     {/* Actions */}
                                     <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => handleEdit(ride.id)}
-                                            className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition"
-                                            title="Edit Ride"
-                                        >
-                                            <FaEdit /> Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(ride.id)}
-                                            className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition"
-                                            title="Delete Ride"
-                                        >
-                                            <FaTrash /> Delete
-                                        </button>
+                                        <button onClick={() => handleEdit(ride.id)} className="btn btn-primary text-xs"><FaEdit /> Edit</button>
+                                        <button onClick={() => handleDelete(ride.id)} className="btn btn-danger text-xs"><FaTrash /> Delete</button>
                                     </div>
                                 </div>
                             ))}
@@ -278,12 +285,13 @@ function EmployeeDashboard() {
                                     </div>
                                     <div className="flex items-center gap-3 text-sm">
                                         <FaChair className="text-pink-500" />
-                                        <span>{ride.availableSeats}/{ride.totalSeats} seats available</span>
+                                        <span>{ride.availableSeats}/{ride.totalSeats} seats</span>
+                                        <div className="progress-track ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
+                                            <div className="progress-bar" style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}></div>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${ride.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
-                                            {ride.status || "Active"}
-                                        </span>
+                                        <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>{ride.status || 'Active'}</span>
                                     </div>
                                     {/* Owner info */}
                                     <div className="mt-2 text-xs text-blue-700">
@@ -307,13 +315,7 @@ function EmployeeDashboard() {
                                         )}
                                     </div>
                                     <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => handleLeave(ride.id)}
-                                            className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition"
-                                            title="Leave Ride"
-                                        >
-                                            <FaUser /> Leave
-                                        </button>
+                                        <button onClick={() => handleLeave(ride.id)} className="btn btn-danger text-xs"><FaUser /> Leave</button>
                                     </div>
                                 </div>
                             ))}
