@@ -99,7 +99,7 @@ function EmployeeDashboard() {
     return (
         <div className="min-h-screen flex bg-gradient-to-br from-blue-50 via-white to-blue-100 relative overflow-hidden">
             {/* Background image */}
-            <img src="/microsoft.jpg" alt="background" className="fixed inset-0 w-full h-full object-cover z-0 opacity-60 pointer-events-none select-none" style={{filter: 'blur(2px)'}} />
+            <img src="/new-bg.png" alt="background" className="fixed inset-0 w-full h-full object-cover z-0 opacity-60 pointer-events-none select-none" style={{filter: 'blur(2px)'}} />
             {/* Sidebar */}
             <aside className={`fixed z-30 top-0 left-0 h-full w-64 p-6 flex flex-col gap-8 ${glass} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>
                 <div className="flex items-center gap-3 mb-8">
@@ -184,143 +184,139 @@ function EmployeeDashboard() {
                         </div>
                     </Link>
                 </section>
-                {/* Published Rides */}
-                <section className="w-full max-w-6xl mx-auto mt-10 px-4 animate-fade-in-up">
-                    <h3 className="text-2xl font-bold text-blue-700 mb-4 text-center">Your Published Rides</h3>
-                    {publishedRides.length === 0 ? (
-                        <p className="text-gray-400 text-center">You haven’t published any rides yet.</p>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {publishedRides.map((ride) => (
-                                <div
-                                    key={ride.id}
-                                    className={`${glass} ${cardAnim} rounded-2xl p-6 flex flex-col gap-3 relative group`}
-                                >
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <FaMapMarkerAlt className="text-green-500" />
-                                        <span className="font-semibold">{ride.origin}</span>
-                                        <span className="mx-2 text-gray-400">→</span>
-                                        <span className="font-semibold">{ride.destination}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <FaCalendarAlt className="text-purple-500" />
-                                        <span>{formatDate(ride.date)}</span>
-                                        <FaClock className="ml-4 text-yellow-500" />
-                                        <span>{formatTime(ride.arrivalTime)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <FaCar className="text-gray-500" />
-                                        <span>{ride.carDetails}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <FaChair className="text-pink-500" />
-                                        <span>{ride.availableSeats}/{ride.totalSeats} seats</span>
-                                        <div className="progress-track ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
-                                            <div className="progress-bar" style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}></div>
+                {/* Parallel Published & Joined Rides */}
+                <section className="w-full max-w-7xl mx-auto mt-10 px-4 pb-12 animate-fade-in-up">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                        {/* Published Column */}
+                        <div className="flex flex-col min-h-[60vh]">
+                            <div className="flex items-center justify-between mb-5">
+                                <h3 className="text-2xl font-bold text-blue-700">Your Published Rides</h3>
+                                <Link to="/employee/offer" className="btn btn-primary text-xs font-semibold"><FaPlus /> New</Link>
+                            </div>
+                            <div className="flex-1 overflow-y-auto pr-1 space-y-6 max-h-[65vh] custom-scroll">
+                                {publishedRides.length === 0 ? (
+                                    <p className="text-gray-400 text-center py-10">You haven’t published any rides yet.</p>
+                                ) : (
+                                    publishedRides.map(ride => (
+                                        <div key={ride.id} className={`${glass} ${cardAnim} rounded-2xl p-6 flex flex-col gap-3 relative group`}>
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <FaMapMarkerAlt className="text-green-500" />
+                                                <span className="font-semibold">{ride.origin}</span>
+                                                <span className="mx-2 text-gray-400">→</span>
+                                                <span className="font-semibold">{ride.destination}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm flex-wrap">
+                                                <FaCalendarAlt className="text-purple-500" />
+                                                <span>{formatDate(ride.date)}</span>
+                                                <FaClock className="ml-2 text-yellow-500" />
+                                                <span>{formatTime(ride.arrivalTime)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <FaCar className="text-gray-500" />
+                                                <span>{ride.carDetails}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <FaChair className="text-pink-500" />
+                                                <span>{ride.availableSeats}/{ride.totalSeats} seats</span>
+                                                <div className="progress-track ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
+                                                    <div className="progress-bar" style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}></div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>
+                                                    {ride.status === 'Active' ? <FaCheckCircle /> : <FaClock />} {ride.status || 'Active'}
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 text-xs text-blue-700">
+                                                <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                            </div>
+                                            <div className="flex flex-col gap-1 mt-2">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-semibold text-blue-700">Joined Employees:</span>
+                                                </div>
+                                                {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
+                                                    <ul className="ml-2 list-disc text-xs text-gray-700">
+                                                        {ride.joinedEmployees.map(emp => (
+                                                            <li key={emp.empId}>{emp.name} ({emp.empId})</li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400 ml-2">No employees joined</span>
+                                                )}
+                                            </div>
+                                            <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => handleEdit(ride.id)} className="btn btn-primary text-xs"><FaEdit /> Edit</button>
+                                                <button onClick={() => handleDelete(ride.id)} className="btn btn-danger text-xs"><FaTrash /> Delete</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>
-                                            {ride.status === 'Active' ? <FaCheckCircle /> : <FaClock />} {ride.status || 'Active'}
-                                        </span>
-                                    </div>
-                                    {/* Owner info */}
-                                    <div className="mt-2 text-xs text-blue-700">
-                                        <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
-                                    </div>
-                                    {/* Joined Employees Avatars + Details */}
-                                    <div className="flex flex-col gap-1 mt-2">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-semibold text-blue-700">Joined Employees:</span>
-                                        </div>
-                                        {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
-                                            <ul className="ml-2 list-disc text-xs text-gray-700">
-                                                {ride.joinedEmployees.map(emp => (
-                                                    <li key={emp.empId}>
-                                                        {emp.name} ({emp.empId})
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <span className="text-xs text-gray-400 ml-2">No employees joined</span>
-                                        )}
-                                    </div>
-                                    {/* Actions */}
-                                    <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleEdit(ride.id)} className="btn btn-primary text-xs"><FaEdit /> Edit</button>
-                                        <button onClick={() => handleDelete(ride.id)} className="btn btn-danger text-xs"><FaTrash /> Delete</button>
-                                    </div>
-                                </div>
-                            ))}
+                                    ))
+                                )}
+                            </div>
                         </div>
-                    )}
-                </section>
-                {/* Joined Rides */}
-                <section className="w-full max-w-6xl mx-auto mt-10 mb-10 px-4 animate-fade-in-up">
-                    <h3 className="text-2xl font-bold text-green-700 mb-4 text-center">Rides You've Joined</h3>
-                    {joinedRides.length === 0 ? (
-                        <p className="text-gray-400 text-center">You haven’t joined any rides yet.</p>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {joinedRides.map((ride) => (
-                                <div
-                                    key={ride.id}
-                                    className={`bg-green-50 ${cardAnim} rounded-2xl p-6 flex flex-col gap-3 border border-green-200 relative group`}
-                                >
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <FaMapMarkerAlt className="text-green-500" />
-                                        <span className="font-semibold">{ride.origin}</span>
-                                        <span className="mx-2 text-gray-400">→</span>
-                                        <span className="font-semibold">{ride.destination}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <FaCalendarAlt className="text-purple-500" />
-                                        <span>{formatDate(ride.date)}</span>
-                                        <FaClock className="ml-4 text-yellow-500" />
-                                        <span>{formatTime(ride.arrivalTime)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <FaCar className="text-gray-500" />
-                                        <span>{ride.carDetails}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <FaChair className="text-pink-500" />
-                                        <span>{ride.availableSeats}/{ride.totalSeats} seats</span>
-                                        <div className="progress-track ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
-                                            <div className="progress-bar" style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}></div>
+                        {/* Joined Column */}
+                        <div className="flex flex-col min-h-[60vh]">
+                            <div className="flex items-center justify-between mb-5">
+                                <h3 className="text-2xl font-bold text-green-700">Rides You've Joined</h3>
+                                <Link to="/employee/join" className="btn btn-outline text-xs font-semibold"><FaUsers /> Find</Link>
+                            </div>
+                            <div className="flex-1 overflow-y-auto pr-1 space-y-6 max-h-[65vh] custom-scroll">
+                                {joinedRides.length === 0 ? (
+                                    <p className="text-gray-400 text-center py-10">You haven’t joined any rides yet.</p>
+                                ) : (
+                                    joinedRides.map(ride => (
+                                        <div key={ride.id} className={`bg-green-50 ${cardAnim} rounded-2xl p-6 flex flex-col gap-3 border border-green-200 relative group`}>
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <FaMapMarkerAlt className="text-green-500" />
+                                                <span className="font-semibold">{ride.origin}</span>
+                                                <span className="mx-2 text-gray-400">→</span>
+                                                <span className="font-semibold">{ride.destination}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm flex-wrap">
+                                                <FaCalendarAlt className="text-purple-500" />
+                                                <span>{formatDate(ride.date)}</span>
+                                                <FaClock className="ml-2 text-yellow-500" />
+                                                <span>{formatTime(ride.arrivalTime)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <FaCar className="text-gray-500" />
+                                                <span>{ride.carDetails}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <FaChair className="text-pink-500" />
+                                                <span>{ride.availableSeats}/{ride.totalSeats} seats</span>
+                                                <div className="progress-track ml-2" title={`Occupancy: ${ride.totalSeats - ride.availableSeats}/${ride.totalSeats}`}>
+                                                    <div className="progress-bar" style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}></div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>{ride.status || 'Active'}</span>
+                                            </div>
+                                            <div className="mt-2 text-xs text-blue-700">
+                                                <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                            </div>
+                                            <div className="mt-2">
+                                                <div className="flex items-center text-green-700 font-semibold text-xs mb-1">
+                                                    <FaUsers className="mr-1" /> Joined Employees:
+                                                </div>
+                                                {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
+                                                    <ul className="ml-6 list-disc text-xs text-gray-700">
+                                                        {ride.joinedEmployees.map(emp => (
+                                                            <li key={emp.empId}>{emp.name} ({emp.empId})</li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <span className="ml-6 text-gray-400 text-xs">No one has joined yet.</span>
+                                                )}
+                                            </div>
+                                            <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => handleLeave(ride.id)} className="btn btn-danger text-xs"><FaUser /> Leave</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>{ride.status || 'Active'}</span>
-                                    </div>
-                                    {/* Owner info */}
-                                    <div className="mt-2 text-xs text-blue-700">
-                                        <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
-                                    </div>
-                                    {/* Joined Employees */}
-                                    <div className="mt-2">
-                                        <div className="flex items-center text-green-700 font-semibold text-xs mb-1">
-                                            <FaUsers className="mr-1" /> Joined Employees:
-                                        </div>
-                                        {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
-                                            <ul className="ml-6 list-disc text-xs text-gray-700">
-                                                {ride.joinedEmployees.map(emp => (
-                                                    <li key={emp.empId}>
-                                                        {emp.name} ({emp.empId})
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <span className="ml-6 text-gray-400 text-xs">No one has joined yet.</span>
-                                        )}
-                                    </div>
-                                    <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleLeave(ride.id)} className="btn btn-danger text-xs"><FaUser /> Leave</button>
-                                    </div>
-                                </div>
-                            ))}
+                                    ))
+                                )}
+                            </div>
                         </div>
-                    )}
+                    </div>
                 </section>
             </div>
         </div>
