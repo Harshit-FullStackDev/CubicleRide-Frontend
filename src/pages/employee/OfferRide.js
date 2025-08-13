@@ -26,6 +26,8 @@ function OfferRide() {
     const [checking, setChecking] = useState(true);
     const [activeRide, setActiveRide] = useState(null);
     const [vehicleStatus, setVehicleStatus] = useState(null);
+    const [vehicleCapacity, setVehicleCapacity] = useState(null);
+    const [baseCarDetails, setBaseCarDetails] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -68,6 +70,16 @@ function OfferRide() {
             try {
                 const res = await api.get('/vehicle/my');
                 setVehicleStatus(res.data);
+                if (res.data && res.data.status === 'APPROVED') {
+                    const detailsParts = [];
+                    if (res.data.make) detailsParts.push(res.data.make);
+                    if (res.data.model) detailsParts.push(res.data.model);
+                    if (res.data.registrationNumber) detailsParts.push('(' + res.data.registrationNumber + ')');
+                    const details = detailsParts.join(' ').trim();
+                    setBaseCarDetails(details);
+                    setVehicleCapacity(res.data.capacity || 4);
+                    setRide(r => ({ ...r, carDetails: details, totalSeats: Math.min(r.totalSeats || 1, res.data.capacity || 4) }));
+                }
             } catch {
                 setVehicleStatus(null);
             }
@@ -75,7 +87,22 @@ function OfferRide() {
     }, []);
 
     const handleChange = (e) => {
-        setRide({ ...ride, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'carDetails') return; // lock editing
+        if (name === 'totalSeats') {
+            let v = parseInt(value || '1', 10);
+            if (vehicleCapacity != null) {
+                if (v > vehicleCapacity) v = vehicleCapacity; // cap at vehicle capacity
+                if (v < 1) v = 1; // min 1
+            } else {
+                if (v > 8) v = 8;
+                if (v < 1) v = 1;
+            }
+            setRide(prev => ({ ...prev, totalSeats: v }));
+            setSuccess(false); setError("");
+            return;
+        }
+        setRide({ ...ride, [name]: value });
         setSuccess(false);
         setError("");
     };
@@ -83,8 +110,12 @@ function OfferRide() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (ride.totalSeats < 1 || ride.totalSeats > 8) {
-            setError("Total seats must be between 1 and 8");
+        if (ride.totalSeats < 1) {
+            setError("Total seats must be at least 1");
+            return;
+        }
+        if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) {
+            setError("Seats cannot exceed approved vehicle capacity (" + vehicleCapacity + ")");
             return;
         }
 
@@ -231,19 +262,21 @@ function OfferRide() {
                     </div>
                     <div>
                         <label className="block font-semibold mb-1">Car Details</label>
-                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">
+                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3 opacity-70 cursor-not-allowed" title="Car details come from approved vehicle">
                             <FaCar className="text-gray-500 mr-2" />
                             <input name="carDetails" type="text" placeholder="Car model & registration"
-                                   value={ride.carDetails} onChange={handleChange} required className="bg-transparent w-full outline-none" />
+                                   value={ride.carDetails} disabled className="bg-transparent w-full outline-none" />
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">Locked. Update via Vehicle page if needed (will re-enter approval).</p>
                     </div>
                     <div>
                         <label className="block font-semibold mb-1">Total Seats</label>
                         <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">
                             <FaChair className="text-pink-500 mr-2" />
-                            <input name="totalSeats" type="number" min={1} max={8}
+                            <input name="totalSeats" type="number" min={1} max={vehicleCapacity || 8}
                                    value={ride.totalSeats} onChange={handleChange} required className="bg-transparent w-full outline-none" />
                         </div>
+                        {vehicleCapacity != null && <p className="text-xs text-gray-500 mt-1">Capacity: up to {vehicleCapacity} seats.</p>}
                     </div>
                     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">
                         Offer Ride
