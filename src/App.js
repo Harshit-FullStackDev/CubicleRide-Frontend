@@ -15,6 +15,7 @@ import OtpVerify from "./components/OTPVerify";
 import Notifications from "./pages/employee/Notifications";
 import PublishedHistory from "./pages/employee/PublishedHistory";
 import JoinedHistory from "./pages/employee/JoinedHistory";
+import VehiclePage from "./pages/employee/Vehicle";
 
 function App() {
   return (
@@ -63,6 +64,10 @@ function App() {
         />
             <Route path="/employee/edit/:id" element={<EditRide />} />
           <Route path="/otp-verify" element={<OtpVerify />} />
+        <Route
+            path="/employee/vehicle"
+            element={<ProtectedRoute role="EMPLOYEE"><VehiclePage /></ProtectedRoute>}
+        />
       </Routes>
   );
 }

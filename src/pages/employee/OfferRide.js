@@ -9,7 +9,7 @@ import {
     FaArrowLeft,
     FaCheckCircle
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function OfferRide() {
     const [ride, setRide] = useState({
@@ -25,6 +25,7 @@ function OfferRide() {
     const [error, setError] = useState("");
     const [checking, setChecking] = useState(true);
     const [activeRide, setActiveRide] = useState(null);
+    const [vehicleStatus, setVehicleStatus] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -59,6 +60,18 @@ function OfferRide() {
         };
         fetchMyRides();
         return () => { ignore = true; };
+    }, []);
+
+    // Check vehicle status
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await api.get('/vehicle/my');
+                setVehicleStatus(res.data);
+            } catch {
+                setVehicleStatus(null);
+            }
+        })();
     }, []);
 
     const handleChange = (e) => {
@@ -138,6 +151,21 @@ function OfferRide() {
                     </div>
                     <button onClick={() => navigate('/employee/dashboard')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition mb-2">Go to Dashboard</button>
                     <button onClick={() => navigate('/employee/join')} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold transition">Browse Rides</button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!vehicleStatus || vehicleStatus.status !== 'APPROVED') {
+        return (
+            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full text-center">
+                    <button onClick={() => navigate(-1)} className="text-blue-600 mb-4 flex items-center"><FaArrowLeft className="mr-2"/>Back</button>
+                    <h2 className="text-2xl font-bold text-blue-700 mb-4">Vehicle Verification Required</h2>
+                    <p className="text-sm text-gray-600 mb-4">You must submit your vehicle details and have them approved before offering a ride.</p>
+                    {vehicleStatus && vehicleStatus.status === 'PENDING' && <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 rounded mb-4 text-sm">Your vehicle is pending approval.</div>}
+                    {vehicleStatus && vehicleStatus.status === 'REJECTED' && <div className="bg-red-50 border border-red-300 text-red-700 p-3 rounded mb-4 text-sm">Rejected: {vehicleStatus.rejectionReason}</div>}
+                    <Link to="/employee/vehicle" className="w-full inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Go to Vehicle Page</Link>
                 </div>
             </div>
         );

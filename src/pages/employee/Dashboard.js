@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import {
     FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock,
-    FaEdit, FaTrash, FaBell, FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers
+    FaEdit, FaTrash, FaBell, FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers, FaTools
 } from "react-icons/fa";
 
 function EmployeeDashboard() {
@@ -18,6 +18,7 @@ function EmployeeDashboard() {
     const [error, setError] = useState(null);
     const [lastLogin, setLastLogin] = useState("");
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [vehicleStatus, setVehicleStatus] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -31,6 +32,7 @@ function EmployeeDashboard() {
         setEmpId(id);
         setLastLogin(localStorage.getItem("lastLogin") || new Date().toLocaleString());
         fetchDashboardData(id);
+        fetchVehicleStatus();
     }, [navigate]);
 
     const fetchDashboardData = async (empId) => {
@@ -49,6 +51,15 @@ function EmployeeDashboard() {
             setError("Failed to load dashboard data.");
         }
         setLoading(false);
+    };
+
+    const fetchVehicleStatus = async () => {
+        try {
+            const res = await api.get('/vehicle/my');
+            setVehicleStatus(res.data);
+        } catch {
+            setVehicleStatus(null);
+        }
     };
 
     const handleLogout = () => {
@@ -113,6 +124,7 @@ function EmployeeDashboard() {
                     <Link to="/employee/notifications" className="nav-link"><FaBell /> <span>Notifications</span></Link>
                     <Link to="/employee/history/published" className="nav-link"><FaCar /> <span>Published History</span></Link>
                     <Link to="/employee/history/joined" className="nav-link"><FaUsers /> <span>Joined History</span></Link>
+                    <Link to="/employee/vehicle" className="nav-link"><FaCar /> <span>My Vehicle</span>{vehicleStatus && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-gray-200">{vehicleStatus.status}</span>}</Link>
                 </nav>
                 <div className="mt-auto flex flex-col gap-2">
                     <button onClick={handleLogout} className="btn btn-danger font-semibold"><FaSignOutAlt /> Logout</button>
