@@ -53,7 +53,7 @@ function JoinRide() {
         setSuccess("");
         try {
             await api.post(`/ride/join/${id}`, { empId });
-            setSuccess(`Joined ride from ${ride.origin} to ${ride.destination}!`);
+            setSuccess(ride.instantBookingEnabled ? `Joined ride from ${ride.origin} to ${ride.destination}!` : `Request sent for ride ${ride.origin} → ${ride.destination}. Awaiting approval.`);
             const updated = await api.get("/ride/active");
             const filtered = updated.data.filter(r => (
                 (!filters.pickup || r.origin === filters.pickup) &&
@@ -116,6 +116,7 @@ function JoinRide() {
                         const isFull = ride.availableSeats === 0 || (ride.status && ride.status !== "Active");
                         const isOwn = ride.ownerEmpId === empId;
                         const hasJoined = ride.joinedEmployees?.some(e => e.empId === empId);
+                        const isPending = !ride.instantBookingEnabled && ride.pendingEmployees?.some(e => e.empId === empId);
                         return (
                             <div key={ride.id}
                                  className={`bg-blue-50 rounded-xl p-5 flex flex-col border-2 transition-all ${
@@ -163,22 +164,28 @@ function JoinRide() {
                                     )}
                                 </div>
                                 <div className="flex flex-col items-end gap-2">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold mb-2 ${
-                                        isOwn ? "bg-yellow-100 text-yellow-700" :
-                                            isFull ? "bg-red-100 text-red-700" :
-                                                "bg-green-100 text-green-700"
-                                    }`}>
-                                        {isOwn ? "Your Ride" : (isFull ? (ride.status && ride.status !== "Active" ? ride.status : "Full") : (hasJoined ? "Already Joined" : "Available"))}
-                                    </span>
+                                    <div className="flex gap-2 mb-2 flex-wrap">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                            isOwn ? "bg-yellow-100 text-yellow-700" :
+                                                isFull ? "bg-red-100 text-red-700" :
+                                                    hasJoined ? "bg-green-100 text-green-700" :
+                                                        isPending ? "bg-indigo-100 text-indigo-700" : "bg-green-100 text-green-700"
+                                        }`}>
+                                            {isOwn ? "Your Ride" : isFull ? (ride.status && ride.status !== "Active" ? ride.status : "Full") : hasJoined ? "Joined" : isPending ? "Pending" : "Available"}
+                                        </span>
+                                        <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-700" title={ride.instantBookingEnabled ? 'Auto join enabled' : 'Owner reviews join requests'}>
+                                            {ride.instantBookingEnabled ? 'Instant' : 'Review'}
+                                        </span>
+                                    </div>
                                     <button
                                         onClick={() => joinRide(ride.id, ride)}
-                                        disabled={isFull || isOwn || hasJoined}
+                                        disabled={isFull || isOwn || hasJoined || isPending}
                                         className={`px-6 py-2 rounded font-semibold transition ${
-                                            (isFull || isOwn || hasJoined) ? "bg-gray-300 text-gray-500 cursor-not-allowed" :
+                                            (isFull || isOwn || hasJoined || isPending) ? "bg-gray-300 text-gray-500 cursor-not-allowed" :
                                                 "bg-blue-600 hover:bg-blue-700 text-white"
                                         }`}
                                     >
-                                        {isOwn ? "Your Ride" : (isFull ? "Full" : (hasJoined ? "Already Joined" : "Join"))}
+                                        {isOwn ? "Your Ride" : isFull ? "Full" : hasJoined ? "Joined" : isPending ? "Pending" : "Join"}
                                     </button>
                                 </div>
                             </div>

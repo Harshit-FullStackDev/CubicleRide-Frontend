@@ -202,6 +202,14 @@ function EditRide() {
                             />
                             {errors.availableSeats && <span className="text-red-500 text-xs">{errors.availableSeats}</span>}
                         </div>
+                        <div className="col-span-1 md:col-span-2">
+                            <label className="block mb-1 font-medium">Booking Mode</label>
+                            <div className="flex items-center justify-between bg-blue-50 border rounded p-3 text-sm">
+                                <span className="font-semibold text-blue-700">{ride.instantBookingEnabled ? 'Instant Booking (auto-accept)' : 'Review Requests (manual)'}</span>
+                                <button type="button" onClick={() => setRide(r => ({...r, instantBookingEnabled: !r.instantBookingEnabled}))} className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold">Switch</button>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">If manual, joiners become pending until you approve.</p>
+                        </div>
                     </div>
 
                     <div className="flex gap-4 mt-6">

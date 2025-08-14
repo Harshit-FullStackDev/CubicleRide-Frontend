@@ -19,6 +19,7 @@ function OfferRide() {
         arrivalTime: "",
         carDetails: "",
         totalSeats: 1,
+    instantBookingEnabled: true,
     });
     const [locations, setLocations] = useState([]);
     const [success, setSuccess] = useState(false);
@@ -131,10 +132,7 @@ function OfferRide() {
             return;
         }
         try {
-            await api.post("/ride/offer", {
-                ...ride,
-                empId,
-            });
+            await api.post("/ride/offer", { ...ride, empId });
             setSuccess(true);
             setRide({
                 origin: "",
@@ -143,6 +141,7 @@ function OfferRide() {
                 arrivalTime: "",
                 carDetails: "",
                 totalSeats: 1,
+                instantBookingEnabled: true,
             });
         } catch (err) {
             if (err.response && err.response.status === 409) {
@@ -224,6 +223,16 @@ function OfferRide() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-5 w-full">
+                    <div>
+                        <label className="block font-semibold mb-1">Booking Mode</label>
+                        <div className="flex items-center justify-between bg-blue-50 rounded-xl px-4 py-3 text-sm">
+                            <span className="mr-3 font-medium text-blue-700">{ride.instantBookingEnabled ? 'Instant Booking (auto-accept)' : 'Review Requests (manual)'}</span>
+                            <button type="button" onClick={() => setRide(r => ({...r, instantBookingEnabled: !r.instantBookingEnabled}))} className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">
+                                Switch
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">If disabled, join requests go to a pending list for you to approve or decline.</p>
+                    </div>
                     <div>
                         <label className="block font-semibold mb-1">Pickup Location</label>
                         <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">

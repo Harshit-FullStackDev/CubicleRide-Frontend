@@ -81,6 +81,19 @@ function EmployeeDashboard() {
         }
     };
 
+    const approveRequest = async (rideId, pendingEmpId) => {
+        try {
+            await api.post(`/ride/approve/${rideId}`, { empId: pendingEmpId });
+            fetchDashboardData(empId);
+        } catch { alert('Failed to approve request'); }
+    };
+    const declineRequest = async (rideId, pendingEmpId) => {
+        try {
+            await api.post(`/ride/decline/${rideId}`, { empId: pendingEmpId });
+            fetchDashboardData(empId);
+        } catch { alert('Failed to decline request'); }
+    };
+
     const handleLeave = async (id) => {
         if (!window.confirm("Leave this ride?")) return;
         try {
@@ -234,9 +247,12 @@ function EmployeeDashboard() {
                                                     <div className="progress-bar" style={{ width: `${((ride.totalSeats - ride.availableSeats) / ride.totalSeats) * 100}%` }}></div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-3 flex-wrap">
                                                 <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>
                                                     {ride.status === 'Active' ? <FaCheckCircle /> : <FaClock />} {ride.status || 'Active'}
+                                                </span>
+                                                <span className="text-[10px] px-2 py-1 rounded-full bg-indigo-100 text-indigo-700 font-semibold" title={ride.instantBookingEnabled ? 'Passengers auto-join' : 'You review each request'}>
+                                                    {ride.instantBookingEnabled ? 'Instant' : 'Review'}
                                                 </span>
                                             </div>
                                             <div className="mt-2 text-xs text-blue-700">
@@ -254,6 +270,21 @@ function EmployeeDashboard() {
                                                     </ul>
                                                 ) : (
                                                     <span className="text-xs text-gray-400 ml-2">No employees joined</span>
+                                                )}
+                                                {!ride.instantBookingEnabled && ride.pendingEmployees && (
+                                                    <div className="mt-3 border-t pt-2">
+                                                        <div className="text-xs font-semibold text-indigo-700 mb-1">Pending Requests:</div>
+                                                        {ride.pendingEmployees.length === 0 && <div className="text-[10px] text-gray-400">No pending requests.</div>}
+                                                        {ride.pendingEmployees.map(p => (
+                                                            <div key={p.empId} className="flex items-center justify-between text-[11px] bg-indigo-50 rounded px-2 py-1 mb-1">
+                                                                <span>{p.name} ({p.empId})</span>
+                                                                <div className="flex gap-1">
+                                                                    <button onClick={() => approveRequest(ride.id, p.empId)} className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white rounded">✔</button>
+                                                                    <button onClick={() => declineRequest(ride.id, p.empId)} className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded">✖</button>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 )}
                                             </div>
                                             <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
