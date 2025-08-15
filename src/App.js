@@ -16,6 +16,7 @@ import Notifications from "./pages/employee/Notifications";
 import PublishedHistory from "./pages/employee/PublishedHistory";
 import JoinedHistory from "./pages/employee/JoinedHistory";
 import VehiclePage from "./pages/employee/Vehicle";
+import Profile from "./pages/employee/Profile";
 
 function App() {
   return (
@@ -67,6 +68,10 @@ function App() {
         <Route
             path="/employee/vehicle"
             element={<ProtectedRoute role="EMPLOYEE"><VehiclePage /></ProtectedRoute>}
+        />
+        <Route
+            path="/employee/profile"
+            element={<ProtectedRoute role="EMPLOYEE"><Profile /></ProtectedRoute>}
         />
       </Routes>
   );

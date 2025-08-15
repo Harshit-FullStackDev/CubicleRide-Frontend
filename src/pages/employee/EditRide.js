@@ -13,6 +13,7 @@ function EditRide() {
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [vehicleCapacity, setVehicleCapacity] = useState(null);
+    const [fareInput, setFareInput] = useState("");
 
     // Fetch ride details
     useEffect(() => {
@@ -20,6 +21,7 @@ function EditRide() {
             try {
                 const res = await api.get(`/ride/edit/${id}`);
                 setRide(res.data);
+                if (res.data.fare != null) setFareInput(res.data.fare);
             } catch (err) {
                 alert("Failed to fetch ride details.");
                 navigate("/employee/dashboard");
@@ -100,6 +102,10 @@ function EditRide() {
         if (!ride.date) errs.date = "Date is required";
         if (!ride.arrivalTime) errs.arrivalTime = "Arrival time is required";
         if (!ride.carDetails) errs.carDetails = "Car details required";
+        if (fareInput) {
+            const f = parseFloat(fareInput);
+            if (isNaN(f) || f < 0) errs.fare = "Fare must be non-negative number";
+        }
     if (!ride.totalSeats || ride.totalSeats < 1) errs.totalSeats = "Total seats must be at least 1";
     if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) errs.totalSeats = `Cannot exceed vehicle capacity (${vehicleCapacity})`;
         if (ride.availableSeats > ride.totalSeats) errs.availableSeats = "Available seats cannot exceed total seats";
@@ -116,7 +122,10 @@ function EditRide() {
         }
         setSubmitting(true);
         try {
-            await api.put(`/ride/edit/${id}`, ride);
+            const payload = { ...ride };
+            if (fareInput) payload.fare = parseFloat(fareInput);
+            else payload.fare = null;
+            await api.put(`/ride/edit/${id}`, payload);
             alert("Ride updated!");
             navigate("/employee/dashboard");
         } catch (err) {
@@ -216,6 +225,29 @@ function EditRide() {
                                 placeholder="Car Details"
                             />
                             {errors.carDetails && <span className="text-red-500 text-xs">{errors.carDetails}</span>}
+                        </div>
+                        <div>
+                            <label className="block mb-1 font-medium">Fare (per seat, optional)</label>
+                            <input
+                                name="fare"
+                                value={fareInput}
+                                onChange={(e)=>setFareInput(e.target.value)}
+                                className="border p-2 w-full rounded"
+                                placeholder="e.g. 50"
+                            />
+                            {errors.fare && <span className="text-red-500 text-xs">{errors.fare}</span>}
+                        </div>
+
+                        <div>
+                            <label className="block mb-1 font-medium">Fare (per seat, optional)</label>
+                            <input
+                                name="fare"
+                                value={fareInput}
+                                onChange={(e)=>setFareInput(e.target.value)}
+                                className="border p-2 w-full rounded"
+                                placeholder="e.g. 50"
+                            />
+                            {errors.fare && <span className="text-red-500 text-xs">{errors.fare}</span>}
                         </div>
 
                         <div>

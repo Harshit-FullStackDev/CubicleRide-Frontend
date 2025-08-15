@@ -128,6 +128,7 @@ function PublishedHistory() {
                     <div className="flex items-center gap-2"><FaCalendarAlt className="text-blue-500" /> {formatDate(ride.date)}</div>
                     <div className="flex items-center gap-2"><FaClock className="text-yellow-500" /> {ride.arrivalTime?.slice(0,5) || '—'}</div>
                     <div className="flex items-center gap-2"><FaCar className="text-indigo-500" /> {ride.carDetails || '—'}</div>
+                    {ride.fare && <div className="flex items-center gap-2 text-indigo-600 text-[11px]">Fare: ₹{ride.fare}/seat</div>}
                   </div>
                   <div className="mt-4 flex items-center justify-between">
                     <span className={`text-[11px] px-2 py-1 rounded-full border ${badgeColors}`}>{ride.status}</span>

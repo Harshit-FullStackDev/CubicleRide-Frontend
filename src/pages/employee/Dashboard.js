@@ -138,6 +138,7 @@ function EmployeeDashboard() {
                     <Link to="/employee/history/published" className="nav-link"><FaCar /> <span>Published History</span></Link>
                     <Link to="/employee/history/joined" className="nav-link"><FaUsers /> <span>Joined History</span></Link>
                     <Link to="/employee/vehicle" className="nav-link"><FaCar /> <span>My Vehicle</span>{vehicleStatus && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-gray-200">{vehicleStatus.status}</span>}</Link>
+                    <Link to="/employee/profile" className="nav-link"><FaUser /> <span>My Profile</span></Link>
                 </nav>
                 <div className="mt-auto flex flex-col gap-2">
                     <button onClick={handleLogout} className="btn btn-danger font-semibold"><FaSignOutAlt /> Logout</button>
@@ -239,6 +240,7 @@ function EmployeeDashboard() {
                                             <div className="flex items-center gap-3 text-sm">
                                                 <FaCar className="text-gray-500" />
                                                 <span>{ride.carDetails}</span>
+                                                {ride.fare && <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">₹{ride.fare}/seat</span>}
                                             </div>
                                             <div className="flex items-center gap-3 text-sm">
                                                 <FaChair className="text-pink-500" />
@@ -323,6 +325,7 @@ function EmployeeDashboard() {
                                             <div className="flex items-center gap-3 text-sm">
                                                 <FaCar className="text-gray-500" />
                                                 <span>{ride.carDetails}</span>
+                                                {ride.fare && <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">₹{ride.fare}/seat</span>}
                                             </div>
                                             <div className="flex items-center gap-3 text-sm">
                                                 <FaChair className="text-pink-500" />

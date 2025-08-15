@@ -141,6 +141,7 @@ function JoinRide() {
                                         <div className="text-gray-600 text-sm mt-1 flex items-center gap-4">
                                             <FaCar /> {ride.carDetails}
                                             <FaChair /> {ride.availableSeats} seats left
+                                            {ride.fare && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">₹{ride.fare}/seat</span>}
                                         </div>
                                         <div className="text-gray-700 text-xs mt-2">
                                             <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})

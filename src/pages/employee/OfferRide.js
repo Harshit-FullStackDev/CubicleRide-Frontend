@@ -20,6 +20,7 @@ function OfferRide() {
         carDetails: "",
         totalSeats: 1,
         instantBookingEnabled: true,
+    fare: "",
     });
     const [locations, setLocations] = useState([]);
     const [success, setSuccess] = useState(false);
@@ -135,6 +136,10 @@ function OfferRide() {
         }
         if (ride.totalSeats < 1) errs.totalSeats = 'Min 1 seat';
         if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) errs.totalSeats = `Max ${vehicleCapacity}`;
+        if (ride.fare) {
+            const f = parseFloat(ride.fare);
+            if (isNaN(f) || f < 0) errs.fare = 'Invalid fare';
+        }
         return errs;
     }, [ride, vehicleCapacity]);
 
@@ -164,7 +169,7 @@ function OfferRide() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setTouched({ origin: true, destination: true, date: true, arrivalTime: true, totalSeats: true });
+    setTouched({ origin: true, destination: true, date: true, arrivalTime: true, totalSeats: true, fare: true });
         setGlobalError("");
         if (hasErrors) return;
 
@@ -185,6 +190,7 @@ function OfferRide() {
                 carDetails: baseCarDetails || "",
                 totalSeats: 1,
                 instantBookingEnabled: r.instantBookingEnabled, // preserve preference
+                fare: "",
             }));
             setTouched({});
         } catch (err) {
@@ -364,6 +370,16 @@ function OfferRide() {
                                 {touched.totalSeats && fieldErrors.totalSeats && <p className="text-xs text-red-600 mt-1">{fieldErrors.totalSeats}</p>}
                             </div>
                         </div>
+                        {/* Fare */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">Fare per Seat (optional)</label>
+                            <div className={`flex items-center rounded-xl px-4 py-3 border transition ${touched.fare && fieldErrors.fare ? 'border-red-300 bg-red-50' : 'border-blue-100 bg-blue-50 focus-within:border-blue-400'}`}>
+                                <span className="text-gray-500 mr-2">₹</span>
+                                <input name="fare" type="number" min="0" step="0.01" value={ride.fare} onChange={handleChange} onBlur={handleBlur} placeholder="0 (free)" className="bg-transparent w-full outline-none text-sm" />
+                            </div>
+                            {touched.fare && fieldErrors.fare && <p className="text-xs text-red-600 mt-1">{fieldErrors.fare}</p>}
+                            <p className="text-[11px] text-gray-500 mt-1">Leave blank for free ride.</p>
+                        </div>
                     </div>
                     <div className="flex gap-3 pt-2">
                         <button type="submit" disabled={submitting || hasErrors} className={`flex-1 relative overflow-hidden group rounded-xl py-3 font-semibold text-white shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed ${hasErrors ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}>
@@ -374,7 +390,7 @@ function OfferRide() {
                                 </span>
                             )}
                         </button>
-                        <button type="button" onClick={() => { setRide(r => ({ ...r, origin:'', destination:'', date:'', arrivalTime:'', totalSeats:1 })); setTouched({}); setGlobalError(''); setSuccess(false); }} className="px-4 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium">Reset</button>
+                        <button type="button" onClick={() => { setRide(r => ({ ...r, origin:'', destination:'', date:'', arrivalTime:'', totalSeats:1, fare:"" })); setTouched({}); setGlobalError(''); setSuccess(false); }} className="px-4 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium">Reset</button>
                     </div>
                 </form>
 
@@ -389,6 +405,7 @@ function OfferRide() {
                             <div className="flex justify-between"><span className="text-white/70">Arrival</span><span>{ride.arrivalTime || '—'}</span></div>
                             <div className="flex justify-between"><span className="text-white/70">Seats</span><span>{ride.totalSeats}</span></div>
                             <div className="flex justify-between"><span className="text-white/70">Mode</span><span>{ride.instantBookingEnabled ? 'Instant' : 'Manual'}</span></div>
+                            <div className="flex justify-between"><span className="text-white/70">Fare</span><span>{ride.fare ? `₹${ride.fare}` : 'Free'}</span></div>
                         </div>
                         <div className="mt-5 text-[11px] text-white/80">Review the preview before publishing. Changes update instantly.</div>
                     </div>
