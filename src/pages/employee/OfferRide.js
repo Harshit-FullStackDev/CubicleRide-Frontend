@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../../api/axios";
 import {
     FaMapMarkerAlt,
@@ -19,22 +19,24 @@ function OfferRide() {
         arrivalTime: "",
         carDetails: "",
         totalSeats: 1,
-    instantBookingEnabled: true,
+        instantBookingEnabled: true,
     });
     const [locations, setLocations] = useState([]);
     const [success, setSuccess] = useState(false);
-    const [error, setError] = useState("");
+    const [globalError, setGlobalError] = useState("");
     const [checking, setChecking] = useState(true);
     const [activeRide, setActiveRide] = useState(null);
     const [vehicleStatus, setVehicleStatus] = useState(null);
     const [vehicleCapacity, setVehicleCapacity] = useState(null);
     const [baseCarDetails, setBaseCarDetails] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [touched, setTouched] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
         api.get("/locations")
             .then(res => setLocations(res.data))
-            .catch(() => setError("Failed to load locations"));
+            .catch(() => setGlobalError("Failed to load locations"));
     }, []);
 
     // Check if user already has an active (upcoming) ride
@@ -89,75 +91,125 @@ function OfferRide() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'carDetails') return; // lock editing
+        if (name === 'carDetails') return; // locked
         if (name === 'totalSeats') {
             let v = parseInt(value || '1', 10);
+            if (Number.isNaN(v)) v = 1;
             if (vehicleCapacity != null) {
-                if (v > vehicleCapacity) v = vehicleCapacity; // cap at vehicle capacity
-                if (v < 1) v = 1; // min 1
+                v = Math.max(1, Math.min(vehicleCapacity, v));
             } else {
-                if (v > 8) v = 8;
-                if (v < 1) v = 1;
+                v = Math.max(1, Math.min(8, v));
             }
-            setRide(prev => ({ ...prev, totalSeats: v }));
-            setSuccess(false); setError("");
-            return;
+            setRide(r => ({ ...r, totalSeats: v }));
+        } else {
+            setRide(r => ({ ...r, [name]: value }));
         }
-        setRide({ ...ride, [name]: value });
         setSuccess(false);
-        setError("");
+        setGlobalError("");
     };
+
+    const handleBlur = (e) => {
+        const { name } = e.target;
+        setTouched(t => ({ ...t, [name]: true }));
+    };
+
+    // Derived validation errors
+    const fieldErrors = useMemo(() => {
+        const errs = {};
+        if (!ride.origin) errs.origin = 'Required';
+        if (!ride.destination) errs.destination = 'Required';
+        if (ride.origin && ride.destination && ride.origin === ride.destination) errs.destination = 'Pickup and drop cannot be same';
+        if (!ride.date) errs.date = 'Required';
+        if (ride.date) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (ride.date < todayStr) errs.date = 'Cannot be past';
+        }
+        if (!ride.arrivalTime) errs.arrivalTime = 'Required';
+        if (ride.arrivalTime && ride.date) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (ride.date === todayStr) {
+                const now = new Date();
+                const selected = new Date(`${ride.date}T${ride.arrivalTime}`);
+                if (selected < now) errs.arrivalTime = 'Time already passed';
+            }
+        }
+        if (ride.totalSeats < 1) errs.totalSeats = 'Min 1 seat';
+        if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) errs.totalSeats = `Max ${vehicleCapacity}`;
+        return errs;
+    }, [ride, vehicleCapacity]);
+
+    const hasErrors = Object.keys(fieldErrors).length > 0;
+
+    const incrementSeats = (delta) => {
+        setRide(r => {
+            let v = (r.totalSeats || 1) + delta;
+            const max = vehicleCapacity != null ? vehicleCapacity : 8;
+            if (v < 1) v = 1;
+            if (v > max) v = max;
+            return { ...r, totalSeats: v };
+        });
+    };
+
+    // Dynamic min time for today
+    const minTime = useMemo(() => {
+        if (!ride.date) return undefined;
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (ride.date !== todayStr) return undefined;
+        const now = new Date();
+        // Round up to next 5 minutes for nicer UX
+        const mins = now.getMinutes();
+        const rounded = new Date(now.getTime() + ((5 - (mins % 5 || 5)) * 60000));
+        return rounded.toISOString().substring(11,16);
+    }, [ride.date]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (ride.totalSeats < 1) {
-            setError("Total seats must be at least 1");
-            return;
-        }
-        if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) {
-            setError("Seats cannot exceed approved vehicle capacity (" + vehicleCapacity + ")");
-            return;
-        }
+        setTouched({ origin: true, destination: true, date: true, arrivalTime: true, totalSeats: true });
+        setGlobalError("");
+        if (hasErrors) return;
 
         const empId = localStorage.getItem("empId");
         if (!empId) {
-            setError("Employee ID missing. Please log in again.");
+            setGlobalError("Session expired. Please log in again.");
             return;
         }
-
-        const today = new Date().toISOString().split("T")[0];
-        if (ride.date < today) {
-            setError("Please select a valid future date.");
-            return;
-        }
+        setSubmitting(true);
         try {
             await api.post("/ride/offer", { ...ride, empId });
             setSuccess(true);
-            setRide({
+            setRide(r => ({
                 origin: "",
                 destination: "",
                 date: "",
                 arrivalTime: "",
-                carDetails: "",
+                carDetails: baseCarDetails || "",
                 totalSeats: 1,
-                instantBookingEnabled: true,
-            });
+                instantBookingEnabled: r.instantBookingEnabled, // preserve preference
+            }));
+            setTouched({});
         } catch (err) {
             if (err.response && err.response.status === 409) {
-                setError(err.response.data && err.response.data.message ? err.response.data.message : "You already have a published ride. Please publish a new ride after the active ride ends.");
-            } else if (err.response && err.response.data && err.response.data.message) {
-                setError(err.response.data.message);
+                setGlobalError(err.response?.data?.message || "You already have a published ride. Please publish a new ride after the active ride ends.");
+            } else if (err.response?.data?.message) {
+                setGlobalError(err.response.data.message);
             } else {
-                setError("Failed to offer ride. Please try again.");
+                setGlobalError("Failed to offer ride. Please try again.");
             }
+        } finally {
+            setSubmitting(false);
         }
     };
 
     if (checking) {
         return (
-            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full text-center">Checking your current rides...</div>
+            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
+                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full animate-pulse">
+                    <div className="h-6 bg-blue-100 rounded w-2/3 mb-6" />
+                    <div className="space-y-4">
+                        {[...Array(5)].map((_,i)=>(<div key={i} className="h-12 bg-blue-50 rounded-xl" />))}
+                    </div>
+                    <div className="mt-6 h-10 bg-blue-200 rounded-xl" />
+                </div>
             </div>
         );
     }
@@ -202,95 +254,155 @@ function OfferRide() {
     }
 
     return (
-        <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-            <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full flex flex-col items-center">
-                <button onClick={() => navigate(-1)} className="text-blue-600 mb-4 flex items-center self-start">
-                    <FaArrowLeft className="mr-2" /> Back
-                </button>
-                <h2 className="text-3xl font-bold text-blue-700 mb-2">Offer a Ride</h2>
-                <p className="text-gray-500 mb-6 text-center">Fill in your ride details and help colleagues commute!</p>
+        <div className="min-h-screen flex justify-center items-start md:items-center bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4 md:p-8 relative overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,#dbeafe,transparent_60%)]" />
+            <div className="relative bg-white/90 backdrop-blur shadow-2xl rounded-2xl p-6 md:p-10 w-full max-w-3xl grid md:grid-cols-2 gap-8 border border-blue-100">
+                <div className="md:col-span-2 flex items-center justify-between -mt-2">
+                    <button onClick={() => navigate(-1)} className="text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium group">
+                        <FaArrowLeft className="mr-2 group-hover:-translate-x-0.5 transition-transform" /> Back
+                    </button>
+                    <span className="text-xs text-gray-400">Carpool • Offer Ride</span>
+                </div>
+                <div className="md:col-span-2">
+                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">Offer a Ride</h1>
+                    <p className="text-sm text-gray-500 mt-1">Help colleagues commute and reduce congestion. Provide accurate details for a smooth experience.</p>
+                </div>
 
                 {success && (
-                    <div className="flex items-center bg-green-100 text-green-800 p-3 rounded mb-4 animate-bounce">
-                        <FaCheckCircle className="mr-2 text-green-600" />
-                        Ride offered successfully!
+                    <div className="md:col-span-2 flex items-start gap-3 bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl animate-in fade-in slide-in-from-top-2">
+                        <FaCheckCircle className="text-green-500 mt-0.5" />
+                        <div className="text-sm">
+                            <p className="font-semibold">Ride published!</p>
+                            <p className="text-green-700">Others can now discover and join your ride.</p>
+                        </div>
+                        <button onClick={()=>setSuccess(false)} className="ml-auto text-xs text-green-600 hover:underline">Dismiss</button>
                     </div>
                 )}
-                {error && (
-                    <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
-                        {error}
+                {globalError && (
+                    <div className="md:col-span-2 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm">
+                        {globalError}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5 w-full">
-                    <div>
-                        <label className="block font-semibold mb-1">Booking Mode</label>
-                        <div className="flex items-center justify-between bg-blue-50 rounded-xl px-4 py-3 text-sm">
-                            <span className="mr-3 font-medium text-blue-700">{ride.instantBookingEnabled ? 'Instant Booking (auto-accept)' : 'Review Requests (manual)'}</span>
-                            <button type="button" onClick={() => setRide(r => ({...r, instantBookingEnabled: !r.instantBookingEnabled}))} className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">
-                                Switch
-                            </button>
+                {/* Left column: form */}
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                    <div className="space-y-5">
+                        {/* Booking mode */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">Booking Mode</label>
+                            <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl px-4 py-3 text-xs sm:text-sm border border-blue-100">
+                                <span className="mr-3 font-medium text-blue-700 flex-1">{ride.instantBookingEnabled ? 'Instant Booking (auto-accept)' : 'Review Requests (manual)'}</span>
+                                <button type="button" onClick={() => setRide(r => ({...r, instantBookingEnabled: !r.instantBookingEnabled}))} className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow-sm text-xs">Switch</button>
+                            </div>
+                            <p className="text-[11px] text-gray-500 mt-1">Manual mode lets you approve or decline pending join requests.</p>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">If disabled, join requests go to a pending list for you to approve or decline.</p>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Pickup Location</label>
-                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">
-                            <FaMapMarkerAlt className="text-green-500 mr-2" />
-                            <select name="origin" value={ride.origin} onChange={handleChange} required className="bg-transparent w-full outline-none">
-                                <option value="">Select Pickup Location</option>
-                                {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
-                            </select>
+                        {/* Origin */}
+                        <div>
+                            <label htmlFor="origin" className="block text-sm font-semibold mb-1">Pickup Location</label>
+                            <div className={`flex items-center rounded-xl px-4 py-3 border transition ${touched.origin && fieldErrors.origin ? 'border-red-300 bg-red-50' : 'border-blue-100 bg-blue-50 focus-within:border-blue-400'}`}>
+                                <FaMapMarkerAlt className="text-green-500 mr-2 shrink-0" />
+                                <select id="origin" name="origin" value={ride.origin} onChange={handleChange} onBlur={handleBlur} className="bg-transparent w-full outline-none text-sm" required>
+                                    <option value="">Select Pickup Location</option>
+                                    {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+                                </select>
+                            </div>
+                            {touched.origin && fieldErrors.origin && <p className="text-xs text-red-600 mt-1">{fieldErrors.origin}</p>}
+                        </div>
+                        {/* Destination */}
+                        <div>
+                            <label htmlFor="destination" className="block text-sm font-semibold mb-1">Drop Location</label>
+                            <div className={`flex items-center rounded-xl px-4 py-3 border transition ${touched.destination && fieldErrors.destination ? 'border-red-300 bg-red-50' : 'border-blue-100 bg-blue-50 focus-within:border-blue-400'}`}>
+                                <FaMapMarkerAlt className="text-red-500 mr-2 shrink-0" />
+                                <select id="destination" name="destination" value={ride.destination} onChange={handleChange} onBlur={handleBlur} className="bg-transparent w-full outline-none text-sm" required>
+                                    <option value="">Select Drop Location</option>
+                                    {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+                                </select>
+                            </div>
+                            {touched.destination && fieldErrors.destination && <p className="text-xs text-red-600 mt-1">{fieldErrors.destination}</p>}
+                        </div>
+                        {/* Date */}
+                        <div>
+                            <label htmlFor="date" className="block text-sm font-semibold mb-1">Date</label>
+                            <div className={`flex items-center rounded-xl px-4 py-3 border transition ${touched.date && fieldErrors.date ? 'border-red-300 bg-red-50' : 'border-blue-100 bg-blue-50 focus-within:border-blue-400'}`}>
+                                <FaCalendarAlt className="text-purple-500 mr-2" />
+                                <input id="date" name="date" type="date" min={new Date().toISOString().split('T')[0]} value={ride.date} onChange={handleChange} onBlur={handleBlur} required className="bg-transparent w-full outline-none text-sm" />
+                            </div>
+                            {touched.date && fieldErrors.date && <p className="text-xs text-red-600 mt-1">{fieldErrors.date}</p>}
+                        </div>
+                        {/* Time */}
+                        <div>
+                            <label htmlFor="arrivalTime" className="block text-sm font-semibold mb-1">Arrival Time</label>
+                            <div className={`flex items-center rounded-xl px-4 py-3 border transition ${touched.arrivalTime && fieldErrors.arrivalTime ? 'border-red-300 bg-red-50' : 'border-blue-100 bg-blue-50 focus-within:border-blue-400'}`}>
+                                <FaClock className="text-yellow-500 mr-2" />
+                                <input id="arrivalTime" name="arrivalTime" type="time" value={ride.arrivalTime} min={minTime} onChange={handleChange} onBlur={handleBlur} required className="bg-transparent w-full outline-none text-sm" />
+                            </div>
+                            {ride.date && minTime && <p className="text-[11px] text-gray-500 mt-1">Earliest today: {minTime}</p>}
+                            {touched.arrivalTime && fieldErrors.arrivalTime && <p className="text-xs text-red-600 mt-1">{fieldErrors.arrivalTime}</p>}
+                        </div>
+                        {/* Car details (locked) */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">Car Details</label>
+                            <div className="flex items-center bg-slate-50 rounded-xl px-4 py-3 border border-slate-200 opacity-80 cursor-not-allowed" title="Car details come from approved vehicle">
+                                <FaCar className="text-gray-500 mr-2" />
+                                <input name="carDetails" type="text" value={ride.carDetails} disabled className="bg-transparent w-full outline-none text-sm" placeholder="Car model & registration" />
+                            </div>
+                            <p className="text-[11px] text-gray-500 mt-1">Change via Vehicle page (will trigger re-approval).</p>
+                        </div>
+                        {/* Seats */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">Total Seats</label>
+                            <div className={`flex items-center rounded-xl px-3 py-2 border bg-blue-50/70 backdrop-blur transition ${touched.totalSeats && fieldErrors.totalSeats ? 'border-red-300 bg-red-50' : 'border-blue-100 focus-within:border-blue-400'}`}>
+                                <button type="button" onClick={() => incrementSeats(-1)} className="w-9 h-9 rounded-lg bg-white shadow text-blue-600 font-bold text-lg flex items-center justify-center disabled:opacity-40" disabled={ride.totalSeats <= 1}>-</button>
+                                <div className="flex-1 flex items-center justify-center select-none">
+                                    <FaChair className="text-pink-500 mr-2" />
+                                    <input name="totalSeats" type="number" min={1} max={vehicleCapacity || 8} value={ride.totalSeats} onChange={handleChange} onBlur={handleBlur} className="w-16 text-center bg-transparent outline-none font-semibold" />
+                                </div>
+                                <button type="button" onClick={() => incrementSeats(1)} className="w-9 h-9 rounded-lg bg-white shadow text-blue-600 font-bold text-lg flex items-center justify-center disabled:opacity-40" disabled={vehicleCapacity != null ? ride.totalSeats >= vehicleCapacity : ride.totalSeats >= 8}>+</button>
+                            </div>
+                            <div className="flex justify-between items-start">
+                                {vehicleCapacity != null && <p className="text-[11px] text-gray-500 mt-1">Capacity: up to {vehicleCapacity} seats.</p>}
+                                {touched.totalSeats && fieldErrors.totalSeats && <p className="text-xs text-red-600 mt-1">{fieldErrors.totalSeats}</p>}
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Drop Location</label>
-                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">
-                            <FaMapMarkerAlt className="text-red-500 mr-2" />
-                            <select name="destination" value={ride.destination} onChange={handleChange} required className="bg-transparent w-full outline-none">
-                                <option value="">Select Drop Location</option>
-                                {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
-                            </select>
-                        </div>
+                    <div className="flex gap-3 pt-2">
+                        <button type="submit" disabled={submitting || hasErrors} className={`flex-1 relative overflow-hidden group rounded-xl py-3 font-semibold text-white shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed ${hasErrors ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                            <span className={`${submitting ? 'opacity-0' : 'opacity-100'} transition`}>Offer Ride</span>
+                            {submitting && (
+                                <span className="absolute inset-0 flex items-center justify-center">
+                                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                </span>
+                            )}
+                        </button>
+                        <button type="button" onClick={() => { setRide(r => ({ ...r, origin:'', destination:'', date:'', arrivalTime:'', totalSeats:1 })); setTouched({}); setGlobalError(''); setSuccess(false); }} className="px-4 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium">Reset</button>
                     </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Date</label>
-                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">
-                            <FaCalendarAlt className="text-purple-500 mr-2" />
-                            <input name="date" type="date" min={new Date().toISOString().split("T")[0]}
-                                   value={ride.date} onChange={handleChange} required className="bg-transparent w-full outline-none" />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Arrival Time</label>
-                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">
-                            <FaClock className="text-yellow-500 mr-2" />
-                            <input name="arrivalTime" type="time"
-                                   value={ride.arrivalTime} onChange={handleChange} required className="bg-transparent w-full outline-none" />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Car Details</label>
-                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3 opacity-70 cursor-not-allowed" title="Car details come from approved vehicle">
-                            <FaCar className="text-gray-500 mr-2" />
-                            <input name="carDetails" type="text" placeholder="Car model & registration"
-                                   value={ride.carDetails} disabled className="bg-transparent w-full outline-none" />
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">Locked. Update via Vehicle page if needed (will re-enter approval).</p>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Total Seats</label>
-                        <div className="flex items-center bg-blue-50 rounded-xl px-4 py-3">
-                            <FaChair className="text-pink-500 mr-2" />
-                            <input name="totalSeats" type="number" min={1} max={vehicleCapacity || 8}
-                                   value={ride.totalSeats} onChange={handleChange} required className="bg-transparent w-full outline-none" />
-                        </div>
-                        {vehicleCapacity != null && <p className="text-xs text-gray-500 mt-1">Capacity: up to {vehicleCapacity} seats.</p>}
-                    </div>
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">
-                        Offer Ride
-                    </button>
                 </form>
+
+                {/* Right column: Dynamic summary */}
+                <div className="space-y-6">
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg relative overflow-hidden">
+                        <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full" />
+                        <h2 className="text-sm font-semibold tracking-wide uppercase opacity-90">Live Preview</h2>
+                        <p className="mt-1 text-lg font-bold flex items-center">{ride.origin || 'Pickup'} <span className="mx-2 text-white/60">→</span> {ride.destination || 'Drop'}</p>
+                        <div className="mt-4 space-y-2 text-sm">
+                            <div className="flex justify-between"><span className="text-white/70">Date</span><span>{ride.date || '—'}</span></div>
+                            <div className="flex justify-between"><span className="text-white/70">Arrival</span><span>{ride.arrivalTime || '—'}</span></div>
+                            <div className="flex justify-between"><span className="text-white/70">Seats</span><span>{ride.totalSeats}</span></div>
+                            <div className="flex justify-between"><span className="text-white/70">Mode</span><span>{ride.instantBookingEnabled ? 'Instant' : 'Manual'}</span></div>
+                        </div>
+                        <div className="mt-5 text-[11px] text-white/80">Review the preview before publishing. Changes update instantly.</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white border border-gray-100 shadow-sm">
+                        <h3 className="font-semibold text-sm mb-2">Tips for a Great Ride</h3>
+                        <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
+                            <li>Set an arrival time slightly earlier than needed.</li>
+                            <li>Keep car details updated for trust & safety.</li>
+                            <li>Use manual mode if you prefer screening riders.</li>
+                            <li>Reset the form anytime using the Reset button.</li>
+                        </ul>
+                    </div>
+                    <div className="text-[11px] text-gray-400">By offering a ride you agree to the community guidelines.</div>
+                </div>
             </div>
         </div>
     );
