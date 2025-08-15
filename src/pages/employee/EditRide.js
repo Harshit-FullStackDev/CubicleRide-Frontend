@@ -12,6 +12,8 @@ function EditRide() {
     const [loading, setLoading] = useState(true);
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
+    const [vehicleCapacity, setVehicleCapacity] = useState(null);
+    const [vehicleStatus, setVehicleStatus] = useState(null);
 
     // Fetch ride details
     useEffect(() => {
@@ -42,8 +44,55 @@ function EditRide() {
         fetchLocations();
     }, []);
 
+    // Fetch vehicle info for capacity constraint
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await api.get('/vehicle/my');
+                if (res.data) {
+                    setVehicleStatus(res.data.status);
+                    const cap = parseInt(res.data.capacity, 10);
+                    if (!isNaN(cap) && cap > 0) setVehicleCapacity(cap);
+                }
+            } catch (e) {
+                // silently ignore, fallback to default max (8)
+            }
+        })();
+    }, []);
+
+    // Clamp seats when capacity or ride loads
+    useEffect(() => {
+        if (!ride) return;
+        if (vehicleCapacity != null) {
+            if (ride.totalSeats > vehicleCapacity || ride.availableSeats > vehicleCapacity) {
+                setRide(r => ({
+                    ...r,
+                    totalSeats: Math.min(r.totalSeats, vehicleCapacity),
+                    availableSeats: Math.min(r.availableSeats, vehicleCapacity, Math.min(r.totalSeats, vehicleCapacity)),
+                }));
+            }
+        }
+    }, [vehicleCapacity, ride]);
+
     const handleChange = (e) => {
-        setRide({ ...ride, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'totalSeats') {
+            let v = parseInt(value || '1', 10);
+            if (isNaN(v) || v < 1) v = 1;
+            const max = vehicleCapacity != null ? vehicleCapacity : 8;
+            if (v > max) v = max;
+            setRide(r => ({ ...r, totalSeats: v, availableSeats: Math.min(r.availableSeats, v) }));
+            return;
+        }
+        if (name === 'availableSeats') {
+            let v = parseInt(value || '0', 10);
+            if (isNaN(v) || v < 0) v = 0;
+            const maxAvail = Math.min(ride.totalSeats || 0, vehicleCapacity != null ? vehicleCapacity : 9999);
+            if (v > maxAvail) v = maxAvail;
+            setRide(r => ({ ...r, availableSeats: v }));
+            return;
+        }
+        setRide({ ...ride, [name]: value });
     };
 
     const validate = () => {
@@ -53,8 +102,10 @@ function EditRide() {
         if (!ride.date) errs.date = "Date is required";
         if (!ride.arrivalTime) errs.arrivalTime = "Arrival time is required";
         if (!ride.carDetails) errs.carDetails = "Car details required";
-        if (!ride.totalSeats || ride.totalSeats < 1) errs.totalSeats = "Total seats must be at least 1";
+    if (!ride.totalSeats || ride.totalSeats < 1) errs.totalSeats = "Total seats must be at least 1";
+    if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) errs.totalSeats = `Cannot exceed vehicle capacity (${vehicleCapacity})`;
         if (ride.availableSeats > ride.totalSeats) errs.availableSeats = "Available seats cannot exceed total seats";
+    if (vehicleCapacity != null && ride.availableSeats > vehicleCapacity) errs.availableSeats = `Cannot exceed capacity (${vehicleCapacity})`;
         return errs;
     };
 
@@ -177,13 +228,14 @@ function EditRide() {
                                 name="totalSeats"
                                 type="number"
                                 min={1}
-                                max={8}
+                                max={vehicleCapacity != null ? vehicleCapacity : 8}
                                 value={ride.totalSeats}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded"
                                 placeholder="Total Seats"
                             />
                             {errors.totalSeats && <span className="text-red-500 text-xs">{errors.totalSeats}</span>}
+                            {vehicleCapacity != null && !errors.totalSeats && <span className="text-gray-500 text-xs">Capacity limit: {vehicleCapacity}</span>}
                         </div>
 
                         <div>
@@ -194,13 +246,14 @@ function EditRide() {
                                 name="availableSeats"
                                 type="number"
                                 min={0}
-                                max={ride.totalSeats}
+                                max={Math.min(ride.totalSeats || 0, vehicleCapacity != null ? vehicleCapacity : ride.totalSeats || 0)}
                                 value={ride.availableSeats}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded"
                                 placeholder="Available Seats"
                             />
                             {errors.availableSeats && <span className="text-red-500 text-xs">{errors.availableSeats}</span>}
+                            {vehicleCapacity != null && !errors.availableSeats && <span className="text-gray-500 text-xs">Within capacity: {vehicleCapacity}</span>}
                         </div>
                         <div className="col-span-1 md:col-span-2">
                             <label className="block mb-1 font-medium">Booking Mode</label>
