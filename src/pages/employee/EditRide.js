@@ -13,7 +13,6 @@ function EditRide() {
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [vehicleCapacity, setVehicleCapacity] = useState(null);
-    const [vehicleStatus, setVehicleStatus] = useState(null);
 
     // Fetch ride details
     useEffect(() => {
@@ -50,7 +49,6 @@ function EditRide() {
             try {
                 const res = await api.get('/vehicle/my');
                 if (res.data) {
-                    setVehicleStatus(res.data.status);
                     const cap = parseInt(res.data.capacity, 10);
                     if (!isNaN(cap) && cap > 0) setVehicleCapacity(cap);
                 }
