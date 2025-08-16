@@ -102,18 +102,30 @@ function Register() {
 
     const resendOtp = async () => {
         if (resendCooldown > 0) return; // avoid spam
-        try {
-            setInfoMsg('Resending code...');
-            // Assumption: backend exposes endpoint for resend. Adjust if different.
-            await api.post('/auth/resend-otp', { email: data.email });
-            setInfoMsg('A new code has been sent.');
-            startResendCooldown();
-        } catch (err) {
-            const raw = err?.response?.data;
-            let msg = 'Could not resend code';
-            if (typeof raw === 'string') msg = raw;
-            else if (raw && typeof raw === 'object') msg = raw.message || raw.error || msg;
-            setErrors(prev => ({ ...prev, resend: msg }));
+        setErrors(prev => ({ ...prev, resend: undefined }));
+        setInfoMsg('Resending code...');
+        const attempts = [
+            { url: '/auth/resend-otp', payload: { email: data.email } },
+            { url: '/auth/otp/resend', payload: { email: data.email } },
+            { url: '/auth/resend-otp', payload: { emailId: data.email } }, // alternate key naming
+        ];
+        for (let i = 0; i < attempts.length; i++) {
+            try {
+                await api.post(attempts[i].url, attempts[i].payload);
+                setInfoMsg('A new code has been sent.');
+                startResendCooldown();
+                return;
+            } catch (err) {
+                // try next endpoint unless last
+                if (i === attempts.length - 1) {
+                    const raw = err?.response?.data;
+                    let msg = 'Could not resend code';
+                    if (typeof raw === 'string') msg = raw;
+                    else if (raw && typeof raw === 'object') msg = raw.message || raw.error || msg;
+                    setInfoMsg('');
+                    setErrors(prev => ({ ...prev, resend: msg }));
+                }
+            }
         }
     };
 
