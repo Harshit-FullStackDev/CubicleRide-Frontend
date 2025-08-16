@@ -1,187 +1,220 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserShield, FaUsers, FaCarSide, FaSignOutAlt, FaEnvelope, FaUser, FaChevronRight } from "react-icons/fa";
+import {
+    FaUserShield, FaUsers, FaCarSide, FaSignOutAlt, FaChevronRight,
+    FaBars, FaTimes, FaClock, FaTools, FaClipboardCheck
+} from "react-icons/fa";
 import api from "../../api/axios";
+
+// Reusable status badge helper
+const StatusBadge = ({ label, color }) => (
+    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold bg-${color}-100 text-${color}-700`}>{label}</span>
+);
 
 function AdminDashboard() {
     const navigate = useNavigate();
-    const [stats, setStats] = useState({ employees: 0, rides: 0 });
-    const [recentEmployees, setRecentEmployees] = useState([]);
-    const [recentRides, setRecentRides] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [employees, setEmployees] = useState([]);
+    const [rides, setRides] = useState([]);
+    const [vehicles, setVehicles] = useState([]);
+    const [counts, setCounts] = useState({ employees: 0, rides: 0, pendingVehicles: 0 });
+    const [error, setError] = useState(null);
 
     const adminName = localStorage.getItem("name") || "Admin";
     const adminEmail = localStorage.getItem("email") || "admin@company.com";
-    const lastLogin = localStorage.getItem("lastLogin") || new Date().toLocaleString();
+    const lastLogin = useMemo(() => localStorage.getItem("lastLogin") || new Date().toLocaleString(), []);
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const [empRes, rideRes, recentEmpRes, recentRideRes] = await Promise.all([
-                    api.get("/admin/employees/count"),
-                    api.get("/admin/rides/count"),
-                    api.get("/admin/employees?size=3").catch(() => ({ data: [] })),
-                    api.get("/admin/rides?size=3").catch(() => ({ data: [] })),
-                ]);
-                setStats({
-                    employees: empRes.data.count,
-                    rides: rideRes.data.count,
-                });
-                setRecentEmployees(recentEmpRes.data.content || recentEmpRes.data || []);
-                setRecentRides(recentRideRes.data.content || recentRideRes.data || []);
-            } catch {
-                setStats({ employees: 0, rides: 0 });
-                setRecentEmployees([]);
-                setRecentRides([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchStats();
         localStorage.setItem("lastLogin", new Date().toLocaleString());
+        const fetchAll = async () => {
+            try {
+                const [empCount, rideCount, empList, rideList, vehicleList] = await Promise.all([
+                    api.get("/admin/employees/count").catch(() => ({ data: { count: 0 } })),
+                    api.get("/admin/rides/count").catch(() => ({ data: { count: 0 } })),
+                    api.get("/admin/employees").catch(() => ({ data: [] })),
+                    api.get("/admin/rides").catch(() => ({ data: [] })),
+                    api.get("/admin/vehicles").catch(() => ({ data: [] }))
+                ]);
+                setEmployees(empList.data || []);
+                setRides(rideList.data || []);
+                const vList = vehicleList.data || [];
+                setVehicles(vList);
+                setCounts({
+                    employees: empCount.data.count || (empList.data?.length || 0),
+                    rides: rideCount.data.count || (rideList.data?.length || 0),
+                    pendingVehicles: vList.filter(v => v.status === 'PENDING').length
+                });
+            } catch (e) {
+                setError("Failed to load dashboard data.");
+            } finally { setLoading(false); }
+        };
+        fetchAll();
     }, []);
 
-    const handleLogout = () => {
-        localStorage.clear();
-        navigate("/login");
-    };
+    const handleLogout = () => { localStorage.clear(); navigate("/login"); };
+
+    const recentEmployees = useMemo(() => employees.slice(-5).reverse(), [employees]);
+    const recentRides = useMemo(() => rides.slice(-5).reverse(), [rides]);
+    const pendingVehicles = useMemo(() => vehicles.filter(v => v.status === 'PENDING').slice(0,5), [vehicles]);
+
+    // Utility for initials
+    const initials = (n) => (n||'?').split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+
+    if (loading) return <div className="flex items-center justify-center min-h-screen text-orange-600 font-semibold animate-pulse">Loading Admin Dashboard...</div>;
+    if (error) return <div className="flex items-center justify-center min-h-screen text-red-600">{error}</div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-yellow-50 to-red-100 relative overflow-x-hidden">
-            {/* Decorative background */}
-            <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute top-0 left-0 w-96 h-96 bg-orange-200 opacity-30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-200 opacity-30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        <div className="min-h-screen flex bg-gradient-to-br from-orange-50 via-white to-amber-100 relative overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 opacity-30 mix-blend-multiply bg-[radial-gradient(circle_at_20%_20%,#fcd34d,transparent_60%),radial-gradient(circle_at_80%_80%,#fb923c,transparent_55%)]" />
+            {/* Sidebar */}
+            <aside className={`fixed top-0 left-0 h-full w-68 md:w-64 z-30 p-6 flex flex-col gap-8 bg-white/70 backdrop-blur-xl border-r border-orange-200 shadow-xl transform transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center text-white font-bold shadow-lg">A</div>
+                    <div className="flex flex-col">
+                        <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">Admin Panel</span>
+                        <span className="text-[10px] uppercase tracking-wider text-orange-500 font-semibold">Carpool System</span>
+                    </div>
+                </div>
+                <nav className="flex flex-col gap-1 text-sm font-medium">
+                    <button onClick={() => navigate('/admin/dashboard')} className="nav-link nav-link-active"><FaUserShield /> <span>Dashboard</span></button>
+                    <button onClick={() => navigate('/admin/employees')} className="nav-link"><FaUsers /> <span>Employees</span></button>
+                    <button onClick={() => navigate('/admin/rides')} className="nav-link"><FaCarSide /> <span>Rides</span></button>
+                    <button onClick={() => navigate('/admin/vehicles')} className="nav-link"><FaTools /> <span>Vehicles</span>{counts.pendingVehicles>0 && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">{counts.pendingVehicles}</span>}</button>
+                    <button onClick={() => navigate('/admin/employees/add')} className="nav-link"><FaClipboardCheck /> <span>Add Employee</span></button>
+                </nav>
+                <div className="mt-auto flex flex-col gap-2 text-xs">
+                    <div className="p-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-700">
+                        <div className="font-bold text-xs mb-1">Logged in as</div>
+                        <div className="text-sm font-semibold">{adminName}</div>
+                        <div className="text-[10px] text-orange-500 truncate">{adminEmail}</div>
+                    </div>
+                    <button onClick={handleLogout} className="btn btn-danger text-sm font-semibold"><FaSignOutAlt /> Logout</button>
+                </div>
+            </aside>
+            {sidebarOpen && <div className="fixed inset-0 bg-black/30 z-20 md:hidden" onClick={() => setSidebarOpen(false)} />}
+            {/* Main area */}
+            <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+                {/* Header */}
+                <header className="flex items-center justify-between px-5 md:px-10 py-4 sticky top-0 z-10 bg-white/80 backdrop-blur-md shadow border-b border-orange-200">
+                    <button className="md:hidden text-2xl text-orange-600" onClick={()=>setSidebarOpen(!sidebarOpen)}>{sidebarOpen? <FaTimes/>:<FaBars/>}</button>
+                    <div className="flex flex-col">
+                        <span className="text-lg md:text-xl font-bold text-orange-700">Welcome, {adminName.split(' ')[0]}</span>
+                        <span className="text-[11px] text-gray-400">Last login: {lastLogin}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="relative group">
+                            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold shadow cursor-pointer border-2 border-white">{initials(adminName)}</div>
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl p-4 hidden group-hover:block">
+                                <div className="font-bold text-orange-600 mb-1 text-sm">{adminName}</div>
+                                <div className="text-[10px] text-gray-500 mb-2">{adminEmail}</div>
+                                <button onClick={handleLogout} className="btn btn-danger w-full justify-center text-xs font-semibold"><FaSignOutAlt /> Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                {/* Metrics */}
+                <section className="w-full max-w-7xl mx-auto px-5 md:px-10 mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+                    <div onClick={()=>navigate('/admin/employees')} className="card card-gradient-blue cursor-pointer flex items-center gap-4">
+                        <div className="metric-pill"><small>Total</small>{counts.employees}<FaUsers className="metric-icon"/></div>
+                        <div className="flex-1">
+                            <p className="text-[11px] uppercase tracking-wide text-subtle font-semibold">Employees</p>
+                            <h3 className="text-lg font-bold text-indigo-700">Directory</h3>
+                            <p className="text-[10px] text-subtle mt-1">All registered employees</p>
+                        </div>
+                    </div>
+                    <div onClick={()=>navigate('/admin/rides')} className="card card-gradient-green cursor-pointer flex items-center gap-4">
+                        <div className="metric-pill green"><small>Total</small>{counts.rides}<FaCarSide className="metric-icon"/></div>
+                        <div className="flex-1">
+                            <p className="text-[11px] uppercase tracking-wide text-subtle font-semibold">Rides</p>
+                            <h3 className="text-lg font-bold text-green-700">Activity</h3>
+                            <p className="text-[10px] text-subtle mt-1">System-wide rides</p>
+                        </div>
+                    </div>
+                    <div onClick={()=>navigate('/admin/vehicles')} className="card card-gradient-amber cursor-pointer flex items-center gap-4 relative">
+                        <div className="metric-pill orange"><small>Pending</small>{counts.pendingVehicles}<FaTools className="metric-icon"/></div>
+                        <div className="flex-1">
+                            <p className="text-[11px] uppercase tracking-wide text-subtle font-semibold">Vehicles</p>
+                            <h3 className="text-lg font-bold text-amber-600">Approvals</h3>
+                            <p className="text-[10px] text-subtle mt-1">Awaiting verification</p>
+                        </div>
+                    </div>
+                    <div className="card card-gradient-neutral flex items-center gap-4">
+                        <div className="metric-pill neutral"><small>Uptime</small><FaClock className="metric-icon"/><span style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',fontWeight:700}}>∞</span></div>
+                        <div className="flex-1">
+                            <p className="text-[11px] uppercase tracking-wide text-subtle font-semibold">System</p>
+                            <h3 className="text-lg font-bold text-slate-700">Health</h3>
+                            <p className="text-[10px] text-subtle mt-1">All services active</p>
+                        </div>
+                    </div>
+                </section>
+                {/* Lists */}
+                <section className="w-full max-w-7xl mx-auto px-5 md:px-10 mt-10 grid gap-10 grid-cols-1 xl:grid-cols-3 pb-16">
+                    {/* Recent Employees */}
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-indigo-700 flex items-center gap-2"><FaUsers className="text-indigo-400"/> Recent Employees</h3>
+                            <Link to="/admin/employees" className="text-xs font-semibold text-indigo-600 hover:underline">View All</Link>
+                        </div>
+                        <div className="rounded-2xl overflow-hidden border border-indigo-100 bg-white/60 backdrop-blur-lg shadow-sm divide-y divide-indigo-50">
+                            {recentEmployees.length===0 && <div className="p-4 text-xs text-gray-400">No employees yet.</div>}
+                            {recentEmployees.map(e => (
+                                <button key={e.empId} onClick={()=>navigate(`/admin/employees/edit/${e.empId}`)} className="w-full text-left px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 group">
+                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow">
+                                        {initials(e.name||e.empId)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-semibold text-indigo-700 truncate">{e.name || 'Unknown'}</div>
+                                        <div className="text-[10px] text-gray-500 truncate">{e.email}</div>
+                                    </div>
+                                    <FaChevronRight className="text-indigo-300 group-hover:text-indigo-500" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    {/* Recent Rides */}
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-green-700 flex items-center gap-2"><FaCarSide className="text-green-400"/> Recent Rides</h3>
+                            <Link to="/admin/rides" className="text-xs font-semibold text-green-600 hover:underline">View All</Link>
+                        </div>
+                        <div className="rounded-2xl overflow-hidden border border-green-100 bg-white/60 backdrop-blur-lg shadow-sm divide-y divide-green-50">
+                            {recentRides.length===0 && <div className="p-4 text-xs text-gray-400">No rides yet.</div>}
+                            {recentRides.map(r => (
+                                <div key={r.id} className="px-4 py-3 flex items-center gap-3 hover:bg-green-50 cursor-default group">
+                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white flex items-center justify-center text-[11px] font-bold shadow">{(r.origin||'?').slice(0,2).toUpperCase()}</div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-semibold text-green-700 truncate">{r.origin} → {r.destination}</div>
+                                        <div className="text-[10px] text-gray-500">Seats {r.availableSeats}/{r.totalSeats}</div>
+                                    </div>
+                                    <StatusBadge label={r.status || 'Active'} color={r.status==='Active'?'green':'gray'} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    {/* Pending Vehicles */}
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-amber-700 flex items-center gap-2"><FaTools className="text-amber-400"/> Pending Vehicles</h3>
+                            <Link to="/admin/vehicles" className="text-xs font-semibold text-amber-600 hover:underline">Manage</Link>
+                        </div>
+                        <div className="rounded-2xl overflow-hidden border border-amber-100 bg-white/60 backdrop-blur-lg shadow-sm divide-y divide-amber-50">
+                            {pendingVehicles.length===0 && <div className="p-4 text-xs text-gray-400">No pending approvals.</div>}
+                            {pendingVehicles.map(v => (
+                                <button key={v.id || v.empId} onClick={()=>navigate(`/admin/vehicles/${v.empId}`)} className="w-full text-left px-4 py-3 hover:bg-amber-50 flex items-center gap-3 group">
+                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-[11px] font-bold shadow">{(v.make||'?').slice(0,2).toUpperCase()}</div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-semibold text-amber-700 truncate">{v.make} {v.model}</div>
+                                        <div className="text-[10px] text-gray-500 truncate">{v.registrationNumber}</div>
+                                    </div>
+                                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 font-semibold">PENDING</span>
+                                    <FaChevronRight className="text-amber-300 group-hover:text-amber-500" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
             </div>
-            {/* Top Navbar */}
-            <nav className="flex justify-between items-center bg-white/80 backdrop-blur-md shadow-lg px-8 py-4 sticky top-0 z-20 border-b border-orange-100">
-                <div className="flex items-center gap-3">
-                    <FaUserShield className="text-2xl text-orange-500 drop-shadow" />
-                    <span className="text-xl font-bold text-orange-700 tracking-wide">Admin Dashboard</span>
-                </div>
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 text-gray-700">
-                        <FaEnvelope /> <span className="hidden sm:inline">{adminEmail}</span>
-                    </div>
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-2 rounded-xl font-semibold shadow transition"
-                        title="Logout"
-                    >
-                        <FaSignOutAlt /> <span className="hidden sm:inline">Logout</span>
-                    </button>
-                </div>
-            </nav>
-            {/* Main Content */}
-            <main className="flex flex-col items-center justify-center p-4 z-10 relative">
-                <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 w-full max-w-4xl mt-10 border border-orange-100">
-                    {/* Profile Section */}
-                    <div className="flex items-center gap-6 mb-10">
-                        <div className="bg-gradient-to-br from-orange-200 to-yellow-100 rounded-full p-5 shadow-lg border-4 border-orange-300">
-                            <FaUserShield className="text-5xl text-orange-500 drop-shadow" />
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight">{adminName}</h2>
-                            <div className="text-xs text-gray-400 mt-1">
-                                Last login: {lastLogin}
-                            </div>
-                        </div>
-                    </div>
-                    {/* Stats Section */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10">
-                        <div
-                            className="flex items-center bg-blue-50/80 rounded-2xl p-6 shadow group hover:shadow-xl hover:-translate-y-1 transition cursor-pointer border border-blue-100"
-                            onClick={() => navigate("/admin/employees")}
-                            title="View all employees"
-                        >
-                            <div className="mr-4 text-4xl">
-                                <FaUsers className="text-blue-500 group-hover:scale-110 transition" />
-                            </div>
-                            <div>
-                                <div className="text-3xl font-bold">{loading ? "..." : stats.employees}</div>
-                                <div className="text-blue-700 text-base font-medium">Employees</div>
-                            </div>
-                            <FaChevronRight className="ml-auto text-blue-300 group-hover:text-blue-600 transition" />
-                        </div>
-                        <div
-                            className="flex items-center bg-green-50/80 rounded-2xl p-6 shadow group hover:shadow-xl hover:-translate-y-1 transition cursor-pointer border border-green-100"
-                            onClick={() => navigate("/admin/rides")}
-                            title="View all rides"
-                        >
-                            <div className="mr-4 text-4xl">
-                                <FaCarSide className="text-green-500 group-hover:scale-110 transition" />
-                            </div>
-                            <div>
-                                <div className="text-3xl font-bold">{loading ? "..." : stats.rides}</div>
-                                <div className="text-green-700 text-base font-medium">Rides</div>
-                            </div>
-                            <FaChevronRight className="ml-auto text-green-300 group-hover:text-green-600 transition" />
-                        </div>
-                    </div>
-                    {/* Recent Activity */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                        <div>
-                            <h3 className="font-semibold text-blue-700 mb-3 flex items-center gap-2 text-lg">
-                                <FaUser className="text-blue-400" /> Recent Employees
-                            </h3>
-                            <ul className="space-y-2">
-                                {recentEmployees.length === 0 ? (
-                                    <li className="text-gray-400 text-sm">No recent employees.</li>
-                                ) : (
-                                    recentEmployees.map(emp => (
-                                        <li
-                                            key={emp.empId}
-                                            className="flex items-center gap-2 text-gray-700 text-base bg-blue-50/70 rounded-lg px-3 py-2 hover:bg-blue-100 cursor-pointer transition"
-                                            onClick={() => navigate(`/admin/employees/edit/${emp.empId}`)}
-                                            title="Edit employee"
-                                        >
-                                            <FaUser className="text-blue-300" /> {emp.name} <span className="text-xs text-gray-400">({emp.empId})</span>
-                                            <FaChevronRight className="ml-auto text-blue-200" />
-                                        </li>
-                                    ))
-                                )}
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-green-700 mb-3 flex items-center gap-2 text-lg">
-                                <FaCarSide className="text-green-400" /> Recent Rides
-                            </h3>
-                            <ul className="space-y-2">
-                                {recentRides.length === 0 ? (
-                                    <li className="text-gray-400 text-sm">No recent rides.</li>
-                                ) : (
-                                    recentRides.map(ride => (
-                                        <li
-                                            key={ride.id}
-                                            className="flex items-center gap-2 text-gray-700 text-base bg-green-50/70 rounded-lg px-3 py-2 hover:bg-green-100 cursor-pointer transition"
-                                            onClick={() => navigate(`/admin/rides/view/${ride.id}`)}
-                                            title="View ride"
-                                        >
-                                            <FaCarSide className="text-green-300" /> {ride.origin} <span className="mx-1 text-gray-400">→</span> {ride.destination}
-                                            <FaChevronRight className="ml-auto text-green-200" />
-                                        </li>
-                                    ))
-                                )}
-                            </ul>
-                        </div>
-                    </div>
-                    {/* Actions */}
-                    <div className="flex flex-col gap-4">
-                        <Link
-                            to="/admin/employees"
-                            className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow transition"
-                        >
-                            <FaUsers /> View Employees
-                        </Link>
-                        <Link
-                            to="/admin/rides"
-                            className="bg-gradient-to-r from-green-600 to-green-400 hover:from-green-700 hover:to-green-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow transition"
-                        >
-                            <FaCarSide /> View All Rides
-                        </Link>
-                    </div>
-                </div>
-            </main>
         </div>
     );
 }

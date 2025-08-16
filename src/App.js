@@ -12,6 +12,9 @@ const ViewEmployees = lazy(() => import('./pages/admin/ViewEmployees'));
 const ViewRides = lazy(() => import('./pages/admin/ViewRides'));
 const EditRide = lazy(() => import('./pages/employee/EditRide'));
 const EditEmployee = lazy(() => import('./pages/admin/EditEmployee'));
+const AddEmployee = lazy(() => import('./pages/admin/AddEmployee'));
+const Vehicles = lazy(() => import('./pages/admin/Vehicles'));
+const VehicleDetail = lazy(() => import('./pages/admin/VehicleDetail'));
 const OtpVerify = lazy(() => import('./components/OTPVerify'));
 const Notifications = lazy(() => import('./pages/employee/Notifications'));
 const PublishedHistory = lazy(() => import('./pages/employee/PublishedHistory'));
@@ -38,8 +41,11 @@ function App() {
                 <Route path="/employee/profile" element={<ProtectedRoute role="EMPLOYEE"><Profile /></ProtectedRoute>} />
                 <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/admin/employees" element={<ProtectedRoute role="ADMIN"><ViewEmployees /></ProtectedRoute>} />
+                <Route path="/admin/employees/add" element={<ProtectedRoute role="ADMIN"><AddEmployee /></ProtectedRoute>} />
                 <Route path="/admin/employees/edit/:id" element={<ProtectedRoute role="ADMIN"><EditEmployee /></ProtectedRoute>} />
                 <Route path="/admin/rides" element={<ProtectedRoute role="ADMIN"><ViewRides /></ProtectedRoute>} />
+                <Route path="/admin/vehicles" element={<ProtectedRoute role="ADMIN"><Vehicles /></ProtectedRoute>} />
+                <Route path="/admin/vehicles/:empId" element={<ProtectedRoute role="ADMIN"><VehicleDetail /></ProtectedRoute>} />
                 <Route path="*" element={<div className="p-10 text-center">Not Found</div>} />
             </Routes>
         </Suspense>

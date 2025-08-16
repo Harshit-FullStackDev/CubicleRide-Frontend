@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { FaUser, FaSearch, FaEdit, FaTrash, FaIdBadge, FaEnvelope, FaArrowLeft } from "react-icons/fa";
+import { FaUser, FaSearch, FaEdit, FaTrash, FaIdBadge, FaEnvelope, FaArrowLeft, FaPlus, FaPhone, FaCheckCircle, FaRedo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function ViewEmployees() {
@@ -34,6 +34,20 @@ function ViewEmployees() {
         } finally {
             setDeletingId(null);
         }
+    };
+
+    const forceVerify = async (empId) => {
+        try {
+            await api.post(`/admin/employees/${empId}/otp/verify`);
+            alert('OTP marked verified');
+        } catch { alert('Failed to verify'); }
+    };
+
+    const resendOtp = async (empId) => {
+        try {
+            await api.post(`/admin/employees/${empId}/otp/resend`);
+            alert('OTP resent');
+        } catch { alert('Failed to resend'); }
     };
 
     const handleBackToDashboard = () => {
@@ -88,6 +102,11 @@ function ViewEmployees() {
                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" />
                     </div>
                 </div>
+                <div className="flex justify-end mb-4">
+                    <button onClick={() => navigate('/admin/employees/add')} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+                        <FaPlus /> Add Employee
+                    </button>
+                </div>
                 <div className="overflow-x-auto rounded-lg border border-blue-100 shadow">
                     <table className="min-w-full bg-white">
                         <thead className="bg-blue-50 sticky top-0 z-10">
@@ -95,6 +114,7 @@ function ViewEmployees() {
                             <th className="py-3 px-4 text-left font-semibold text-blue-700"><FaIdBadge className="inline mr-1" /> Employee ID</th>
                             <th className="py-3 px-4 text-left font-semibold text-blue-700"><FaUser className="inline mr-1" /> Name</th>
                             <th className="py-3 px-4 text-left font-semibold text-blue-700"><FaEnvelope className="inline mr-1" /> Email</th>
+                            <th className="py-3 px-4 text-left font-semibold text-blue-700"><FaPhone className="inline mr-1" /> Phone</th>
                             <th className="py-3 px-4 text-center font-semibold text-blue-700">Actions</th>
                         </tr>
                         </thead>
@@ -106,9 +126,10 @@ function ViewEmployees() {
                                 </td>
                             </tr>
                         ) : (
-                            filteredEmployees.map((emp, idx) => (
+                filteredEmployees.map((emp, idx) => (
                                 <tr
-                                    key={emp.empId}
+                    // Use internal id if available; fallback to composite to avoid duplicate key warnings
+                    key={emp.id || `${emp.empId}-${idx}`}
                                     className={`transition hover:bg-blue-50 ${idx % 2 === 0 ? "bg-white" : "bg-blue-50/50"}`}
                                 >
                                     <td className="py-3 px-4">{emp.empId}</td>
@@ -116,6 +137,7 @@ function ViewEmployees() {
                                         <FaUser className="text-blue-300" /> {emp.name}
                                     </td>
                                     <td className="py-3 px-4">{emp.email}</td>
+                                    <td className="py-3 px-4">{emp.phone || '-'}</td>
                                     <td className="py-3 px-4">
                                         <div className="flex justify-center items-center gap-4">
                                             <button
@@ -124,6 +146,20 @@ function ViewEmployees() {
                                                 title="Edit"
                                             >
                                                 <FaEdit />
+                                            </button>
+                                            <button
+                                                className="text-green-600 hover:text-green-800 transition p-2 rounded-full hover:bg-green-100"
+                                                onClick={() => forceVerify(emp.empId)}
+                                                title="Force Verify OTP"
+                                            >
+                                                <FaCheckCircle />
+                                            </button>
+                                            <button
+                                                className="text-amber-600 hover:text-amber-800 transition p-2 rounded-full hover:bg-amber-100"
+                                                onClick={() => resendOtp(emp.empId)}
+                                                title="Resend OTP"
+                                            >
+                                                <FaRedo />
                                             </button>
                                             <button
                                                 className={`text-red-600 hover:text-red-800 transition p-2 rounded-full hover:bg-red-100 ${deletingId === emp.empId ? "opacity-50 cursor-not-allowed" : ""}`}
