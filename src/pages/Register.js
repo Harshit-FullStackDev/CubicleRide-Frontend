@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FaIdBadge, FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 
 function Register() {
@@ -59,103 +59,76 @@ function Register() {
     };
 
     return (
-        <div style={{
-            minHeight: "100vh",
-            backgroundImage: "url('/microsoft-background.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "1rem"
-        }}>
-            <div className=" p-8 rounded-2xl shadow-1xl w-full max-w-md flex flex-col items-center">
-                <img src="/orangemantra Logo.png" alt="Logo" className="w-16 h-16 mb-4 rounded-full shadow" />
-                <h2 className="text-2xl font-bold text-orange-500 mb-6 text-center px-6 font-serif">Employee Registration</h2>
-                <form onSubmit={handleSubmit} className="space-y-5 w-full">
-                    {errors.form && (<div className="bg-red-100 text-red-800 p-3 rounded">{errors.form}</div>)}
-                    <div className="relative">
-                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-4">
-                            <FaIdBadge className="text-orange-400" />
-                            <input
-                                ref={empRef}
-                                name="empId"
-                                className="bg-transparent w-full outline-none pt-3 pb-1 peer"
-                                value={data.empId}
-                                onChange={handleChange}
-                                required
-                            />
-                            <label className={`absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 transition-all pointer-events-none peer-focus:text-xs peer-focus:-top-2 peer-focus:translate-y-0 ${data.empId ? "text-xs -top-2 translate-y-0" : ""}`}>
-                                Employee ID
-                            </label>
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50">
+            <header className="h-16 flex items-center justify-between px-6 md:px-12 border-b bg-white/70 backdrop-blur sticky top-0 z-10">
+                <Link to="/" className="flex items-center gap-2">
+                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 grid place-items-center text-white font-semibold text-xs">OM</div>
+                    <div className="text-lg font-semibold tracking-tight"><span className="text-orange-600">Orange </span>mantra</div>
+                </Link>
+                <nav className="hidden md:flex items-center gap-8 text-sm">
+                    <a href="/#features" className="hover:text-orange-600 transition-colors">Features</a>
+                    <a href="/#how" className="hover:text-orange-600 transition-colors">How it works</a>
+                    <a href="/#trust" className="hover:text-orange-600 transition-colors">Trust & Safety</a>
+                </nav>
+                <div className="flex items-center gap-3 text-sm">
+                    <Link to="/login" className="px-4 py-2 rounded-full font-medium border border-orange-200 text-orange-700 hover:bg-orange-50">Sign in</Link>
+                </div>
+            </header>
+            <main className="flex-1 w-full mx-auto max-w-7xl grid lg:grid-cols-2 gap-10 items-center px-6 md:px-12 py-10">
+                <div className="hidden lg:flex flex-col gap-6 pr-8">
+                    <h1 className="text-4xl font-semibold leading-tight tracking-tight">Create your <span className="text-orange-600">account</span></h1>
+                    <p className="text-gray-600 text-lg max-w-md">Register to start publishing or joining office rides. We keep it internal & secure.</p>
+                    <ul className="space-y-3 text-sm text-gray-600">
+                        <li className="flex items-start gap-2"><span className="mt-1 text-orange-500">•</span><span>Only verified employees can sign up.</span></li>
+                        <li className="flex items-start gap-2"><span className="mt-1 text-orange-500">•</span><span>Preset routes & approval controls for safety.</span></li>
+                        <li className="flex items-start gap-2"><span className="mt-1 text-orange-500">•</span><span>Manage rides, seats, and history any time.</span></li>
+                    </ul>
+                </div>
+                <div className="w-full max-w-md mx-auto">
+                    <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg ring-1 ring-orange-100 p-8 relative overflow-hidden">
+                        <div className="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-orange-100 blur-2xl opacity-70" />
+                        <div className="relative">
+                            <h2 className="text-2xl font-semibold tracking-tight mb-1">Register</h2>
+                            <p className="text-sm text-gray-500 mb-6">Set up your internal commute profile</p>
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                {errors.form && (<div className="bg-red-50 text-red-700 border border-red-200 text-sm p-3 rounded-lg">{errors.form}</div>)}
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium text-gray-600">Employee ID</label>
+                                    <div className="flex items-center gap-3 bg-gray-50 hover:bg-white focus-within:bg-white border border-gray-200 rounded-xl px-4 py-3 transition">
+                                        <FaIdBadge className="text-orange-400" />
+                                        <input ref={empRef} name="empId" value={data.empId} onChange={handleChange} required className="bg-transparent w-full outline-none text-sm" />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium text-gray-600">Name</label>
+                                    <div className="flex items-center gap-3 bg-gray-50 hover:bg-white focus-within:bg-white border border-gray-200 rounded-xl px-4 py-3 transition">
+                                        <FaUser className="text-orange-400" />
+                                        <input name="name" value={data.name} onChange={handleChange} required className="bg-transparent w-full outline-none text-sm" />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium text-gray-600">Email</label>
+                                    <div className="flex items-center gap-3 bg-gray-50 hover:bg-white focus-within:bg-white border border-gray-200 rounded-xl px-4 py-3 transition">
+                                        <FaEnvelope className="text-orange-400" />
+                                        <input name="email" type="email" value={data.email} onChange={handleChange} required className="bg-transparent w-full outline-none text-sm" />
+                                    </div>
+                                    {errors.email && <div className="text-red-600 text-xs mt-1">{errors.email}</div>}
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium text-gray-600">Password</label>
+                                    <div className="flex items-center gap-3 bg-gray-50 hover:bg-white focus-within:bg-white border border-gray-200 rounded-xl px-4 py-3 transition">
+                                        <FaLock className="text-orange-400" />
+                                        <input name="password" type="password" value={data.password} onChange={handleChange} required className="bg-transparent w-full outline-none text-sm" />
+                                    </div>
+                                </div>
+                                <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600">Create account</button>
+                                <p className="text-center text-xs text-gray-600">Already have an account? <Link to="/login" className="text-orange-600 font-medium hover:underline">Sign in</Link></p>
+                            </form>
                         </div>
                     </div>
-                    <div className="relative">
-                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-4">
-                            <FaUser className="text-orange-400" />
-                            <input
-                                name="name"
-                                className="bg-transparent w-full outline-none pt-3 pb-1 peer"
-                                value={data.name}
-                                onChange={handleChange}
-                                required
-                            />
-                            <label className={`absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 transition-all pointer-events-none peer-focus:text-xs peer-focus:-top-2 peer-focus:translate-y-0 ${data.name ? "text-xs -top-2 translate-y-0" : ""}`}>
-                                Name
-                            </label>
-                        </div>
-                    </div>
-                    <div className="relative">
-                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-4">
-                            <FaEnvelope className="text-orange-400" />
-                            <input
-                                name="email"
-                                className="bg-transparent w-full outline-none pt-3 pb-1 peer"
-                                value={data.email}
-                                onChange={handleChange}
-                                required
-                                type="email"
-                            />
-                            <label className={`absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 transition-all pointer-events-none peer-focus:text-xs peer-focus:-top-2 peer-focus:translate-y-0 ${data.email ? "text-xs -top-2 translate-y-0" : ""}`}>
-                                Email
-                            </label>
-                        </div>
-                        {errors.email && <div className="text-red-600 text-xs mt-1">{errors.email}</div>}
-                    </div>
-                    <div className="relative">
-                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-4">
-                            <FaLock className="text-orange-400" />
-                            <input
-                                name="password"
-                                className="bg-transparent w-full outline-none pt-3 pb-1 peer"
-                                value={data.password}
-                                onChange={handleChange}
-                                required
-                                type="password"
-                            />
-                            <label className={`absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 transition-all pointer-events-none peer-focus:text-xs peer-focus:-top-2 peer-focus:translate-y-0 ${data.password ? "text-xs -top-2 translate-y-0" : ""}`}>
-                                Password
-                            </label>
-                        </div>
-                    </div>
-                    <button
-                        type="submit"
-                        className="w-full bg-orange-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-semibold mt-2"
-                    >
-                        Register
-                    </button>
-                    <p className="text-center text-sm mt-4 text-gray-600">
-                        Already have an account?{" "}
-                        <span
-                            onClick={() => navigate("/login")}
-                            className="text-orange-600 font-semibold cursor-pointer hover:underline"
-                        >
-                            Login
-                        </span>
-                    </p>
-                </form>
-            </div>
+                </div>
+            </main>
+            <footer className="py-6 text-center text-xs text-gray-500">© {new Date().getFullYear()} Orange Mantra • Internal use</footer>
         </div>
     );
 }

@@ -21,12 +21,13 @@ const PublishedHistory = lazy(() => import('./pages/employee/PublishedHistory'))
 const JoinedHistory = lazy(() => import('./pages/employee/JoinedHistory'));
 const VehiclePage = lazy(() => import('./pages/employee/Vehicle'));
 const Profile = lazy(() => import('./pages/employee/Profile'));
+const Landing = lazy(() => import('./pages/Landing'));
 
 function App() {
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-sm text-gray-500">Loading...</div>}>
             <Routes>
-                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/" element={<Landing />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/otp-verify" element={<OtpVerify />} />

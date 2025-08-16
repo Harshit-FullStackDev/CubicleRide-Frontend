@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import {
     FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock,
-    FaEdit, FaTrash, FaBell, FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers, FaTools
+    FaEdit, FaTrash, FaBell, FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers
 } from "react-icons/fa";
 
 function EmployeeDashboard() {
@@ -113,35 +113,36 @@ function EmployeeDashboard() {
 
     const getInitials = (name) => name.split(" ").map(n => n[0]).join("").toUpperCase();
 
-    // Animated card classes
-    const cardAnim = "transition-transform duration-300 ease-out transform hover:scale-[1.015]";
-    const glass = "om-glass";
+    // Removed old styling helper constants no longer used after UI refactor
 
     if (loading) return <div className="flex items-center justify-center min-h-screen text-blue-700 animate-pulse text-xl font-bold">Loading dashboard...</div>;
     if (error) return <div className="flex items-center justify-center min-h-screen text-red-600 text-lg">{error}</div>;
 
     return (
-        <div className="min-h-screen flex bg-gradient-to-br from-blue-50 via-white to-blue-100 relative overflow-hidden">
-            {/* Background image */}
-            <img src="/new-bg.png" alt="background" className="fixed inset-0 w-full h-full object-cover z-0 opacity-60 pointer-events-none select-none" style={{filter: 'blur(2px)'}} />
+        <div className="min-h-screen flex bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
+            {/* Background accent blobs */}
+            <div className="pointer-events-none select-none" aria-hidden="true">
+                <div className="absolute -top-20 -right-16 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+                <div className="absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
+            </div>
             {/* Sidebar */}
-            <aside className={`fixed z-30 top-0 left-0 h-full w-64 p-6 flex flex-col gap-8 ${glass} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>
+            <aside className={`fixed z-30 top-0 left-0 h-full w-64 p-6 flex flex-col gap-8 bg-white/75 backdrop-blur-xl border-r border-orange-100 shadow-xl ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>                
                 <div className="flex items-center gap-3 mb-8">
-                    <img src="/orangemantra%20Logo.png" alt="Logo" className="w-10 h-10 rounded-full shadow-lg border-2 border-blue-200" />
-                    <span className="text-2xl font-bold tracking-tight select-none bg-gradient-to-r from-orange-500 to-indigo-500 bg-clip-text text-transparent">Orange<span className='text-blue-400'>Mantra</span></span>
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 grid place-items-center text-white font-semibold text-sm">OM</div>
+                    <span className="text-2xl font-bold tracking-tight select-none"><span className='text-orange-600'>Orange</span><span className='text-gray-800 ml-1'>Mantra</span></span>
                 </div>
                 <nav className="flex flex-col gap-2 font-medium">
-                    <Link to="/employee/dashboard" className="nav-link nav-link-active"><FaUser /> <span>Dashboard</span></Link>
-                    <Link to="/employee/offer" className="nav-link"><FaPlus /> <span>Offer a Ride</span></Link>
-                    <Link to="/employee/join" className="nav-link"><FaUsers /> <span>Join a Ride</span></Link>
-                    <Link to="/employee/notifications" className="nav-link"><FaBell /> <span>Notifications</span></Link>
-                    <Link to="/employee/history/published" className="nav-link"><FaCar /> <span>Published History</span></Link>
-                    <Link to="/employee/history/joined" className="nav-link"><FaUsers /> <span>Joined History</span></Link>
-                    <Link to="/employee/vehicle" className="nav-link"><FaCar /> <span>My Vehicle</span>{vehicleStatus && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-gray-200">{vehicleStatus.status}</span>}</Link>
-                    <Link to="/employee/profile" className="nav-link"><FaUser /> <span>My Profile</span></Link>
+                    <Link to="/employee/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-orange-700 font-semibold bg-orange-100/70"><FaUser /> <span>Dashboard</span></Link>
+                    <Link to="/employee/offer" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaPlus /> <span>Offer a Ride</span></Link>
+                    <Link to="/employee/join" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaUsers /> <span>Join a Ride</span></Link>
+                    <Link to="/employee/notifications" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaBell /> <span>Notifications</span></Link>
+                    <Link to="/employee/history/published" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaCar /> <span>Published History</span></Link>
+                    <Link to="/employee/history/joined" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaUsers /> <span>Joined History</span></Link>
+                    <Link to="/employee/vehicle" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaCar /> <span>My Vehicle</span>{vehicleStatus && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">{vehicleStatus.status}</span>}</Link>
+                    <Link to="/employee/profile" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaUser /> <span>My Profile</span></Link>
                 </nav>
                 <div className="mt-auto flex flex-col gap-2">
-                    <button onClick={handleLogout} className="btn btn-danger font-semibold"><FaSignOutAlt /> Logout</button>
+                    <button onClick={handleLogout} className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-orange-600 hover:bg-orange-700 text-white shadow"><FaSignOutAlt /> Logout</button>
                 </div>
             </aside>
             {/* Overlay for mobile sidebar */}
@@ -149,64 +150,65 @@ function EmployeeDashboard() {
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-h-screen md:ml-64">
                 {/* Navbar */}
-                <header className="flex items-center justify-between px-4 md:px-10 py-4 sticky top-0 z-10 bg-white/80 backdrop-blur-lg shadow border-b border-blue-100">
+                <header className="flex items-center justify-between px-4 md:px-10 py-4 sticky top-0 z-10 bg-white/70 backdrop-blur border-b border-orange-100">
                     <button className="md:hidden text-2xl text-blue-700" onClick={() => setSidebarOpen(!sidebarOpen)}>
                         {sidebarOpen ? <FaTimes /> : <FaBars />}
                     </button>
                     <div className="flex items-center gap-3">
-                        <span className="text-xl font-bold text-blue-700">Welcome, {empName.split(' ')[0]}</span>
+                        <span className="text-xl font-semibold text-gray-800">Welcome, <span className="text-orange-600">{empName.split(' ')[0]}</span></span>
                         <span className="hidden md:inline text-gray-400 text-sm ml-2">Last login: {lastLogin}</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="relative group">
-                            <div className="icon-pill" style={{border:'2px solid #6366f1'}}>
-                                {getInitials(empName)}
-                            </div>
-                            <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg p-3 hidden group-hover:block z-50">
-                                <div className="text-blue-700 font-bold mb-2">{empName}</div>
-                                <div className="text-xs text-gray-500 mb-2">{empEmail}</div>
-                                <button onClick={handleLogout} className="btn btn-danger w-full justify-center font-semibold"><FaSignOutAlt /> Logout</button>
+                            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white font-semibold flex items-center justify-center ring-2 ring-orange-200 shadow cursor-pointer">{getInitials(empName)}</div>
+                            <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur rounded-xl shadow-lg border border-orange-100 p-4 hidden group-hover:block z-50">
+                                <div className="text-sm font-semibold text-gray-800 mb-1 truncate">{empName}</div>
+                                <div className="text-[11px] text-gray-500 mb-3 break-all">{empEmail}</div>
+                                <button onClick={handleLogout} className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-orange-600 hover:bg-orange-700 text-white"><FaSignOutAlt /> Logout</button>
                             </div>
                         </div>
                     </div>
                 </header>
                 {/* Stats Cards */}
-                <section className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 px-4 fade-in">
-                    <div className={`card card-gradient-blue ${cardAnim} text-center flex items-center gap-5`}>
-                        <div className="metric-pill">
-                            <small>Total</small>
-                            {stats.total}
-                            <FaCar className="metric-icon" />
-                        </div>
-                        <div className="flex-1 text-left">
-                            <p className="text-sm tracking-wide text-subtle font-semibold uppercase">Published</p>
-                            <h3 className="text-lg font-bold text-indigo-700">Rides</h3>
-                            <p className="text-xs text-subtle mt-1">All rides you have offered.</p>
+                <section className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 px-4">
+                    <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white p-6 shadow hover:shadow-lg transition">
+                        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_30%,white,transparent)]" />
+                        <div className="relative flex items-center gap-6">
+                            <div className="flex flex-col items-center justify-center h-20 w-20 rounded-xl bg-white/20 backdrop-blur text-white font-bold text-2xl">
+                                {stats.total}
+                                <FaCar className="mt-1" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs uppercase tracking-wide font-medium text-white/80">Published</p>
+                                <h3 className="text-xl font-semibold">Rides</h3>
+                                <p className="text-[11px] mt-2 text-white/80">All rides you&apos;ve offered.</p>
+                            </div>
                         </div>
                     </div>
-                    <Link to="/employee/notifications" className={`card card-gradient-amber ${cardAnim} text-center flex items-center gap-5`}>
-                        <div className="metric-pill orange">
-                            <small>Now</small>
-                            <FaBell className="metric-icon" />
-                            {/** Placeholder count if needed later */}
-                            <span style={{position:'absolute', inset:'0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem', fontWeight:700}}>⚡</span>
-                        </div>
-                        <div className="flex-1 text-left">
-                            <p className="text-sm tracking-wide text-subtle font-semibold uppercase">Notifications</p>
-                            <h3 className="text-lg font-bold text-amber-600">Updates</h3>
-                            <p className="text-xs text-subtle mt-1">See ride activity & alerts.</p>
+                    <Link to="/employee/notifications" className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow border border-orange-100 hover:shadow-lg hover:border-orange-200 transition">
+                        <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-orange-100/70 blur-2xl" />
+                        <div className="relative flex items-center gap-6">
+                            <div className="flex flex-col items-center justify-center h-20 w-20 rounded-xl bg-orange-50 text-orange-600 font-bold text-2xl">
+                                <FaBell />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs uppercase tracking-wide font-medium text-gray-500">Notifications</p>
+                                <h3 className="text-xl font-semibold text-gray-800">Updates</h3>
+                                <p className="text-[11px] mt-2 text-gray-500">Ride activity & alerts.</p>
+                            </div>
                         </div>
                     </Link>
-                    <Link to="/employee/history/joined" className={`card card-gradient-green ${cardAnim} text-center flex items-center gap-5`}>
-                        <div className="metric-pill green">
-                            <small>Joined</small>
-                            <FaUsers className="metric-icon" />
-                            <span style={{position:'absolute', inset:'0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem', fontWeight:700}}>👥</span>
-                        </div>
-                        <div className="flex-1 text-left">
-                            <p className="text-sm tracking-wide text-subtle font-semibold uppercase">History</p>
-                            <h3 className="text-lg font-bold text-green-700">Rides</h3>
-                            <p className="text-xs text-subtle mt-1">List of rides you joined.</p>
+                    <Link to="/employee/history/joined" className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow border border-orange-100 hover:shadow-lg hover:border-orange-200 transition">
+                        <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-amber-100/70 blur-2xl" />
+                        <div className="relative flex items-center gap-6">
+                            <div className="flex flex-col items-center justify-center h-20 w-20 rounded-xl bg-amber-50 text-amber-600 font-bold text-2xl">
+                                <FaUsers />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs uppercase tracking-wide font-medium text-gray-500">History</p>
+                                <h3 className="text-xl font-semibold text-gray-800">Joined Rides</h3>
+                                <p className="text-[11px] mt-2 text-gray-500">Rides you joined.</p>
+                            </div>
                         </div>
                     </Link>
                 </section>
@@ -216,15 +218,15 @@ function EmployeeDashboard() {
                         {/* Published Column */}
                         <div className="flex flex-col min-h-[60vh]">
                             <div className="flex items-center justify-between mb-5">
-                                <h3 className="text-2xl font-bold text-blue-700">Your Published Rides</h3>
-                                <Link to="/employee/offer" className="btn btn-primary text-xs font-semibold"><FaPlus /> New</Link>
+                                <h3 className="text-2xl font-semibold text-gray-800">Your Published Rides</h3>
+                                <Link to="/employee/offer" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-orange-600 hover:bg-orange-700 text-white shadow"><FaPlus /> New</Link>
                             </div>
                             <div className="flex-1 overflow-y-auto pr-1 space-y-6 max-h-[65vh] custom-scroll">
                                 {publishedRides.length === 0 ? (
                                     <p className="text-gray-400 text-center py-10">You haven’t published any rides yet.</p>
                                 ) : (
                                     publishedRides.map(ride => (
-                                        <div key={ride.id} className={`${glass} ${cardAnim} rounded-2xl p-6 flex flex-col gap-3 relative group`}>
+                                        <div key={ride.id} className={`bg-white/80 backdrop-blur border border-orange-100 hover:border-orange-200 transition rounded-2xl p-6 flex flex-col gap-3 relative group shadow-sm`}>
                                             <div className="flex items-center gap-3 mb-1">
                                                 <FaMapMarkerAlt className="text-green-500" />
                                                 <span className="font-semibold">{ride.origin}</span>
@@ -290,8 +292,8 @@ function EmployeeDashboard() {
                                                 )}
                                             </div>
                                             <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => handleEdit(ride.id)} className="btn btn-primary text-xs"><FaEdit /> Edit</button>
-                                                <button onClick={() => handleDelete(ride.id)} className="btn btn-danger text-xs"><FaTrash /> Delete</button>
+                                                <button onClick={() => handleEdit(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-medium"><FaEdit /> Edit</button>
+                                                <button onClick={() => handleDelete(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-medium"><FaTrash /> Delete</button>
                                             </div>
                                         </div>
                                     ))
@@ -301,15 +303,15 @@ function EmployeeDashboard() {
                         {/* Joined Column */}
                         <div className="flex flex-col min-h-[60vh]">
                             <div className="flex items-center justify-between mb-5">
-                                <h3 className="text-2xl font-bold text-green-700">Rides You've Joined</h3>
-                                <Link to="/employee/join" className="btn btn-outline text-xs font-semibold"><FaUsers /> Find</Link>
+                                <h3 className="text-2xl font-semibold text-gray-800">Rides You&apos;ve Joined</h3>
+                                <Link to="/employee/join" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border border-orange-300 hover:bg-orange-50 text-gray-700"><FaUsers /> Find</Link>
                             </div>
                             <div className="flex-1 overflow-y-auto pr-1 space-y-6 max-h-[65vh] custom-scroll">
                                 {joinedRides.length === 0 ? (
                                     <p className="text-gray-400 text-center py-10">You haven’t joined any rides yet.</p>
                                 ) : (
                                     joinedRides.map(ride => (
-                                        <div key={ride.id} className={`bg-green-50 ${cardAnim} rounded-2xl p-6 flex flex-col gap-3 border border-green-200 relative group`}>
+                                        <div key={ride.id} className={`bg-white border border-amber-100 hover:border-amber-200 transition rounded-2xl p-6 flex flex-col gap-3 relative group shadow-sm`}>
                                             <div className="flex items-center gap-3 mb-1">
                                                 <FaMapMarkerAlt className="text-green-500" />
                                                 <span className="font-semibold">{ride.origin}</span>
@@ -355,7 +357,7 @@ function EmployeeDashboard() {
                                                 )}
                                             </div>
                                             <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => handleLeave(ride.id)} className="btn btn-danger text-xs"><FaUser /> Leave</button>
+                                                <button onClick={() => handleLeave(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-medium"><FaUser /> Leave</button>
                                             </div>
                                         </div>
                                     ))
