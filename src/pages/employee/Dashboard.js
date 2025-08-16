@@ -258,7 +258,7 @@ function EmployeeDashboard() {
                                                 </span>
                                             </div>
                                             <div className="mt-2 text-xs text-blue-700">
-                                                <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                                <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId}) {ride.ownerPhone && <span className="ml-2 text-green-600 font-semibold">📞 {ride.ownerPhone}</span>}
                                             </div>
                                             <div className="flex flex-col gap-1 mt-2">
                                                 <div className="flex items-center gap-2">
@@ -267,7 +267,7 @@ function EmployeeDashboard() {
                                                 {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
                                                     <ul className="ml-2 list-disc text-xs text-gray-700">
                                                         {ride.joinedEmployees.map(emp => (
-                                                            <li key={emp.empId}>{emp.name} ({emp.empId})</li>
+                                                            <li key={emp.empId}>{emp.name} ({emp.empId}) {emp.phone && <span className="text-green-600 font-semibold">📞 {emp.phone}</span>}</li>
                                                         ))}
                                                     </ul>
                                                 ) : (
@@ -338,7 +338,7 @@ function EmployeeDashboard() {
                                                 <span className={`badge ${ride.status === 'Active' ? 'badge-success' : 'badge-muted'}`}>{ride.status || 'Active'}</span>
                                             </div>
                                             <div className="mt-2 text-xs text-blue-700">
-                                                <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                                <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId}) {ride.ownerPhone ? <span className="ml-2 text-green-600 font-semibold">📞 {ride.ownerPhone}</span> : <span className="ml-2 text-gray-400">phone hidden</span>}
                                             </div>
                                             <div className="mt-2">
                                                 <div className="flex items-center text-green-700 font-semibold text-xs mb-1">
@@ -347,7 +347,7 @@ function EmployeeDashboard() {
                                                 {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
                                                     <ul className="ml-6 list-disc text-xs text-gray-700">
                                                         {ride.joinedEmployees.map(emp => (
-                                                            <li key={emp.empId}>{emp.name} ({emp.empId})</li>
+                                                            <li key={emp.empId}>{emp.name} ({emp.empId}) {emp.phone && <span className="text-green-600 font-semibold">📞 {emp.phone}</span>}</li>
                                                         ))}
                                                     </ul>
                                                 ) : (

@@ -144,7 +144,7 @@ function JoinRide() {
                                             {ride.fare && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">₹{ride.fare}/seat</span>}
                                         </div>
                                         <div className="text-gray-700 text-xs mt-2">
-                                            <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId})
+                                            <strong>Owner:</strong> {ride.ownerName} ({ride.ownerEmpId}) {ride.ownerPhone ? <span className="ml-2 text-green-600 font-semibold">📞 {ride.ownerPhone}</span> : <span className="ml-2 text-gray-400">{hasJoined ? (isPending ? 'awaiting approval' : 'phone unavailable') : 'join to view phone'}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -156,7 +156,7 @@ function JoinRide() {
                                         <ul className="ml-6 list-disc text-xs text-gray-700">
                                             {ride.joinedEmployees.map(emp => (
                                                 <li key={emp.empId}>
-                                                    {emp.name} ({emp.empId})
+                                                    {emp.name} ({emp.empId}) {emp.phone && isOwn && <span className="text-green-600 font-semibold">📞 {emp.phone}</span>}
                                                 </li>
                                             ))}
                                         </ul>

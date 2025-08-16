@@ -130,7 +130,7 @@ function JoinedHistory() {
                   <div className="mt-3 space-y-1 text-xs text-gray-600">
                     <div className="flex items-center gap-2"><FaCalendarAlt className="text-green-600" /> {formatDate(ride.date)}</div>
                     <div className="flex items-center gap-2"><FaClock className="text-yellow-600" /> {ride.arrivalTime?.slice(0,5) || '—'}</div>
-                    <div className="flex items-center gap-2"><FaUser className="text-indigo-500" /> {ride.ownerName} ({ride.ownerEmpId})</div>
+                    <div className="flex items-center gap-2"><FaUser className="text-indigo-500" /> {ride.ownerName} ({ride.ownerEmpId}) {ride.ownerPhone && <span className="text-green-600 font-semibold">📞 {ride.ownerPhone}</span>}</div>
                     {ride.fare && <div className="flex items-center gap-2 text-indigo-600">Fare: ₹{ride.fare}/seat</div>}
                   </div>
                   <div className="mt-4 flex items-center justify-between">

@@ -134,6 +134,16 @@ function PublishedHistory() {
                     <span className={`text-[11px] px-2 py-1 rounded-full border ${badgeColors}`}>{ride.status}</span>
                     <span className="text-[11px] text-gray-400">Seats: {ride.availableSeats}/{ride.totalSeats}</span>
                   </div>
+                  {ride.joinedEmployees && ride.joinedEmployees.length > 0 && (
+                    <div className="mt-3 border-t pt-2">
+                      <div className="text-[11px] font-semibold text-indigo-700 mb-1">Passengers</div>
+                      <ul className="text-[11px] text-gray-600 space-y-1">
+                        {ride.joinedEmployees.map(e => (
+                          <li key={e.empId}>{e.name} ({e.empId}) {e.phone && <span className="text-green-600 font-semibold">📞 {e.phone}</span>}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               );
             })}
