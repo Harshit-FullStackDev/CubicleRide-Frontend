@@ -127,9 +127,8 @@ function EmployeeDashboard() {
             </div>
             {/* Sidebar */}
             <aside className={`fixed z-30 top-0 left-0 h-full w-64 p-6 flex flex-col gap-8 bg-white/75 backdrop-blur-xl border-r border-orange-100 shadow-xl ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>                
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 grid place-items-center text-white font-semibold text-sm">OM</div>
-                    <span className="text-2xl font-bold tracking-tight select-none"><span className='text-orange-600'>Orange</span><span className='text-gray-800 ml-1'>Mantra</span></span>
+                <div className="flex items-center gap-4 mb-8">
+                    <img src="/OMLogo.svg" alt="OrangeMantra" className="h-12 w-auto" />
                 </div>
                 <nav className="flex flex-col gap-2 font-medium">
                     <Link to="/employee/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-orange-700 font-semibold bg-orange-100/70"><FaUser /> <span>Dashboard</span></Link>

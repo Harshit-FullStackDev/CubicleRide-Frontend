@@ -61,9 +61,8 @@ function Register() {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50">
             <header className="h-16 flex items-center justify-between px-6 md:px-12 border-b bg-white/70 backdrop-blur sticky top-0 z-10">
-                <Link to="/" className="flex items-center gap-2">
-                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 grid place-items-center text-white font-semibold text-xs">OM</div>
-                    <div className="text-lg font-semibold tracking-tight"><span className="text-orange-600">Orange </span>mantra</div>
+                <Link to="/" className="flex items-center gap-3">
+                    <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
                 </Link>
                 <nav className="hidden md:flex items-center gap-8 text-sm">
                     <a href="/#features" className="hover:text-orange-600 transition-colors">Features</a>
@@ -128,7 +127,8 @@ function Register() {
                     </div>
                 </div>
             </main>
-            <footer className="py-6 text-center text-xs text-gray-500">© {new Date().getFullYear()} Orange Mantra • Internal use</footer>
+            <footer className="py-6 text-center text-xs text-gray-500">© {new Date().getFullYear()} orangemantra • Internal use</footer>
+            <div className="mt-2 text-xs text-gray-500"> Developed By • Harshit Soni .</div>
         </div>
     );
 }

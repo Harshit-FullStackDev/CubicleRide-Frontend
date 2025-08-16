@@ -69,12 +69,8 @@ function AdminDashboard() {
             <div className="pointer-events-none absolute inset-0 opacity-30 mix-blend-multiply bg-[radial-gradient(circle_at_20%_20%,#fcd34d,transparent_60%),radial-gradient(circle_at_80%_80%,#fb923c,transparent_55%)]" />
             {/* Sidebar */}
             <aside className={`fixed top-0 left-0 h-full w-68 md:w-64 z-30 p-6 flex flex-col gap-8 bg-white/70 backdrop-blur-xl border-r border-orange-200 shadow-xl transform transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center text-white font-bold shadow-lg">A</div>
-                    <div className="flex flex-col">
-                        <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">Admin Panel</span>
-                        <span className="text-[10px] uppercase tracking-wider text-orange-500 font-semibold">Carpool System</span>
-                    </div>
+                <div className="flex items-center gap-4 mb-2">
+                    <img src="/OMLogo.svg" alt="OrangeMantra" className="h-12 w-auto" />
                 </div>
                 <nav className="flex flex-col gap-1 text-sm font-medium">
                     <button onClick={() => navigate('/admin/dashboard')} className="nav-link nav-link-active"><FaUserShield /> <span>Dashboard</span></button>

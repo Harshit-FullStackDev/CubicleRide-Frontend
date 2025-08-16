@@ -58,9 +58,8 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white text-gray-900">
       <header className="sticky top-0 z-40 backdrop-blur bg-white/70 border-b border-orange-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 grid place-items-center text-white text-xs font-semibold">OM</div>
-            <div className="text-xl font-semibold tracking-tight"><span className="text-orange-600">Orange </span><span>mantra</span></div>
+          <div className="flex items-center gap-3">
+            <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm">
             <a href="#features" className="hover:text-orange-600 transition-colors">Features</a>
@@ -245,9 +244,8 @@ export default function Landing() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="col-span-2">
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 grid place-items-center text-white text-xs font-semibold">OM</div>
-                <div className="text-lg font-semibold tracking-tight"><span className="text-orange-600">Orange </span><span>mantra</span></div>
+              <div className="flex items-center gap-3">
+                <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
               </div>
               <p className="text-sm text-gray-600 mt-3 max-w-md">An internal, secure ride-sharing experience.</p>
             </div>
@@ -262,13 +260,43 @@ export default function Landing() {
             <div>
               <div className="font-medium mb-2">Company</div>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><a className="hover:text-orange-600" href="#">Careers</a></li>
-                <li><a className="hover:text-orange-600" href="#">Support</a></li>
-                <li><a className="hover:text-orange-600" href="#">Policies</a></li>
+                <li>
+                  <a
+                    href="https://www.orangemantra.com/career/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 hover:text-orange-600 transition"
+                  >
+                    <span className="px-2 py-0.5 rounded-md bg-orange-100 text-[10px] font-semibold text-orange-700 group-hover:bg-orange-200">NEW</span>
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.orangemantra.com/services/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 hover:text-orange-600 transition"
+                  >
+                    Services
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.orangemantra.com/career/jobs.php"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 hover:text-orange-600 transition"
+                  >
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+                    Job Openings
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="mt-8 text-xs text-gray-500">© {new Date().getFullYear()} Orange Mantra • Internal use.</div>
+          <div className="mt-8 text-xs text-gray-500">© {new Date().getFullYear()} OrangeMantra • Internal use.</div>
+          <div className="mt-2 text-xs text-gray-500"> Developed By • Harshit Soni .</div>
         </div>
       </footer>
     </div>
