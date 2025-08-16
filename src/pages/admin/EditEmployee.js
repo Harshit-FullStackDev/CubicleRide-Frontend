@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { useParams, useNavigate } from "react-router-dom";
+import AdminLayout from "../../components/AdminLayout";
 
 function EditEmployee() {
     const { id } = useParams();
@@ -31,12 +32,12 @@ function EditEmployee() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Loading...</div>;
-    if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+    if (loading) return <AdminLayout heading="Edit Employee"><div className="text-blue-600 text-sm animate-pulse">Loading employee...</div></AdminLayout>;
+    if (error) return <AdminLayout heading="Edit Employee"><div className="text-red-600 text-sm">{error}</div></AdminLayout>;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow w-full max-w-md">
+        <AdminLayout heading="Edit Employee">
+            <form onSubmit={handleSubmit} className="bg-white/90 p-8 rounded-xl shadow w-full max-w-md mx-auto">
                 <h2 className="text-2xl font-bold mb-6 text-blue-700">Edit Employee</h2>
                 <div className="mb-4">
                     <label className="block mb-1 font-medium text-blue-700">Name</label>
@@ -107,7 +108,7 @@ function EditEmployee() {
                     </button>
                 </div>
             </form>
-        </div>
+        </AdminLayout>
     );
 }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaClock } from "react-icons/fa";
 import api from "../../api/axios";
+import EmployeeLayout from "../../components/EmployeeLayout";
 
 function EditRide() {
     const { id } = useParams();
@@ -135,15 +136,11 @@ function EditRide() {
         }
     };
 
-    if (loading || !ride) return (
-        <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
-    );
+    if (loading || !ride) return <EmployeeLayout heading="Edit Ride"><div className="flex items-center gap-2 text-blue-600 text-sm"><span className="animate-spin h-5 w-5 border-b-2 border-blue-500 rounded-full inline-block"/> Loading...</div></EmployeeLayout>;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-            <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
+        <EmployeeLayout heading="Edit Ride">
+            <div className="bg-white/90 shadow-lg rounded-xl p-8 w-full max-w-2xl mx-auto">
                 <h2 className="text-3xl font-bold mb-6 text-blue-700 flex items-center gap-2">
                     <FaCar className="text-blue-500" /> Edit Ride
                 </h2>
@@ -313,7 +310,7 @@ function EditRide() {
                     </div>
                 </form>
             </div>
-        </div>
+        </EmployeeLayout>
     );
 }
 

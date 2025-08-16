@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import api from "../../api/axios";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSync, FaFilter, FaUser } from "react-icons/fa";
+import EmployeeLayout from "../../components/EmployeeLayout";
 
 function JoinedHistory() {
   const [rides, setRides] = useState([]);
@@ -58,8 +59,7 @@ function JoinedHistory() {
   const statusOptions = ['ALL', ...Array.from(new Set(rides.map(r=>r.status)))];
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-green-50 via-white to-green-100 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_70%_30%,#dcfce7,transparent_60%)]" />
+    <EmployeeLayout heading="Joined Rides History" subheading="Your past participation in rides">
       <div className="relative">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
           <div>
@@ -143,7 +143,7 @@ function JoinedHistory() {
           </div>
         )}
       </div>
-    </div>
+    </EmployeeLayout>
   );
 }
 

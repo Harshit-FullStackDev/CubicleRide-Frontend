@@ -10,6 +10,7 @@ import {
     FaCheckCircle
 } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
+import EmployeeLayout from "../../components/EmployeeLayout";
 
 function OfferRide() {
     const [ride, setRide] = useState({
@@ -206,63 +207,42 @@ function OfferRide() {
         }
     };
 
-    if (checking) {
-        return (
-            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
-                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full animate-pulse">
-                    <div className="h-6 bg-blue-100 rounded w-2/3 mb-6" />
-                    <div className="space-y-4">
-                        {[...Array(5)].map((_,i)=>(<div key={i} className="h-12 bg-blue-50 rounded-xl" />))}
-                    </div>
-                    <div className="mt-6 h-10 bg-blue-200 rounded-xl" />
-                </div>
-            </div>
-        );
-    }
+    if (checking) return <EmployeeLayout heading="Offer a Ride"><div className="animate-pulse text-blue-600 text-sm">Preparing form...</div></EmployeeLayout>;
 
-    if (activeRide) {
-        return (
-            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full flex flex-col items-center">
-                    <button onClick={() => navigate(-1)} className="text-blue-600 mb-4 flex items-center self-start">
-                        <FaArrowLeft className="mr-2" /> Back
-                    </button>
-                    <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">Active Ride Already Published</h2>
-                    <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded w-full text-sm mb-4">
-                        You already have a published ride. Please publish a new ride after the active ride ends.
-                    </div>
-                    <div className="w-full text-left text-sm mb-4">
-                        <p className="font-semibold mb-1">Current Active Ride:</p>
-                        <p><strong>Route:</strong> {activeRide.origin} → {activeRide.destination}</p>
-                        <p><strong>Date:</strong> {activeRide.date} at {activeRide.arrivalTime}</p>
-                        <p><strong>Seats Left:</strong> {activeRide.availableSeats}</p>
-                    </div>
-                    <button onClick={() => navigate('/employee/dashboard')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition mb-2">Go to Dashboard</button>
+    if (activeRide) return (
+        <EmployeeLayout heading="Offer a Ride" subheading="Active ride already published">
+            <div className="max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-8 flex flex-col items-center">
+                <h2 className="text-xl font-bold text-blue-700 mb-4 text-center">Active Ride Already Published</h2>
+                <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded w-full text-sm mb-4">You already have a published ride. Publish a new ride after it ends.</div>
+                <div className="w-full text-left text-sm mb-4 space-y-1">
+                    <p className="font-semibold">Current Active Ride:</p>
+                    <p><strong>Route:</strong> {activeRide.origin} → {activeRide.destination}</p>
+                    <p><strong>Date:</strong> {activeRide.date} at {activeRide.arrivalTime}</p>
+                    <p><strong>Seats Left:</strong> {activeRide.availableSeats}</p>
+                </div>
+                <div className="flex flex-col gap-2 w-full">
+                    <button onClick={() => navigate('/employee/dashboard')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Go to Dashboard</button>
                     <button onClick={() => navigate('/employee/join')} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold transition">Browse Rides</button>
                 </div>
             </div>
-        );
-    }
+        </EmployeeLayout>
+    );
 
-    if (!vehicleStatus || vehicleStatus.status !== 'APPROVED') {
-        return (
-            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-                <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full text-center">
-                    <button onClick={() => navigate(-1)} className="text-blue-600 mb-4 flex items-center"><FaArrowLeft className="mr-2"/>Back</button>
-                    <h2 className="text-2xl font-bold text-blue-700 mb-4">Vehicle Verification Required</h2>
-                    <p className="text-sm text-gray-600 mb-4">You must submit your vehicle details and have them approved before offering a ride.</p>
-                    {vehicleStatus && vehicleStatus.status === 'PENDING' && <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 rounded mb-4 text-sm">Your vehicle is pending approval.</div>}
-                    {vehicleStatus && vehicleStatus.status === 'REJECTED' && <div className="bg-red-50 border border-red-300 text-red-700 p-3 rounded mb-4 text-sm">Rejected: {vehicleStatus.rejectionReason}</div>}
-                    <Link to="/employee/vehicle" className="w-full inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Go to Vehicle Page</Link>
-                </div>
+    if (!vehicleStatus || vehicleStatus.status !== 'APPROVED') return (
+        <EmployeeLayout heading="Offer a Ride" subheading="Vehicle verification required">
+            <div className="max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-8 text-center">
+                <h2 className="text-xl font-bold text-blue-700 mb-4">Vehicle Verification Required</h2>
+                <p className="text-sm text-gray-600 mb-4">Submit your vehicle details and have them approved before offering a ride.</p>
+                {vehicleStatus && vehicleStatus.status === 'PENDING' && <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 rounded mb-4 text-sm">Your vehicle is pending approval.</div>}
+                {vehicleStatus && vehicleStatus.status === 'REJECTED' && <div className="bg-red-50 border border-red-300 text-red-700 p-3 rounded mb-4 text-sm">Rejected: {vehicleStatus.rejectionReason}</div>}
+                <Link to="/employee/vehicle" className="w-full inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Go to Vehicle Page</Link>
             </div>
-        );
-    }
+        </EmployeeLayout>
+    );
 
     return (
-        <div className="min-h-screen flex justify-center items-start md:items-center bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4 md:p-8 relative overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,#dbeafe,transparent_60%)]" />
-            <div className="relative bg-white/90 backdrop-blur shadow-2xl rounded-2xl p-6 md:p-10 w-full max-w-3xl grid md:grid-cols-2 gap-8 border border-blue-100">
+        <EmployeeLayout heading="Offer a Ride" subheading="Help colleagues commute">
+            <div className="relative bg-white/90 backdrop-blur shadow-2xl rounded-2xl p-6 md:p-10 w-full max-w-5xl grid md:grid-cols-2 gap-8 border border-blue-100 mx-auto">
                 <div className="md:col-span-2 flex items-center justify-between -mt-2">
                     <button onClick={() => navigate(-1)} className="text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium group">
                         <FaArrowLeft className="mr-2 group-hover:-translate-x-0.5 transition-transform" /> Back
@@ -421,7 +401,7 @@ function OfferRide() {
                     <div className="text-[11px] text-gray-400">By offering a ride you agree to the community guidelines.</div>
                 </div>
             </div>
-        </div>
+        </EmployeeLayout>
     );
 }
 

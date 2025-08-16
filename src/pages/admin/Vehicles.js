@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { FaCarSide, FaCheck, FaTimes, FaSearch, FaArrowLeft } from 'react-icons/fa';
+import AdminLayout from '../../components/AdminLayout';
 
 function Vehicles(){
   const [vehicles,setVehicles]=useState([]);
@@ -17,13 +18,18 @@ function Vehicles(){
     return key.includes(search.toLowerCase());
   });
 
-  if(loading) return <div className='p-10 text-center'>Loading...</div>;
-  if(error) return <div className='p-10 text-center text-red-600'>{error}</div>;
+  if(loading) return <AdminLayout heading='Vehicles'><div className='text-orange-600 text-sm animate-pulse'>Loading vehicles...</div></AdminLayout>;
+  if(error) return <AdminLayout heading='Vehicles'><div className='text-red-600 text-sm'>{error}</div></AdminLayout>;
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-6'>
-      <button onClick={()=>navigate('/admin/dashboard')} className='mb-4 flex items-center gap-2 text-orange-700 hover:underline'><FaArrowLeft/> Back</button>
-      <h2 className='text-3xl font-bold text-orange-700 mb-6 flex items-center gap-2'><FaCarSide/> Vehicles</h2>
+    <AdminLayout heading='Vehicles'>
+      <div className='flex items-center justify-between mb-6'>
+        <button onClick={()=>navigate('/admin/dashboard')} className='flex items-center gap-2 text-orange-700 hover:underline text-sm'><FaArrowLeft/> Back</button>
+        <div className='relative max-w-xs w-full'>
+          <FaSearch className='absolute left-3 top-1/2 -translate-y-1/2 text-orange-400 text-xs' />
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder='Search vehicle...' className='w-full border border-orange-300 rounded px-3 py-2 pl-9 text-sm'/>
+        </div>
+      </div>
       <div className='mb-4 relative max-w-sm'>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder='Search vehicle...' className='w-full border border-orange-300 rounded px-3 py-2 pl-9'/>
         <FaSearch className='absolute left-3 top-1/2 -translate-y-1/2 text-orange-400' />
@@ -40,7 +46,7 @@ function Vehicles(){
           </div>
         ))}
       </div>
-    </div>
+  </AdminLayout>
   );
 }
 export default Vehicles;

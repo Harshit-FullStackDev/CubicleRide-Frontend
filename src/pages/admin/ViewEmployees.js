@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { FaUser, FaSearch, FaEdit, FaTrash, FaIdBadge, FaEnvelope, FaArrowLeft, FaPlus, FaPhone, FaCheckCircle, FaRedo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import AdminLayout from "../../components/AdminLayout";
 
 function ViewEmployees() {
     const [employees, setEmployees] = useState([]);
@@ -60,27 +61,12 @@ function ViewEmployees() {
         (emp.empId && emp.empId.toLowerCase().includes(search.toLowerCase()))
     );
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid"></div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-                <div className="bg-red-100 border border-red-300 text-red-700 px-6 py-4 rounded-lg shadow">
-                    {error}
-                </div>
-            </div>
-        );
-    }
+    if (loading) return <AdminLayout heading="Employees"><div className="text-blue-600 text-sm animate-pulse">Loading employees...</div></AdminLayout>;
+    if (error) return <AdminLayout heading="Employees"><div className="text-red-600 text-sm">{error}</div></AdminLayout>;
 
     return (
-        <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
+        <AdminLayout heading="Employees">
+            <div className="bg-white/90 backdrop-blur rounded-2xl shadow p-8 w-full max-w-5xl mx-auto">
                 <button
                     onClick={handleBackToDashboard}
                     className="mb-6 flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
@@ -178,7 +164,7 @@ function ViewEmployees() {
                     </table>
                 </div>
             </div>
-        </div>
+        </AdminLayout>
     );
 }
 

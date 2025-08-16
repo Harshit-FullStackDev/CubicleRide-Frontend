@@ -5,6 +5,7 @@ import {
     FaBars, FaTimes, FaClock, FaTools, FaClipboardCheck
 } from "react-icons/fa";
 import api from "../../api/axios";
+import AdminLayout from "../../components/AdminLayout";
 
 // Reusable status badge helper
 const StatusBadge = ({ label, color }) => (
@@ -61,56 +62,12 @@ function AdminDashboard() {
     // Utility for initials
     const initials = (n) => (n||'?').split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
 
-    if (loading) return <div className="flex items-center justify-center min-h-screen text-orange-600 font-semibold animate-pulse">Loading Admin Dashboard...</div>;
-    if (error) return <div className="flex items-center justify-center min-h-screen text-red-600">{error}</div>;
+    if (loading) return <AdminLayout heading="Dashboard"><div className="text-orange-600 font-semibold animate-pulse text-sm">Loading...</div></AdminLayout>;
+    if (error) return <AdminLayout heading="Dashboard"><div className="text-red-600 text-sm">{error}</div></AdminLayout>;
 
     return (
-        <div className="min-h-screen flex bg-gradient-to-br from-orange-50 via-white to-amber-100 relative overflow-hidden">
-            <div className="pointer-events-none absolute inset-0 opacity-30 mix-blend-multiply bg-[radial-gradient(circle_at_20%_20%,#fcd34d,transparent_60%),radial-gradient(circle_at_80%_80%,#fb923c,transparent_55%)]" />
-            {/* Sidebar */}
-            <aside className={`fixed top-0 left-0 h-full w-68 md:w-64 z-30 p-6 flex flex-col gap-8 bg-white/70 backdrop-blur-xl border-r border-orange-200 shadow-xl transform transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-                <div className="flex items-center gap-4 mb-2">
-                    <img src="/OMLogo.svg" alt="OrangeMantra" className="h-12 w-auto" />
-                </div>
-                <nav className="flex flex-col gap-1 text-sm font-medium">
-                    <button onClick={() => navigate('/admin/dashboard')} className="nav-link nav-link-active"><FaUserShield /> <span>Dashboard</span></button>
-                    <button onClick={() => navigate('/admin/employees')} className="nav-link"><FaUsers /> <span>Employees</span></button>
-                    <button onClick={() => navigate('/admin/rides')} className="nav-link"><FaCarSide /> <span>Rides</span></button>
-                    <button onClick={() => navigate('/admin/vehicles')} className="nav-link"><FaTools /> <span>Vehicles</span>{counts.pendingVehicles>0 && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">{counts.pendingVehicles}</span>}</button>
-                    <button onClick={() => navigate('/admin/employees/add')} className="nav-link"><FaClipboardCheck /> <span>Add Employee</span></button>
-                </nav>
-                <div className="mt-auto flex flex-col gap-2 text-xs">
-                    <div className="p-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-700">
-                        <div className="font-bold text-xs mb-1">Logged in as</div>
-                        <div className="text-sm font-semibold">{adminName}</div>
-                        <div className="text-[10px] text-orange-500 truncate">{adminEmail}</div>
-                    </div>
-                    <button onClick={handleLogout} className="btn btn-danger text-sm font-semibold"><FaSignOutAlt /> Logout</button>
-                </div>
-            </aside>
-            {sidebarOpen && <div className="fixed inset-0 bg-black/30 z-20 md:hidden" onClick={() => setSidebarOpen(false)} />}
-            {/* Main area */}
-            <div className="flex-1 flex flex-col min-h-screen md:ml-64">
-                {/* Header */}
-                <header className="flex items-center justify-between px-5 md:px-10 py-4 sticky top-0 z-10 bg-white/80 backdrop-blur-md shadow border-b border-orange-200">
-                    <button className="md:hidden text-2xl text-orange-600" onClick={()=>setSidebarOpen(!sidebarOpen)}>{sidebarOpen? <FaTimes/>:<FaBars/>}</button>
-                    <div className="flex flex-col">
-                        <span className="text-lg md:text-xl font-bold text-orange-700">Welcome, {adminName.split(' ')[0]}</span>
-                        <span className="text-[11px] text-gray-400">Last login: {lastLogin}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative group">
-                            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold shadow cursor-pointer border-2 border-white">{initials(adminName)}</div>
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl p-4 hidden group-hover:block">
-                                <div className="font-bold text-orange-600 mb-1 text-sm">{adminName}</div>
-                                <div className="text-[10px] text-gray-500 mb-2">{adminEmail}</div>
-                                <button onClick={handleLogout} className="btn btn-danger w-full justify-center text-xs font-semibold"><FaSignOutAlt /> Logout</button>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-                {/* Metrics */}
-                <section className="w-full max-w-7xl mx-auto px-5 md:px-10 mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+        <AdminLayout heading={`Welcome, ${adminName.split(' ')[0]}`} subheading={`Last login: ${lastLogin}`}>
+            <section className="w-full grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 mb-10">
                     <div onClick={()=>navigate('/admin/employees')} className="card card-gradient-blue cursor-pointer flex items-center gap-4">
                         <div className="metric-pill"><small>Total</small>{counts.employees}<FaUsers className="metric-icon"/></div>
                         <div className="flex-1">
@@ -143,9 +100,8 @@ function AdminDashboard() {
                             <p className="text-[10px] text-subtle mt-1">All services active</p>
                         </div>
                     </div>
-                </section>
-                {/* Lists */}
-                <section className="w-full max-w-7xl mx-auto px-5 md:px-10 mt-10 grid gap-10 grid-cols-1 xl:grid-cols-3 pb-16">
+            </section>
+            <section className="w-full grid gap-10 grid-cols-1 xl:grid-cols-3 pb-8">
                     {/* Recent Employees */}
                     <div className="flex flex-col">
                         <div className="flex items-center justify-between mb-4">
@@ -209,9 +165,8 @@ function AdminDashboard() {
                             ))}
                         </div>
                     </div>
-                </section>
-            </div>
-        </div>
+            </section>
+        </AdminLayout>
     );
 }
 

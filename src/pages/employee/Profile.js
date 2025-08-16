@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
+import EmployeeLayout from '../../components/EmployeeLayout';
 import { FaUser, FaBuilding, FaEnvelope, FaPhone, FaIdBadge, FaMapMarkerAlt, FaSave, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,10 +45,10 @@ function Profile() {
     finally { setSaving(false); }
   };
 
-  if (loading) return <div className='flex items-center justify-center min-h-screen text-blue-700 font-semibold'>Loading profile...</div>;
+  if (loading) return <EmployeeLayout heading='My Profile'><div className='text-blue-700 text-sm'>Loading profile...</div></EmployeeLayout>;
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-100 p-4 md:p-8'>
+    <EmployeeLayout heading='My Profile'>
       <div className='max-w-3xl mx-auto bg-white/90 backdrop-blur border border-indigo-100 shadow-xl rounded-2xl p-6 md:p-10'>
         <div className='flex items-center justify-between mb-6'>
           <h1 className='text-2xl md:text-3xl font-extrabold text-indigo-700 flex items-center gap-2'><FaUser/> My Profile</h1>
@@ -94,7 +95,7 @@ function Profile() {
           </div>
         </div>
       </div>
-    </div>
+    </EmployeeLayout>
   );
 }
 

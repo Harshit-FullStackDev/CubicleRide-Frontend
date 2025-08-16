@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import api from "../../api/axios";
 import { FaBell, FaCheckCircle, FaTimes, FaTrash, FaSync, FaSearch } from "react-icons/fa";
+import EmployeeLayout from "../../components/EmployeeLayout";
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -119,17 +120,16 @@ function Notifications() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-start p-4 md:p-8 bg-gradient-to-br from-blue-50 via-white to-blue-100 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,#dbeafe,transparent_60%)]" />
-      <div className="relative bg-white/90 backdrop-blur rounded-2xl shadow-2xl border border-blue-100 p-6 md:p-8 w-full max-w-3xl">
+    <EmployeeLayout heading='Notifications' subheading='Stay updated with ride activity'>
+      <div className="relative bg-white/90 backdrop-blur rounded-2xl shadow-2xl border border-blue-100 p-6 md:p-8 w-full max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center shadow-inner">
               <FaBell className="text-white text-xl" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-blue-700">Notifications</h1>
-              <p className="text-xs text-gray-500">Stay updated with ride activity</p>
+              <h1 className="text-xl font-extrabold tracking-tight text-blue-700">Notifications</h1>
+              <p className="text-[11px] text-gray-500">Stay updated with ride activity</p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -184,7 +184,7 @@ function Notifications() {
           </div>
         )}
       </div>
-    </div>
+    </EmployeeLayout>
   );
 }
 

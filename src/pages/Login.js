@@ -109,7 +109,7 @@ function Login() {
                 </div>
             </main>
             <footer className="py-6 text-center text-xs text-gray-500">© {new Date().getFullYear()} orangemantra • Internal use</footer>
-            <div className="mt-2 text-xs text-gray-500"> Developed By • Harshit Soni .</div>
+            <div className="text-center text-xs text-gray-500"> Developed By • Harshit Soni .</div>
         </div>
     );
 }

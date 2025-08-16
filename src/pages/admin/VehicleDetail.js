@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaCarSide, FaCheck, FaTimes } from 'react-icons/fa';
+import AdminLayout from '../../components/AdminLayout';
 
 function VehicleDetail(){
   const { empId } = useParams();
@@ -24,14 +25,14 @@ function VehicleDetail(){
     }catch{ alert('Failed'); }
   };
 
-  if(loading) return <div className='p-10 text-center'>Loading...</div>;
-  if(error) return <div className='p-10 text-center text-red-600'>{error}</div>;
-  if(!vehicle) return null;
+  if(loading) return <AdminLayout heading='Vehicle Details'><div className='text-orange-600 text-sm animate-pulse'>Loading vehicle...</div></AdminLayout>;
+  if(error) return <AdminLayout heading='Vehicle Details'><div className='text-red-600 text-sm'>{error}</div></AdminLayout>;
+  if(!vehicle) return <AdminLayout heading='Vehicle Details'><div className='text-gray-500 text-sm'>No vehicle data.</div></AdminLayout>;
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-6'>
-      <button onClick={()=>navigate('/admin/vehicles')} className='mb-4 flex items-center gap-2 text-orange-700 hover:underline'><FaArrowLeft/> Back</button>
-      <div className='bg-white max-w-2xl mx-auto p-8 rounded-2xl shadow-xl'>
+    <AdminLayout heading={`Vehicle of ${vehicle.empId}`}>      
+      <button onClick={()=>navigate('/admin/vehicles')} className='mb-4 flex items-center gap-2 text-orange-700 hover:underline text-sm'><FaArrowLeft/> Back</button>
+      <div className='bg-white/90 max-w-2xl mx-auto p-8 rounded-2xl shadow-xl'>
         <h2 className='text-2xl font-bold mb-4 flex items-center gap-2 text-orange-700'><FaCarSide/> Vehicle of {vehicle.empId}</h2>
         <div className='grid grid-cols-2 gap-4 text-sm'>
           <div><strong>Make:</strong> {vehicle.make||'-'}</div>
@@ -54,7 +55,7 @@ function VehicleDetail(){
           <button onClick={()=>act('REJECTED')} disabled={vehicle.status==='REJECTED'} className='flex-1 bg-red-600 disabled:opacity-50 text-white py-2 rounded flex items-center justify-center gap-2 hover:bg-red-700'><FaTimes/> Reject</button>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 export default VehicleDetail;

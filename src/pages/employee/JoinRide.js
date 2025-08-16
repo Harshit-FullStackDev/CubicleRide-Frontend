@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
+import EmployeeLayout from "../../components/EmployeeLayout";
 import {
     FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaSignOutAlt, FaArrowLeft, FaCheckCircle, FaUserFriends
 } from "react-icons/fa";
@@ -73,13 +74,12 @@ function JoinRide() {
     const getInitials = (name) => name ? name.split(" ").map(n => n[0]).join("").toUpperCase() : "U";
 
     return (
-        <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-            <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-3xl">
-                <button onClick={() => navigate(-1)} className="flex items-center text-blue-600 mb-4">
-                    <FaArrowLeft /> Back
-                </button>
-                <h2 className="text-3xl font-bold text-blue-700 mb-4">Join a Ride</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <EmployeeLayout heading="Join a Ride">
+            <div className="max-w-3xl mx-auto">
+                <div className="mb-4">
+                    <p className="text-xs text-gray-500">Showing rides {filters.pickup || filters.drop ? `${filters.pickup || 'any'} → ${filters.drop || 'any'}` : 'for all locations'}</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                     <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
                         <FaMapMarkerAlt className="text-green-500" />
                         <select name="pickup" value={filters.pickup} onChange={handleFilterChange} className="bg-transparent w-full outline-none">
@@ -95,7 +95,6 @@ function JoinRide() {
                         </select>
                     </div>
                 </div>
-                <p className="mb-6">Showing rides {filters.pickup || filters.drop ? `matching ${filters.pickup || 'any'} → ${filters.drop || 'any'}` : 'for all locations'}</p>
 
                 {success && (
                     <div className="flex items-center bg-green-100 text-green-800 p-3 rounded mb-4 animate-bounce">
@@ -111,7 +110,7 @@ function JoinRide() {
                     </div>
                 )}
 
-                <div className="space-y-4">
+                <div className="space-y-4 mt-6">
                     {rides.map(ride => {
                         const isFull = ride.availableSeats === 0 || (ride.status && ride.status !== "Active");
                         const isOwn = ride.ownerEmpId === empId;
@@ -193,11 +192,8 @@ function JoinRide() {
                         );
                     })}
                 </div>
-                <button onClick={logout} className="mt-8 flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-semibold">
-                    <FaSignOutAlt /> Logout
-                </button>
             </div>
-        </div>
+        </EmployeeLayout>
     );
 }
 

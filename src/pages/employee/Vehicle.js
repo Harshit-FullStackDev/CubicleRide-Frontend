@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaCar, FaUpload, FaCheckCircle, FaTimesCircle, FaSyncAlt, FaInfoCircle, FaArrowLeft } from 'react-icons/fa';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
+import EmployeeLayout from '../../components/EmployeeLayout';
 
 // Vehicle submission & status page
 export default function VehiclePage() {
@@ -75,9 +76,9 @@ export default function VehiclePage() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-xl w-full">
-        <button onClick={() => navigate(-1)} className="text-blue-600 mb-4 flex items-center"><FaArrowLeft className="mr-2"/>Back</button>
+    <EmployeeLayout heading='My Vehicle'>
+      <div className="bg-white/90 shadow-2xl rounded-2xl p-8 max-w-xl w-full mx-auto">
+  {/* Back button removed as per UI update */}
         <h2 className="text-3xl font-bold text-blue-700 mb-2 flex items-center gap-2"><FaCar/> Vehicle Verification</h2>
         <p className="text-gray-500 mb-4 text-sm">Provide your car details and proof image. An admin will verify it. Only approved vehicles can publish rides.</p>
         {status && (
@@ -123,6 +124,6 @@ export default function VehiclePage() {
           <button disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded font-semibold flex items-center justify-center gap-2">{loading && <FaSyncAlt className="animate-spin"/>} {status ? 'Update Vehicle' : 'Submit Vehicle'}</button>
         </form>
       </div>
-    </div>
+    </EmployeeLayout>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { FaUserPlus } from 'react-icons/fa';
+import AdminLayout from '../../components/AdminLayout';
 
 function AddEmployee(){
   const navigate = useNavigate();
@@ -25,8 +26,8 @@ function AddEmployee(){
     } finally { setLoading(false);} }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4'>
-      <form onSubmit={handleSubmit} className='bg-white w-full max-w-md p-8 rounded-2xl shadow-xl'>
+    <AdminLayout heading='Add Employee'>
+      <form onSubmit={handleSubmit} className='bg-white/90 w-full max-w-md p-8 rounded-2xl shadow-xl mx-auto'>
         <h2 className='text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2'><FaUserPlus/> Add Employee</h2>
         {error && <div className='mb-4 text-red-600 text-sm'>{error}</div>}
         <div className='mb-4'>
@@ -47,7 +48,7 @@ function AddEmployee(){
         </div>
         <button disabled={loading} className='w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 rounded font-semibold'>{loading? 'Creating...' : 'Create Employee'}</button>
       </form>
-    </div>
+    </AdminLayout>
   );
 }
 export default AddEmployee;

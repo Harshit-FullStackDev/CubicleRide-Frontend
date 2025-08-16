@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import {
-    FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock,
-    FaEdit, FaTrash, FaBell, FaCheckCircle, FaSignOutAlt, FaBars, FaTimes, FaPlus, FaUsers
-} from "react-icons/fa";
+import { FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTrash, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
+import EmployeeLayout from "../../components/EmployeeLayout";
 
 function EmployeeDashboard() {
     const navigate = useNavigate();
@@ -17,7 +15,6 @@ function EmployeeDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastLogin, setLastLogin] = useState("");
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [vehicleStatus, setVehicleStatus] = useState(null);
 
     useEffect(() => {
@@ -60,11 +57,6 @@ function EmployeeDashboard() {
         } catch {
             setVehicleStatus(null);
         }
-    };
-
-    const handleLogout = () => {
-        localStorage.clear();
-        navigate("/login");
     };
 
     const handleEdit = (id) => {
@@ -115,61 +107,12 @@ function EmployeeDashboard() {
 
     // Removed old styling helper constants no longer used after UI refactor
 
-    if (loading) return <div className="flex items-center justify-center min-h-screen text-blue-700 animate-pulse text-xl font-bold">Loading dashboard...</div>;
-    if (error) return <div className="flex items-center justify-center min-h-screen text-red-600 text-lg">{error}</div>;
+    if (loading) return <EmployeeLayout heading="Dashboard"><div className="text-blue-700 animate-pulse text-sm">Loading dashboard...</div></EmployeeLayout>;
+    if (error) return <EmployeeLayout heading="Dashboard"><div className="text-red-600 text-sm">{error}</div></EmployeeLayout>;
 
     return (
-        <div className="min-h-screen flex bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
-            {/* Background accent blobs */}
-            <div className="pointer-events-none select-none" aria-hidden="true">
-                <div className="absolute -top-20 -right-16 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
-                <div className="absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
-            </div>
-            {/* Sidebar */}
-            <aside className={`fixed z-30 top-0 left-0 h-full w-64 p-6 flex flex-col gap-8 bg-white/75 backdrop-blur-xl border-r border-orange-100 shadow-xl ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>                
-                <div className="flex items-center gap-4 mb-8">
-                    <img src="/OMLogo.svg" alt="OrangeMantra" className="h-12 w-auto" />
-                </div>
-                <nav className="flex flex-col gap-2 font-medium">
-                    <Link to="/employee/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-orange-700 font-semibold bg-orange-100/70"><FaUser /> <span>Dashboard</span></Link>
-                    <Link to="/employee/offer" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaPlus /> <span>Offer a Ride</span></Link>
-                    <Link to="/employee/join" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaUsers /> <span>Join a Ride</span></Link>
-                    <Link to="/employee/notifications" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaBell /> <span>Notifications</span></Link>
-                    <Link to="/employee/history/published" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaCar /> <span>Published History</span></Link>
-                    <Link to="/employee/history/joined" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaUsers /> <span>Joined History</span></Link>
-                    <Link to="/employee/vehicle" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaCar /> <span>My Vehicle</span>{vehicleStatus && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">{vehicleStatus.status}</span>}</Link>
-                    <Link to="/employee/profile" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-orange-50 text-gray-700"><FaUser /> <span>My Profile</span></Link>
-                </nav>
-                <div className="mt-auto flex flex-col gap-2">
-                    <button onClick={handleLogout} className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-orange-600 hover:bg-orange-700 text-white shadow"><FaSignOutAlt /> Logout</button>
-                </div>
-            </aside>
-            {/* Overlay for mobile sidebar */}
-            {sidebarOpen && <div className="fixed inset-0 z-20 bg-black/30 md:hidden" onClick={() => setSidebarOpen(false)}></div>}
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col min-h-screen md:ml-64">
-                {/* Navbar */}
-                <header className="flex items-center justify-between px-4 md:px-10 py-4 sticky top-0 z-10 bg-white/70 backdrop-blur border-b border-orange-100">
-                    <button className="md:hidden text-2xl text-blue-700" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                        {sidebarOpen ? <FaTimes /> : <FaBars />}
-                    </button>
-                    <div className="flex items-center gap-3">
-                        <span className="text-xl font-semibold text-gray-800">Welcome, <span className="text-orange-600">{empName.split(' ')[0]}</span></span>
-                        <span className="hidden md:inline text-gray-400 text-sm ml-2">Last login: {lastLogin}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative group">
-                            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white font-semibold flex items-center justify-center ring-2 ring-orange-200 shadow cursor-pointer">{getInitials(empName)}</div>
-                            <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur rounded-xl shadow-lg border border-orange-100 p-4 hidden group-hover:block z-50">
-                                <div className="text-sm font-semibold text-gray-800 mb-1 truncate">{empName}</div>
-                                <div className="text-[11px] text-gray-500 mb-3 break-all">{empEmail}</div>
-                                <button onClick={handleLogout} className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-orange-600 hover:bg-orange-700 text-white"><FaSignOutAlt /> Logout</button>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-                {/* Stats Cards */}
-                <section className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 px-4">
+        <EmployeeLayout heading={`Welcome, ${empName.split(' ')[0]}`} subheading={`Last login: ${lastLogin}`}>
+            <section className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white p-6 shadow hover:shadow-lg transition">
                         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_30%,white,transparent)]" />
                         <div className="relative flex items-center gap-6">
@@ -210,9 +153,8 @@ function EmployeeDashboard() {
                             </div>
                         </div>
                     </Link>
-                </section>
-                {/* Parallel Published & Joined Rides */}
-                <section className="w-full max-w-7xl mx-auto mt-10 px-4 pb-12 animate-fade-in-up">
+            </section>
+            <section className="w-full mt-2 pb-4 animate-fade-in-up">
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
                         {/* Published Column */}
                         <div className="flex flex-col min-h-[60vh]">
@@ -364,9 +306,8 @@ function EmployeeDashboard() {
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
-        </div>
+            </section>
+        </EmployeeLayout>
     );
 }
 export default EmployeeDashboard;
