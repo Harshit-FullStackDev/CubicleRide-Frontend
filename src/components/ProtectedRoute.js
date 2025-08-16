@@ -1,29 +1,15 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
-
-// Function to check if token is expired
-const isTokenExpired = (token) => {
-    try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const now = Math.floor(Date.now() / 1000);
-        return payload.exp < now;
-    } catch {
-        return true; // Invalid token format
-    }
-};
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { ensureValidSession, getRole } from '../utils/auth';
 
 const ProtectedRoute = ({ children, role }) => {
-    const token = localStorage.getItem("token");
-    const userRole = localStorage.getItem("role");
-
-    if (!token || !userRole || userRole !== role || isTokenExpired(token)) {
-        // ✅ Clear expired or invalid token
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
-        return <Navigate to="/login" />;
+    const location = useLocation();
+    const valid = ensureValidSession();
+    const currentRole = getRole();
+    if (!valid || !currentRole || (role && currentRole !== role)) {
+        return <Navigate to="/login" replace state={{ from: location.pathname }} />;
     }
-
     return children;
 };
 
-export default ProtectedRoute;
+export default React.memo(ProtectedRoute);

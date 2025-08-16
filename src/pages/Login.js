@@ -1,20 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
-import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from 'react';
+import api from '../api/axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { storeSession, getRole } from '../utils/auth';
 
 function Login() {
     const [data, setData] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const location = useLocation();
     const emailRef = useRef(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
-        if (token && role === "EMPLOYEE") navigate("/employee/dashboard");
-        else if (token && role === "ADMIN") navigate("/admin/dashboard");
+    const role = getRole();
+    if (role === 'EMPLOYEE') navigate('/employee/dashboard');
+    else if (role === 'ADMIN') navigate('/admin/dashboard');
         // focus email on load for quick login
         setTimeout(() => emailRef.current?.focus(), 0);
     }, [navigate]);
@@ -32,15 +33,12 @@ function Login() {
                 password: data.password
             });
             const token = res.data.token;
-            localStorage.setItem("token", token);
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            localStorage.setItem("role", payload.role);
-            localStorage.setItem("empId", payload.empId);
-            localStorage.setItem("name", payload.name);
-            localStorage.setItem("email", data.email);
-
-            if (payload.role === "EMPLOYEE") navigate("/employee/dashboard");
-            else navigate("/admin/dashboard");
+            const ok = storeSession(token);
+            if (!ok) throw new Error('Invalid token');
+            localStorage.setItem('email', data.email);
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const redirect = location.state?.from || (payload.role === 'EMPLOYEE' ? '/employee/dashboard' : '/admin/dashboard');
+            navigate(redirect, { replace: true });
         } catch (err) {
             setErrors({ form: "Invalid credentials" });
         } finally {
