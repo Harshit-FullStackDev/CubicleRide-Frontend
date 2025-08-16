@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
 import EmployeeLayout from "../../components/EmployeeLayout";
 import {
-    FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaSignOutAlt, FaArrowLeft, FaCheckCircle, FaUserFriends
+    FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaCheckCircle, FaUserFriends
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -64,11 +64,6 @@ function JoinRide() {
         } catch {
             setError("Failed to join ride—maybe it's full or you're already in.");
         }
-    };
-
-    const logout = () => {
-        localStorage.clear();
-        navigate("/login");
     };
 
     const getInitials = (name) => name ? name.split(" ").map(n => n[0]).join("").toUpperCase() : "U";

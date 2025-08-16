@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
-import { FaCarSide, FaCheck, FaTimes, FaSearch, FaArrowLeft } from 'react-icons/fa';
+import { FaSearch, FaArrowLeft } from 'react-icons/fa';
 import AdminLayout from '../../components/AdminLayout';
 
 function Vehicles(){
@@ -29,10 +29,6 @@ function Vehicles(){
           <FaSearch className='absolute left-3 top-1/2 -translate-y-1/2 text-orange-400 text-xs' />
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder='Search vehicle...' className='w-full border border-orange-300 rounded px-3 py-2 pl-9 text-sm'/>
         </div>
-      </div>
-      <div className='mb-4 relative max-w-sm'>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder='Search vehicle...' className='w-full border border-orange-300 rounded px-3 py-2 pl-9'/>
-        <FaSearch className='absolute left-3 top-1/2 -translate-y-1/2 text-orange-400' />
       </div>
       <div className='grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
         {filtered.map(v => (

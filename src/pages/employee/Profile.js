@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import api from '../../api/axios';
 import EmployeeLayout from '../../components/EmployeeLayout';
 import { FaUser, FaBuilding, FaEnvelope, FaPhone, FaIdBadge, FaMapMarkerAlt, FaSave, FaEdit } from 'react-icons/fa';
@@ -16,9 +16,7 @@ function Profile() {
     empId: '', name: '', email: '', phone: '', department: '', designation: '', officeLocation: '', gender: '', bio: ''
   });
 
-  useEffect(()=>{ if(!empId){ navigate('/login'); return; } load(); }, [empId, navigate]);
-
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
       const res = await api.get(`/employee/${empId}`);
@@ -26,7 +24,9 @@ function Profile() {
     } catch {
       setError('Failed to load profile');
     } finally { setLoading(false); }
-  };
+  }, [empId]);
+
+  useEffect(()=>{ if(!empId){ navigate('/login'); return; } load(); }, [empId, navigate, load]);
 
   const handleChange = e => {
     const { name, value } = e.target;

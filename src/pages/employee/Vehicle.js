@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { FaCar, FaUpload, FaCheckCircle, FaTimesCircle, FaSyncAlt, FaInfoCircle, FaArrowLeft } from 'react-icons/fa';
+import { FaCar, FaUpload, FaCheckCircle, FaTimesCircle, FaSyncAlt, FaInfoCircle } from 'react-icons/fa';
 import api from '../../api/axios';
-import { useNavigate } from 'react-router-dom';
 import EmployeeLayout from '../../components/EmployeeLayout';
 
 // Vehicle submission & status page
@@ -12,7 +11,6 @@ export default function VehiclePage() {
   const [status, setStatus] = useState(null); // {status, rejectionReason, ...}
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => { fetchVehicle(); }, []);
 

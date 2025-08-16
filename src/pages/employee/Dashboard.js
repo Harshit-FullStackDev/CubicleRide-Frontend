@@ -7,7 +7,6 @@ import EmployeeLayout from "../../components/EmployeeLayout";
 function EmployeeDashboard() {
     const navigate = useNavigate();
     const [empName, setEmpName] = useState("");
-    const [empEmail, setEmpEmail] = useState("");
     const [empId, setEmpId] = useState("");
     const [publishedRides, setPublishedRides] = useState([]);
     const [joinedRides, setJoinedRides] = useState([]);
@@ -15,7 +14,7 @@ function EmployeeDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastLogin, setLastLogin] = useState("");
-    const [vehicleStatus, setVehicleStatus] = useState(null);
+    // Removed unused empEmail & vehicleStatus states after layout refactor
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -24,12 +23,11 @@ function EmployeeDashboard() {
             navigate("/login");
         }
         setEmpName(localStorage.getItem("name") || "Employee");
-        setEmpEmail(localStorage.getItem("email") || "employee@company.com");
         const id = localStorage.getItem("empId") || "";
         setEmpId(id);
         setLastLogin(localStorage.getItem("lastLogin") || new Date().toLocaleString());
         fetchDashboardData(id);
-        fetchVehicleStatus();
+    // vehicle status panel removed in new UI, fetch omitted
     }, [navigate]);
 
     const fetchDashboardData = async (empId) => {
@@ -50,14 +48,6 @@ function EmployeeDashboard() {
         setLoading(false);
     };
 
-    const fetchVehicleStatus = async () => {
-        try {
-            const res = await api.get('/vehicle/my');
-            setVehicleStatus(res.data);
-        } catch {
-            setVehicleStatus(null);
-        }
-    };
 
     const handleEdit = (id) => {
         navigate(`/employee/edit/${id}`);
@@ -103,7 +93,7 @@ function EmployeeDashboard() {
 
     const formatTime = (timeStr) => timeStr?.slice(0, 5);
 
-    const getInitials = (name) => name.split(" ").map(n => n[0]).join("").toUpperCase();
+    // getInitials helper no longer needed; removed
 
     // Removed old styling helper constants no longer used after UI refactor
 
