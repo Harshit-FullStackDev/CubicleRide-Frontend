@@ -50,30 +50,20 @@ function OtpVerify() {
         if (resendCooldown>0) return;
         setError("");
         setInfo('Resending code...');
-        const attempts = [
-            { url: '/auth/resend-otp', payload: { email } },
-            { url: '/auth/otp/resend', payload: { email } },
-            { url: '/auth/resend-otp', payload: { emailId: email } },
-        ];
-        for (let i=0;i<attempts.length;i++) {
-            try {
-                await api.post(attempts[i].url, attempts[i].payload);
-                setInfo('New code sent.');
-                setResendCooldown(30);
-                timerRef.current && clearInterval(timerRef.current);
-                timerRef.current = setInterval(()=>{
-                    setResendCooldown(p=>{ if(p<=1){ clearInterval(timerRef.current); return 0;} return p-1;});
-                },1000);
-                return;
-            } catch (err) {
-                if (i === attempts.length -1) {
-                    const raw = err?.response?.data;
-                    let msg = 'Could not resend code';
-                    if (typeof raw === 'string') msg = raw; else if (raw && typeof raw === 'object') msg = raw.message || raw.error || msg;
-                    setError(msg);
-                    setInfo('');
-                }
-            }
+        try {
+            await api.post('/auth/resend-otp', { email });
+            setInfo('New code sent.');
+            setResendCooldown(30);
+            timerRef.current && clearInterval(timerRef.current);
+            timerRef.current = setInterval(()=>{
+                setResendCooldown(p=>{ if(p<=1){ clearInterval(timerRef.current); return 0;} return p-1;});
+            },1000);
+        } catch (err) {
+            const raw = err?.response?.data;
+            let msg = 'Could not resend code';
+            if (typeof raw === 'string') msg = raw; else if (raw && typeof raw === 'object') msg = raw.message || raw.error || msg;
+            setError(msg);
+            setInfo('');
         }
     };
 

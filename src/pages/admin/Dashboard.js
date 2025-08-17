@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-    FaUserShield, FaUsers, FaCarSide, FaSignOutAlt, FaChevronRight,
-    FaBars, FaTimes, FaClock, FaTools, FaClipboardCheck
-} from "react-icons/fa";
+import { FaUsers, FaCarSide, FaChevronRight, FaClock, FaTools } from "react-icons/fa";
 import api from "../../api/axios";
 import AdminLayout from "../../components/AdminLayout";
 
@@ -15,15 +12,18 @@ const StatusBadge = ({ label, color }) => (
 function AdminDashboard() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    // Removed unused sidebar open state
     const [employees, setEmployees] = useState([]);
     const [rides, setRides] = useState([]);
     const [vehicles, setVehicles] = useState([]);
     const [counts, setCounts] = useState({ employees: 0, rides: 0, pendingVehicles: 0 });
     const [error, setError] = useState(null);
+    const [healthOpen, setHealthOpen] = useState(false);
+    const [healthLoading, setHealthLoading] = useState(false);
+    const [healthData, setHealthData] = useState([]); // [{service,status,latency}]
 
     const adminName = localStorage.getItem("name") || "Admin";
-    const adminEmail = localStorage.getItem("email") || "admin@company.com";
+    // Removed unused adminEmail
     const lastLogin = useMemo(() => localStorage.getItem("lastLogin") || new Date().toLocaleString(), []);
 
     useEffect(() => {
@@ -53,7 +53,35 @@ function AdminDashboard() {
         fetchAll();
     }, []);
 
-    const handleLogout = () => { localStorage.clear(); navigate("/login"); };
+    const fetchHealth = async () => {
+        setHealthLoading(true);
+        setHealthOpen(true);
+        const endpoints = [
+            { service: 'admin-service', url: '/admin/health' },
+            { service: 'auth-service', url: '/auth/health' },
+            { service: 'employee-service', url: '/employee/health' },
+            { service: 'ride-service', url: '/ride/health' },
+            { service: 'api-gateway', url: '/gateway/health' }
+        ];
+        const results = [];
+        for (const ep of endpoints) {
+            const start = performance.now();
+            try {
+                const res = await api.get(ep.url, { timeout: 5000 });
+                results.push({
+                    service: ep.service,
+                    status: (res.data?.status || 'UNKNOWN').toUpperCase(),
+                    latency: Math.round(performance.now() - start)
+                });
+            } catch (e) {
+                results.push({ service: ep.service, status: 'DOWN', latency: null });
+            }
+        }
+        setHealthData(results.sort((a,b)=> a.service.localeCompare(b.service)));
+        setHealthLoading(false);
+    };
+
+    // Removed unused logout handler
 
     const recentEmployees = useMemo(() => employees.slice(-5).reverse(), [employees]);
     const recentRides = useMemo(() => rides.slice(-5).reverse(), [rides]);
@@ -92,15 +120,43 @@ function AdminDashboard() {
                             <p className="text-[10px] text-subtle mt-1">Awaiting verification</p>
                         </div>
                     </div>
-                    <div className="card card-gradient-neutral flex items-center gap-4">
-                        <div className="metric-pill neutral"><small>Uptime</small><FaClock className="metric-icon"/><span style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',fontWeight:700}}>∞</span></div>
+                    <div onClick={fetchHealth} className="card card-gradient-neutral flex items-center gap-4 relative overflow-hidden cursor-pointer group">
+                        <div className="metric-pill neutral"><small>{healthLoading? 'Chk..':'Uptime'}</small><FaClock className="metric-icon"/><span style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.05rem',fontWeight:700}}>∞</span></div>
                         <div className="flex-1">
-                            <p className="text-[11px] uppercase tracking-wide text-subtle font-semibold">System</p>
+                            <p className="text-[11px] uppercase tracking-wide text-subtle font-semibold flex items-center gap-1">System <span className="hidden sm:inline text-[9px] font-normal px-2 py-0.5 rounded-full bg-slate-200/70 text-slate-700 group-hover:bg-slate-300">click</span></p>
                             <h3 className="text-lg font-bold text-slate-700">Health</h3>
-                            <p className="text-[10px] text-subtle mt-1">All services active</p>
+                            <p className="text-[10px] text-subtle mt-1">{healthLoading? 'Checking services...':'Tap to view status'}</p>
                         </div>
+                        <div className="absolute -right-8 -bottom-8 h-24 w-24 rounded-full bg-slate-200/40" />
                     </div>
             </section>
+            {healthOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={()=>setHealthOpen(false)} />
+                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 ring-1 ring-slate-200 animate-fade-in-up">
+                        <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold text-slate-800">System Health</h4>
+                            <button onClick={()=>setHealthOpen(false)} className="text-slate-500 hover:text-slate-700 text-sm">Close</button>
+                        </div>
+                        {healthLoading && <div className="text-xs text-orange-600 animate-pulse">Gathering service status...</div>}
+                        {!healthLoading && (
+                            <ul className="divide-y divide-slate-100">
+                                {healthData.map(h => (
+                                    <li key={h.service} className="py-2 flex items-center text-sm gap-3">
+                                        <span className="w-36 font-medium text-slate-700 truncate">{h.service}</span>
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${h.status==='UP'?'bg-green-100 text-green-700': h.status==='DOWN'?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'}`}>{h.status}</span>
+                                        <span className="ml-auto text-[11px] text-slate-500">{h.latency!==null? h.latency+'ms':'—'}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        <div className="mt-4 flex justify-end gap-2">
+                            <button disabled={healthLoading} onClick={fetchHealth} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-white hover:bg-slate-900 disabled:opacity-50">Retry</button>
+                            <button onClick={()=>setHealthOpen(false)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-200 text-slate-700 hover:bg-slate-300">Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <section className="w-full grid gap-10 grid-cols-1 xl:grid-cols-3 pb-8">
                     {/* Recent Employees */}
                     <div className="flex flex-col">
