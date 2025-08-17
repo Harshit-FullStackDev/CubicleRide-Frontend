@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes, FaUserShield, FaUsers, FaCarSide, FaTools, FaClipboardCheck, FaSignOutAlt } from 'react-icons/fa';
+import { ensureValidSession, getRole, getName, getEmail, clearSession } from '../utils/auth';
 
 const adminNav = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: <FaUserShield /> },
@@ -14,58 +15,134 @@ const AdminLayout = ({ children, heading, subheading }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [adminName, setAdminName] = useState(getName() || 'Admin');
+  const [adminEmail, setAdminEmail] = useState(getEmail() || '');
 
-  const adminName = localStorage.getItem('name') || 'Admin';
-  const adminEmail = localStorage.getItem('email') || '';
-  const initials = adminName.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  // Session + role hardening (redundant with ProtectedRoute but defensive)
+  useEffect(() => {
+    if (!ensureValidSession() || getRole() !== 'ADMIN') {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
-  };
+  useEffect(() => {
+    // In case localStorage changed in another tab
+    const sync = () => {
+      setAdminName(getName() || 'Admin');
+      setAdminEmail(getEmail() || '');
+    };
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    clearSession();
+    navigate('/login', { replace: true });
+  }, [navigate]);
+
+  const initials = (adminName || 'A').split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-orange-50 via-white to-amber-100 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 opacity-30 mix-blend-multiply bg-[radial-gradient(circle_at_20%_20%,#fcd34d,transparent_60%),radial-gradient(circle_at_80%_80%,#fb923c,transparent_55%)]" />
-      <aside className={`fixed top-0 left-0 h-full w-68 md:w-64 z-40 p-6 flex flex-col gap-8 bg-white/70 backdrop-blur-xl border-r border-orange-200 shadow-xl transform transition-transform ${open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="flex items-center gap-4 mb-2">
-          <img src="/OMLogo.svg" alt="OrangeMantra" className="h-12 w-auto" />
+    <div className="min-h-screen flex bg-gradient-to-b from-orange-50 via-white to-white relative overflow-hidden">
+      {/* Decorative radial accents */}
+      <div className="pointer-events-none select-none" aria-hidden="true">
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
+      </div>
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-full w-64 z-40 flex flex-col gap-6 bg-white/75 backdrop-blur-xl border-r border-orange-100 shadow-xl px-5 pt-6 pb-5 transition-transform duration-300 ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+        aria-label="Admin navigation"
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
         </div>
-        <nav className="flex flex-col gap-1 text-sm font-medium">
+        <nav className="flex-1 flex flex-col gap-1 text-sm font-medium" role="menu">
           {adminNav.map(item => {
-            const active = location.pathname === item.to;
+            const active = location.pathname === item.to || location.pathname.startsWith(item.to + '/');
             return (
-              <button key={item.to} onClick={()=>{navigate(item.to); setOpen(false);}} className={`nav-link ${active ? 'nav-link-active' : ''}`}>{item.icon}<span>{item.label}</span></button>
+              <button
+                key={item.to}
+                type="button"
+                onClick={() => { navigate(item.to); setOpen(false); }}
+                className={`nav-link ${active ? 'nav-link-active' : ''}`}
+                aria-current={active ? 'page' : undefined}
+              >
+                {item.icon}<span>{item.label}</span>
+              </button>
             );
           })}
         </nav>
         <div className="mt-auto flex flex-col gap-2 text-xs">
-          <div className="p-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-700">
+          <div className="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-orange-700 backdrop-blur">
             <div className="font-bold text-[11px] mb-1 uppercase tracking-wide">Logged in as</div>
-            <div className="text-sm font-semibold">{adminName}</div>
-            <div className="text-[10px] text-orange-500 truncate">{adminEmail}</div>
+            <div className="text-sm font-semibold truncate" title={adminName}>{adminName}</div>
+            {adminEmail && <div className="text-[10px] text-orange-500 truncate" title={adminEmail}>{adminEmail}</div>}
           </div>
-          <button onClick={handleLogout} className="btn btn-danger text-sm font-semibold"><FaSignOutAlt /> Logout</button>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="btn btn-danger text-sm font-semibold inline-flex items-center gap-2 justify-center"
+          >
+            <FaSignOutAlt /> Logout
+          </button>
         </div>
       </aside>
-      {open && <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={()=>setOpen(false)} />}
+
+      {/* Backdrop for mobile */}
+      {open && <button aria-label="Close navigation overlay" className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setOpen(false)} />}
+
+      {/* Main column */}
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
-        <header className="flex items-center justify-between px-5 md:px-10 py-4 sticky top-0 z-30 bg-white/80 backdrop-blur-md shadow border-b border-orange-200">
-          <button className="md:hidden text-2xl text-orange-600" onClick={()=>setOpen(!open)}>{open ? <FaTimes/> : <FaBars/>}</button>
-          <div className="flex flex-col">
-            {heading && <h1 className="text-lg md:text-xl font-bold text-orange-700">{heading}</h1>}
-            {subheading && <span className="text-[11px] text-gray-400">{subheading}</span>}
-          </div>
-          <div className="relative group">
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold shadow cursor-pointer border-2 border-white">{initials}</div>
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl p-4 hidden group-hover:block">
-              <div className="font-bold text-orange-600 mb-1 text-sm">{adminName}</div>
-              <div className="text-[10px] text-gray-500 mb-2">{adminEmail}</div>
-              <button onClick={handleLogout} className="btn btn-danger w-full justify-center text-xs font-semibold"><FaSignOutAlt /> Logout</button>
+        {/* Header */}
+        <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 md:px-8 bg-white/80 backdrop-blur border-b border-orange-100 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="md:hidden text-2xl text-orange-600"
+              aria-label={open ? 'Close navigation' : 'Open navigation'}
+              onClick={() => setOpen(o => !o)}
+            >
+              {open ? <FaTimes /> : <FaBars />}
+            </button>
+            <div className="flex flex-col">
+              {heading && <h1 className="text-lg md:text-xl font-semibold text-gray-800 tracking-tight">{heading}</h1>}
+              {subheading && <span className="text-[11px] text-gray-500 mt-0.5">{subheading}</span>}
             </div>
           </div>
+          <div className="relative">
+            <button
+              type="button"
+              className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white font-semibold shadow ring-2 ring-orange-200 focus:outline-none focus:ring-4 focus:ring-orange-300"
+              onClick={() => setProfileOpen(o => !o)}
+              aria-haspopup="menu"
+              aria-expanded={profileOpen}
+              aria-label="Admin menu"
+            >
+              {initials}
+            </button>
+            {profileOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-2 w-56 bg-white/90 backdrop-blur rounded-xl shadow-lg border border-orange-100 p-4 z-50"
+              >
+                <div className="text-sm font-semibold text-gray-800 mb-1 truncate" title={adminName}>{adminName}</div>
+                {adminEmail && <div className="text-[11px] text-gray-500 mb-3 break-all" title={adminEmail}>{adminEmail}</div>}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-orange-600 hover:bg-orange-700 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
+                >
+                  <FaSignOutAlt /> Logout
+                </button>
+              </div>
+            )}
+          </div>
         </header>
-        <main className="flex-1 w-full max-w-7xl mx-auto px-5 md:px-10 py-8">{children}</main>
+
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8">{children}</main>
         <footer className="py-6 text-center text-[11px] text-orange-600 font-medium opacity-70">© {new Date().getFullYear()} OrangeMantra Carpool Platform</footer>
       </div>
     </div>

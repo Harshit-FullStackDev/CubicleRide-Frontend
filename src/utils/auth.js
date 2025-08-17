@@ -29,6 +29,7 @@ export function clearSession() {
   localStorage.removeItem(ROLE_KEY);
   localStorage.removeItem(EMP_ID_KEY);
   localStorage.removeItem(NAME_KEY);
+  localStorage.removeItem(EMAIL_KEY);
 }
 export function getRole() { return localStorage.getItem(ROLE_KEY) || null; }
 export function getEmpId() { return localStorage.getItem(EMP_ID_KEY) || null; }
