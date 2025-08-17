@@ -4,10 +4,16 @@ import { FaUsers, FaCarSide, FaChevronRight, FaClock, FaTools } from "react-icon
 import api from "../../api/axios";
 import AdminLayout from "../../components/AdminLayout";
 
-// Reusable status badge helper
-const StatusBadge = ({ label, color }) => (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold bg-${color}-100 text-${color}-700`}>{label}</span>
-);
+// Reusable status badge helper (avoid dynamic class injection warnings by mapping)
+const colorMap = {
+    green: 'bg-green-100 text-green-700',
+    gray: 'bg-gray-200 text-gray-700',
+    amber: 'bg-amber-100 text-amber-700'
+};
+const StatusBadge = ({ label, color }) => {
+    const cls = colorMap[color] || colorMap.gray;
+    return <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${cls}`}>{label}</span>;
+};
 
 function AdminDashboard() {
     const navigate = useNavigate();

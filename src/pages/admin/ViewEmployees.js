@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import api from "../../api/axios";
 import { FaUser, FaSearch, FaEdit, FaTrash, FaIdBadge, FaEnvelope, FaArrowLeft, FaPlus, FaPhone, FaCheckCircle, FaRedo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -55,11 +55,19 @@ function ViewEmployees() {
         navigate("/admin/dashboard");
     };
 
-    const filteredEmployees = employees.filter(emp =>
-        (emp.name && emp.name.toLowerCase().includes(search.toLowerCase())) ||
-        (emp.email && emp.email.toLowerCase().includes(search.toLowerCase())) ||
-        (emp.empId && emp.empId.toLowerCase().includes(search.toLowerCase()))
-    );
+    // Memoize filtered list; avoids re-running O(n) filter on unrelated state updates
+    const filteredEmployees = useMemo(() => {
+        if (!search) return employees;
+        const q = search.toLowerCase().trim();
+        if (!q) return employees;
+        return employees.filter(emp => {
+            // Guard against missing fields; short-circuit as soon as match found
+            if (emp.name && emp.name.toLowerCase().includes(q)) return true;
+            if (emp.email && emp.email.toLowerCase().includes(q)) return true;
+            if (emp.empId && emp.empId.toLowerCase().includes(q)) return true;
+            return false;
+        });
+    }, [employees, search]);
 
     if (loading) return <AdminLayout heading="Employees"><div className="text-blue-600 text-sm animate-pulse">Loading employees...</div></AdminLayout>;
     if (error) return <AdminLayout heading="Employees"><div className="text-red-600 text-sm">{error}</div></AdminLayout>;

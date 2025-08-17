@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import api from "../../api/axios";
 import {
     FaMapMarkerAlt,
@@ -91,7 +91,7 @@ function OfferRide() {
         })();
     }, []);
 
-    const handleChange = (e) => {
+    const handleChange = useCallback((e) => {
         const { name, value } = e.target;
         if (name === 'carDetails') return; // locked
         if (name === 'totalSeats') {
@@ -108,12 +108,12 @@ function OfferRide() {
         }
         setSuccess(false);
         setGlobalError("");
-    };
+    }, [vehicleCapacity]);
 
-    const handleBlur = (e) => {
+    const handleBlur = useCallback((e) => {
         const { name } = e.target;
         setTouched(t => ({ ...t, [name]: true }));
-    };
+    }, []);
 
     // Derived validation errors
     const fieldErrors = useMemo(() => {
@@ -146,15 +146,14 @@ function OfferRide() {
 
     const hasErrors = Object.keys(fieldErrors).length > 0;
 
-    const incrementSeats = (delta) => {
+    const incrementSeats = useCallback((delta) => {
         setRide(r => {
             let v = (r.totalSeats || 1) + delta;
             const max = vehicleCapacity != null ? vehicleCapacity : 8;
-            if (v < 1) v = 1;
-            if (v > max) v = max;
+            if (v < 1) v = 1; else if (v > max) v = max;
             return { ...r, totalSeats: v };
         });
-    };
+    }, [vehicleCapacity]);
 
     // Dynamic min time for today
     const minTime = useMemo(() => {

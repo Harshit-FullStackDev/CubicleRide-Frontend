@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTrash, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
@@ -6,31 +6,24 @@ import EmployeeLayout from "../../components/EmployeeLayout";
 
 function EmployeeDashboard() {
     const navigate = useNavigate();
-    const [empName, setEmpName] = useState("");
-    const [empId, setEmpId] = useState("");
+    const [empName] = useState(() => localStorage.getItem("name") || "Employee");
+    const [empId] = useState(() => localStorage.getItem("empId") || "");
     const [publishedRides, setPublishedRides] = useState([]);
     const [joinedRides, setJoinedRides] = useState([]);
     const [stats, setStats] = useState({ total: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [lastLogin, setLastLogin] = useState("");
+    const [lastLogin] = useState(() => localStorage.getItem("lastLogin") || new Date().toLocaleString());
     // Removed unused empEmail & vehicleStatus states after layout refactor
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
-        if (!token || role !== "EMPLOYEE") {
-            navigate("/login");
-        }
-        setEmpName(localStorage.getItem("name") || "Employee");
-        const id = localStorage.getItem("empId") || "";
-        setEmpId(id);
-        setLastLogin(localStorage.getItem("lastLogin") || new Date().toLocaleString());
-        fetchDashboardData(id);
-    // vehicle status panel removed in new UI, fetch omitted
+        if (!token || localStorage.getItem("role") !== "EMPLOYEE") navigate("/login");
     }, [navigate]);
+    // Separate effect to load data once we have empId & stable fetch function
+    useEffect(() => { if (empId) fetchDashboardData(empId); }, [empId, fetchDashboardData]);
 
-    const fetchDashboardData = async (empId) => {
+    const fetchDashboardData = useCallback(async (empId) => {
         setLoading(true);
         try {
             const [ridesRes, joinedRes] = await Promise.all([
@@ -46,14 +39,12 @@ function EmployeeDashboard() {
             setError("Failed to load dashboard data.");
         }
         setLoading(false);
-    };
+    }, []);
 
 
-    const handleEdit = (id) => {
-        navigate(`/employee/edit/${id}`);
-    };
+    const handleEdit = useCallback((id) => navigate(`/employee/edit/${id}`), [navigate]);
 
-    const handleDelete = async (id) => {
+    const handleDelete = useCallback(async (id) => {
         if (!window.confirm("Are you sure you want to delete this ride?")) return;
         try {
             await api.delete(`/ride/${id}`);
@@ -61,22 +52,22 @@ function EmployeeDashboard() {
         } catch (err) {
             alert("Failed to delete ride.");
         }
-    };
+    }, [empId, fetchDashboardData]);
 
-    const approveRequest = async (rideId, pendingEmpId) => {
+    const approveRequest = useCallback(async (rideId, pendingEmpId) => {
         try {
             await api.post(`/ride/approve/${rideId}`, { empId: pendingEmpId });
             fetchDashboardData(empId);
         } catch { alert('Failed to approve request'); }
-    };
-    const declineRequest = async (rideId, pendingEmpId) => {
+    }, [empId, fetchDashboardData]);
+    const declineRequest = useCallback( async (rideId, pendingEmpId) => {
         try {
             await api.post(`/ride/decline/${rideId}`, { empId: pendingEmpId });
             fetchDashboardData(empId);
         } catch { alert('Failed to decline request'); }
-    };
+    }, [empId, fetchDashboardData]);
 
-    const handleLeave = async (id) => {
+    const handleLeave = useCallback(async (id) => {
         if (!window.confirm("Leave this ride?")) return;
         try {
             await api.post(`/ride/leave/${id}`, { empId });
@@ -84,14 +75,13 @@ function EmployeeDashboard() {
         } catch (err) {
             alert("Failed to leave ride.");
         }
-    };
+    }, [empId, fetchDashboardData]);
 
-    const formatDate = (dateStr) => {
+    const formatDate = useCallback((dateStr) => {
         const d = new Date(dateStr);
         return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-    };
-
-    const formatTime = (timeStr) => timeStr?.slice(0, 5);
+    }, []);
+    const formatTime = useCallback((timeStr) => timeStr?.slice(0, 5), []);
 
     // getInitials helper no longer needed; removed
 

@@ -27,10 +27,10 @@ function JoinRide() {
 
     const loadRides = async () => {
         try {
-            const res = await api.get("/ride/active");
-            let list = res.data;
-            if (filters.pickup) list = list.filter(r => r.origin === filters.pickup);
-            if (filters.drop) list = list.filter(r => r.destination === filters.drop);
+            const { data } = await api.get("/ride/active");
+            // Single pass filter (micro-opt) – O(n) once instead of up to 2 passes
+            const { pickup, drop } = filters;
+            const list = (pickup || drop) ? data.filter(r => (!pickup || r.origin === pickup) && (!drop || r.destination === drop)) : data;
             setRides(list);
         } catch {
             setError("Failed to load rides.");
@@ -55,12 +55,14 @@ function JoinRide() {
         try {
             await api.post(`/ride/join/${id}`, { empId });
             setSuccess(ride.instantBookingEnabled ? `Joined ride from ${ride.origin} to ${ride.destination}!` : `Request sent for ride ${ride.origin} → ${ride.destination}. Awaiting approval.`);
-            const updated = await api.get("/ride/active");
-            const filtered = updated.data.filter(r => (
-                (!filters.pickup || r.origin === filters.pickup) &&
-                (!filters.drop || r.destination === filters.drop)
-            ));
-            setRides(filtered);
+            // Optimistically update instead of refetching entire list, then refresh minimal
+            setRides(prev => prev.map(r => r.id === id ? { ...r, availableSeats: Math.max(0, (r.availableSeats||0)-1), joinedEmployees: [...(r.joinedEmployees||[]), { empId }] } : r));
+            // Fetch latest snapshot in background (seat counts / status) without blocking UX
+            api.get("/ride/active").then(({ data }) => {
+                const { pickup, drop } = filters;
+                const filtered = (pickup || drop) ? data.filter(r => (!pickup || r.origin === pickup) && (!drop || r.destination === drop)) : data;
+                setRides(filtered);
+            }).catch(()=>{});
         } catch {
             setError("Failed to join ride—maybe it's full or you're already in.");
         }
