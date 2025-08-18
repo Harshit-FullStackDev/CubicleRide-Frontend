@@ -16,12 +16,6 @@ function EmployeeDashboard() {
     const [lastLogin] = useState(() => localStorage.getItem("lastLogin") || new Date().toLocaleString());
     // Removed unused empEmail & vehicleStatus states after layout refactor
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token || localStorage.getItem("role") !== "EMPLOYEE") navigate("/login");
-    }, [navigate]);
-    // Separate effect to load data once we have empId & stable fetch function
-    useEffect(() => { if (empId) fetchDashboardData(empId); }, [empId, fetchDashboardData]);
 
     const fetchDashboardData = useCallback(async (empId) => {
         setLoading(true);
@@ -40,6 +34,13 @@ function EmployeeDashboard() {
         }
         setLoading(false);
     }, []);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token || localStorage.getItem("role") !== "EMPLOYEE") navigate("/login");
+    }, [navigate]);
+    // Separate effect to load data once we have empId & stable fetch function
+    useEffect(() => { if (empId) fetchDashboardData(empId); }, [empId, fetchDashboardData]);
 
 
     const handleEdit = useCallback((id) => navigate(`/employee/edit/${id}`), [navigate]);
