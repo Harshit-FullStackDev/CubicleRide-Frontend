@@ -22,6 +22,7 @@ const JoinedHistory = lazy(() => import('./pages/employee/JoinedHistory'));
 const VehiclePage = lazy(() => import('./pages/employee/Vehicle'));
 const Profile = lazy(() => import('./pages/employee/Profile'));
 const Landing = lazy(() => import('./pages/Landing'));
+const Inbox = lazy(() => import('./pages/employee/Inbox'));
 
 function App() {
     return (
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/employee/edit/:id" element={<ProtectedRoute role="EMPLOYEE"><EditRide /></ProtectedRoute>} />
                 <Route path="/employee/vehicle" element={<ProtectedRoute role="EMPLOYEE"><VehiclePage /></ProtectedRoute>} />
                 <Route path="/employee/profile" element={<ProtectedRoute role="EMPLOYEE"><Profile /></ProtectedRoute>} />
+                <Route path="/employee/inbox" element={<ProtectedRoute role="EMPLOYEE"><Inbox /></ProtectedRoute>} />
                 <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/admin/employees" element={<ProtectedRoute role="ADMIN"><ViewEmployees /></ProtectedRoute>} />
                 <Route path="/admin/employees/add" element={<ProtectedRoute role="ADMIN"><AddEmployee /></ProtectedRoute>} />

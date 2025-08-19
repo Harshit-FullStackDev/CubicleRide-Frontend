@@ -260,7 +260,7 @@ export default function Landing() {
             <div className="whitespace-nowrap animate-[scroll_25s_linear_infinite]" style={{ maskImage: 'linear-gradient(90deg,transparent,black 10%,black 90%,transparent)' }}>
               <div className="inline-flex gap-6 text-gray-700 text-sm">
                 {omClients.concat(omClients).map((c, i) => (
-                  <span key={i} className="px-3 py-1 rounded-full bg-orange-50 border border-orange-100">{c}</span>
+                  <span key={`${c}-${i}`} className="px-3 py-1 rounded-full bg-orange-50 border border-orange-100">{c}</span>
                 ))}
               </div>
             </div>

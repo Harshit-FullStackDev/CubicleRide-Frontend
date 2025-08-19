@@ -84,6 +84,10 @@ function EmployeeDashboard() {
     }, []);
     const formatTime = useCallback((timeStr) => timeStr?.slice(0, 5), []);
 
+    const goChat = useCallback((rideId, otherEmpId) => {
+        navigate(`/employee/inbox?rideId=${rideId}&emp=${otherEmpId}`);
+    }, [navigate]);
+
     // getInitials helper no longer needed; removed
 
     // Removed old styling helper constants no longer used after UI refactor
@@ -191,7 +195,10 @@ function EmployeeDashboard() {
                                                 {ride.joinedEmployees && ride.joinedEmployees.length > 0 ? (
                                                     <ul className="ml-2 list-disc text-xs text-gray-700">
                                                         {ride.joinedEmployees.map(emp => (
-                                                            <li key={emp.empId}>{emp.name} ({emp.empId}) {emp.phone && <span className="text-green-600 font-semibold">📞 {emp.phone}</span>}</li>
+                                                            <li key={emp.empId} className="flex items-center gap-2">
+                                                                <span>{emp.name} ({emp.empId}) {emp.phone && <span className="text-green-600 font-semibold">📞 {emp.phone}</span>}</span>
+                                                                <button onClick={() => goChat(ride.id, emp.empId)} className="ml-2 px-2 py-0.5 rounded bg-orange-600 hover:bg-orange-700 text-white text-[10px]">Chat</button>
+                                                            </li>
                                                         ))}
                                                     </ul>
                                                 ) : (
@@ -278,8 +285,9 @@ function EmployeeDashboard() {
                                                     <span className="ml-6 text-gray-400 text-xs">No one has joined yet.</span>
                                                 )}
                                             </div>
-                                            <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => handleLeave(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-medium"><FaUser /> Leave</button>
+                                            <div className="flex gap-2 mt-3 opacity-100 transition-opacity">
+                                                <button onClick={() => goChat(ride.id, ride.ownerEmpId)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-medium">💬 Chat Owner</button>
+                                                <button onClick={() => handleLeave(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-medium">Leave</button>
                                             </div>
                                         </div>
                                     ))
@@ -292,4 +300,3 @@ function EmployeeDashboard() {
     );
 }
 export default EmployeeDashboard;
-
