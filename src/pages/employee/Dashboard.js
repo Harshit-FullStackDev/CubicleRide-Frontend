@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import { FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTrash, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
+import { FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTimesCircle, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
 import EmployeeLayout from "../../components/EmployeeLayout";
 
 function EmployeeDashboard() {
@@ -43,17 +43,17 @@ function EmployeeDashboard() {
     useEffect(() => { if (empId) fetchDashboardData(empId); }, [empId, fetchDashboardData]);
 
 
-    const handleEdit = useCallback((id) => navigate(`/employee/edit/${id}`), [navigate]);
-
-    const handleDelete = useCallback(async (id) => {
-        if (!window.confirm("Are you sure you want to delete this ride?")) return;
+    const handleCancel = useCallback(async (id) => {
+        if (!window.confirm("Are you sure you want to cancel this ride?")) return;
         try {
-            await api.delete(`/ride/${id}`);
+            await api.post(`/ride/cancel/${id}`);
             fetchDashboardData(empId);
         } catch (err) {
-            alert("Failed to delete ride.");
+            alert("Failed to cancel ride.");
         }
     }, [empId, fetchDashboardData]);
+
+    const handleEdit = useCallback((id) => navigate(`/employee/edit/${id}`), [navigate]);
 
     const approveRequest = useCallback(async (rideId, pendingEmpId) => {
         try {
@@ -222,7 +222,7 @@ function EmployeeDashboard() {
                                             </div>
                                             <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button onClick={() => handleEdit(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-medium"><FaEdit /> Edit</button>
-                                                <button onClick={() => handleDelete(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-medium"><FaTrash /> Delete</button>
+                                                <button onClick={() => handleCancel(ride.id)} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-medium"><FaTimesCircle /> Cancel</button>
                                             </div>
                                         </div>
                                     ))
