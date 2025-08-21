@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import { FaUser, FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTrash, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
+import { FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTrash, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
 import EmployeeLayout from "../../components/EmployeeLayout";
 
 function EmployeeDashboard() {
