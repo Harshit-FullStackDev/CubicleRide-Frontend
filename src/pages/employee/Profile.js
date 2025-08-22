@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import api from '../../api/axios';
-import EmployeeLayout from '../../components/EmployeeLayout';
+// import EmployeeLayout from '../../components/EmployeeLayout'; // deprecated
+import PageContainer from '../../components/PageContainer';
 import { FaUser, FaBuilding, FaEnvelope, FaPhone, FaIdBadge, FaMapMarkerAlt, FaSave, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -45,10 +46,14 @@ function Profile() {
     finally { setSaving(false); }
   };
 
-  if (loading) return <EmployeeLayout heading='My Profile'><div className='text-blue-700 text-sm'>Loading profile...</div></EmployeeLayout>;
+  if (loading) return <PageContainer><h1 className='text-xl font-semibold mb-4'>My Profile</h1><div className='text-blue-700 text-sm'>Loading profile...</div></PageContainer>;
 
   return (
-    <EmployeeLayout heading='My Profile'>
+    <PageContainer>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-semibold tracking-tight'>My Profile</h1>
+        <p className='text-xs text-gray-500 mt-1'>View and update your personal information</p>
+      </div>
       <div className='max-w-3xl mx-auto bg-white/90 backdrop-blur border border-indigo-100 shadow-xl rounded-2xl p-6 md:p-10'>
         <div className='flex items-center justify-between mb-6'>
           <h1 className='text-2xl md:text-3xl font-extrabold text-indigo-700 flex items-center gap-2'><FaUser/> My Profile</h1>
@@ -95,7 +100,7 @@ function Profile() {
           </div>
         </div>
       </div>
-    </EmployeeLayout>
+  </PageContainer>
   );
 }
 

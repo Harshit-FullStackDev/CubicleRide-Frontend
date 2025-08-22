@@ -10,7 +10,8 @@ import {
     FaCheckCircle
 } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
-import EmployeeLayout from "../../components/EmployeeLayout";
+// import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
+import PageContainer from "../../components/PageContainer";
 
 function OfferRide() {
     const [ride, setRide] = useState({
@@ -206,10 +207,11 @@ function OfferRide() {
         }
     };
 
-    if (checking) return <EmployeeLayout heading="Offer a Ride"><div className="animate-pulse text-blue-600 text-sm">Preparing form...</div></EmployeeLayout>;
+    if (checking) return <PageContainer><h1 className="text-xl font-semibold mb-4">Offer a Ride</h1><div className="animate-pulse text-blue-600 text-sm">Preparing form...</div></PageContainer>;
 
     if (activeRide) return (
-        <EmployeeLayout heading="Offer a Ride" subheading="Active ride already published">
+    <PageContainer>
+    <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Offer a Ride</h1><p className="text-xs text-gray-500 mt-1">Active ride already published</p></div>
             <div className="max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-8 flex flex-col items-center">
                 <h2 className="text-xl font-bold text-blue-700 mb-4 text-center">Active Ride Already Published</h2>
                 <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded w-full text-sm mb-4">You already have a published ride. Publish a new ride after it ends.</div>
@@ -224,11 +226,12 @@ function OfferRide() {
                     <button onClick={() => navigate('/employee/join')} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold transition">Browse Rides</button>
                 </div>
             </div>
-        </EmployeeLayout>
+    </PageContainer>
     );
 
     if (!vehicleStatus || vehicleStatus.status !== 'APPROVED') return (
-        <EmployeeLayout heading="Offer a Ride" subheading="Vehicle verification required">
+    <PageContainer>
+    <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Offer a Ride</h1><p className="text-xs text-gray-500 mt-1">Vehicle verification required</p></div>
             <div className="max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-8 text-center">
                 <h2 className="text-xl font-bold text-blue-700 mb-4">Vehicle Verification Required</h2>
                 <p className="text-sm text-gray-600 mb-4">Submit your vehicle details and have them approved before offering a ride.</p>
@@ -236,11 +239,12 @@ function OfferRide() {
                 {vehicleStatus && vehicleStatus.status === 'REJECTED' && <div className="bg-red-50 border border-red-300 text-red-700 p-3 rounded mb-4 text-sm">Rejected: {vehicleStatus.rejectionReason}</div>}
                 <Link to="/employee/vehicle" className="w-full inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Go to Vehicle Page</Link>
             </div>
-        </EmployeeLayout>
+    </PageContainer>
     );
 
     return (
-        <EmployeeLayout heading="Offer a Ride" subheading="Help colleagues commute">
+    <PageContainer>
+    <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Offer a Ride</h1><p className="text-xs text-gray-500 mt-1">Help colleagues commute</p></div>
             <div className="relative bg-white/90 backdrop-blur shadow-2xl rounded-2xl p-6 md:p-10 w-full max-w-5xl grid md:grid-cols-2 gap-8 border border-blue-100 mx-auto">
                 <div className="md:col-span-2 flex items-center justify-between -mt-2">
                     <button onClick={() => navigate(-1)} className="text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium group">
@@ -400,7 +404,7 @@ function OfferRide() {
                     <div className="text-[11px] text-gray-400">By offering a ride you agree to the community guidelines.</div>
                 </div>
             </div>
-        </EmployeeLayout>
+    </PageContainer>
     );
 }
 

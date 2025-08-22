@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ShieldCheck, MapPin, Users, Sparkles, Car, Award, Globe2, Building2, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getRole } from '../utils/auth';
+import MainHeader from '../components/MainHeader';
+import JoinRideList from '../components/JoinRideList';
 
 // Minimal Button & Card primitives
 const Button = ({ variant = 'solid', className = '', children, type = 'button', ...rest }) => {
@@ -98,33 +100,16 @@ const Stat = ({ value, label }) => (
 export default function Landing() {
   const navigate = useNavigate();
 
+  // NOTE: We no longer redirect EMPLOYEE users away; they now land here post-login.
   useEffect(() => {
     const role = getRole();
-    if (role === 'EMPLOYEE') navigate('/employee/dashboard');
-    else if (role === 'ADMIN') navigate('/admin/dashboard');
+    if (role === 'ADMIN') navigate('/admin/dashboard');
   }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white text-gray-900">
-      {/* Secure-by-default header (no target=_self needed, noopener on externals) */}
-      <header className="sticky top-0 z-40 backdrop-blur bg-white/70 border-b border-orange-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
-          </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm">
-            <a href="#features" className="hover:text-orange-600 transition-colors">Features</a>
-            <a href="#om" className="hover:text-orange-600 transition-colors">OrangeMantra</a>
-            <a href="#how" className="hover:text-orange-600 transition-colors">How it works</a>
-            <a href="#trust" className="hover:text-orange-600 transition-colors">Trust & Safety</a>
-            <a href="#footer" className="hover:text-orange-600 transition-colors">Contact</a>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => navigate('/login')} className="hidden sm:inline-flex">Sign in</Button>
-            <Button onClick={() => navigate('/register')}>Register</Button>
-          </div>
-        </div>
-      </header>
+      {/* Unified persistent header */}
+      <MainHeader />
 
       {/* Hero */}
       <section className="relative overflow-hidden">
@@ -190,6 +175,21 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Quick Join Section for logged-in employees */}
+      {getRole() === 'EMPLOYEE' && (
+        <section className="py-10 md:py-14" id="quick-join">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Available rides</h2>
+              <button onClick={() => navigate('/employee/join')} className="text-sm font-medium text-orange-600 hover:underline">View all</button>
+            </div>
+            <div className="rounded-3xl border bg-white/70 backdrop-blur p-4 md:p-6 shadow-sm">
+              <JoinRideList limit={4} />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Features */}
       <section id="features" className="py-16 md:py-24">

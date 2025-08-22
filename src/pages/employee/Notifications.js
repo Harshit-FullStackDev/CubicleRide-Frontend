@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import api from "../../api/axios";
 import { FaBell, FaCheckCircle, FaTimes, FaTrash, FaSync, FaSearch } from "react-icons/fa";
-import EmployeeLayout from "../../components/EmployeeLayout";
+// import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
+import PageContainer from "../../components/PageContainer";
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -120,7 +121,11 @@ function Notifications() {
   };
 
   return (
-    <EmployeeLayout heading='Notifications' subheading='Stay updated with ride activity'>
+    <PageContainer>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-semibold tracking-tight'>Notifications</h1>
+        <p className='text-xs text-gray-500 mt-1'>Stay updated with ride activity</p>
+      </div>
       <div className="relative bg-white/90 backdrop-blur rounded-2xl shadow-2xl border border-blue-100 p-6 md:p-8 w-full max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
@@ -184,7 +189,7 @@ function Notifications() {
           </div>
         )}
       </div>
-    </EmployeeLayout>
+  </PageContainer>
   );
 }
 

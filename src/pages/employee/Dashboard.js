@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTimesCircle, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
-import EmployeeLayout from "../../components/EmployeeLayout";
+// import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
+import PageContainer from "../../components/PageContainer";
 
 function EmployeeDashboard() {
     const navigate = useNavigate();
@@ -92,11 +93,15 @@ function EmployeeDashboard() {
 
     // Removed old styling helper constants no longer used after UI refactor
 
-    if (loading) return <EmployeeLayout heading="Dashboard"><div className="text-blue-700 animate-pulse text-sm">Loading dashboard...</div></EmployeeLayout>;
-    if (error) return <EmployeeLayout heading="Dashboard"><div className="text-red-600 text-sm">{error}</div></EmployeeLayout>;
+    if (loading) return <PageContainer><h1 className="text-xl font-semibold mb-4">Dashboard</h1><div className="text-blue-700 animate-pulse text-sm">Loading dashboard...</div></PageContainer>;
+    if (error) return <PageContainer><h1 className="text-xl font-semibold mb-4">Dashboard</h1><div className="text-red-600 text-sm">{error}</div></PageContainer>;
 
     return (
-        <EmployeeLayout heading={`Welcome, ${empName.split(' ')[0]}`} subheading={`Last login: ${lastLogin}`}>
+                <PageContainer>
+                <div className="mb-6">
+                    <h1 className="text-2xl font-semibold tracking-tight">Welcome, {empName.split(' ')[0]}</h1>
+                    <p className="text-xs text-gray-500 mt-1">Last login: {lastLogin}</p>
+                </div>
             <section className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white p-6 shadow hover:shadow-lg transition">
                         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_30%,white,transparent)]" />
@@ -296,7 +301,7 @@ function EmployeeDashboard() {
                         </div>
                     </div>
             </section>
-        </EmployeeLayout>
+    </PageContainer>
     );
 }
 export default EmployeeDashboard;

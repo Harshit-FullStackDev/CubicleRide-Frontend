@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FaCar, FaUpload, FaCheckCircle, FaTimesCircle, FaSyncAlt, FaInfoCircle } from 'react-icons/fa';
 import api from '../../api/axios';
-import EmployeeLayout from '../../components/EmployeeLayout';
+// import EmployeeLayout from '../../components/EmployeeLayout'; // deprecated
+import PageContainer from '../../components/PageContainer';
 
 // Vehicle submission & status page
 export default function VehiclePage() {
@@ -74,7 +75,11 @@ export default function VehiclePage() {
   };
 
   return (
-    <EmployeeLayout heading='My Vehicle'>
+    <PageContainer>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-semibold tracking-tight'>My Vehicle</h1>
+        <p className='text-xs text-gray-500 mt-1'>Manage and verify your vehicle details</p>
+      </div>
       <div className="bg-white/90 shadow-2xl rounded-2xl p-8 max-w-xl w-full mx-auto">
   {/* Back button removed as per UI update */}
         <h2 className="text-3xl font-bold text-blue-700 mb-2 flex items-center gap-2"><FaCar/> Vehicle Verification</h2>
@@ -122,6 +127,6 @@ export default function VehiclePage() {
           <button disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded font-semibold flex items-center justify-center gap-2">{loading && <FaSyncAlt className="animate-spin"/>} {status ? 'Update Vehicle' : 'Submit Vehicle'}</button>
         </form>
       </div>
-    </EmployeeLayout>
+  </PageContainer>
   );
 }

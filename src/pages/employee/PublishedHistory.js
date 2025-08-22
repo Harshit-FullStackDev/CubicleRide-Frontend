@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import api from "../../api/axios";
 import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSync, FaFilter } from "react-icons/fa";
-import EmployeeLayout from "../../components/EmployeeLayout";
+// import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
+import PageContainer from "../../components/PageContainer";
 
 function PublishedHistory() {
   const [rides, setRides] = useState([]);
@@ -59,7 +60,11 @@ function PublishedHistory() {
   const statusOptions = ['ALL', ...Array.from(new Set(rides.map(r=>r.status)))];
 
   return (
-    <EmployeeLayout heading="Published Ride History" subheading="Review your past offered rides and performance">
+    <PageContainer>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-semibold tracking-tight'>Published Ride History</h1>
+        <p className='text-xs text-gray-500 mt-1'>Review your past offered rides and performance</p>
+      </div>
       <div className="relative">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
           <div>
@@ -150,7 +155,7 @@ function PublishedHistory() {
           </div>
         )}
       </div>
-    </EmployeeLayout>
+  </PageContainer>
   );
 }
 

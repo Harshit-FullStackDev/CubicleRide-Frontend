@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaClock } from "react-icons/fa";
 import api from "../../api/axios";
-import EmployeeLayout from "../../components/EmployeeLayout";
+// import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
+import PageContainer from "../../components/PageContainer";
 
 function EditRide() {
     const { id } = useParams();
@@ -136,10 +137,14 @@ function EditRide() {
         }
     };
 
-    if (loading || !ride) return <EmployeeLayout heading="Edit Ride"><div className="flex items-center gap-2 text-blue-600 text-sm"><span className="animate-spin h-5 w-5 border-b-2 border-blue-500 rounded-full inline-block"/> Loading...</div></EmployeeLayout>;
+    if (loading || !ride) return <PageContainer><h1 className="text-xl font-semibold mb-4">Edit Ride</h1><div className="flex items-center gap-2 text-blue-600 text-sm"><span className="animate-spin h-5 w-5 border-b-2 border-blue-500 rounded-full inline-block"/> Loading...</div></PageContainer>;
 
     return (
-        <EmployeeLayout heading="Edit Ride">
+                <PageContainer>
+                    <div className='mb-6'>
+                        <h1 className='text-2xl font-semibold tracking-tight'>Edit Ride</h1>
+                        <p className='text-xs text-gray-500 mt-1'>Update existing ride details</p>
+                    </div>
             <div className="bg-white/90 shadow-lg rounded-xl p-8 w-full max-w-2xl mx-auto">
                 <h2 className="text-3xl font-bold mb-6 text-blue-700 flex items-center gap-2">
                     <FaCar className="text-blue-500" /> Edit Ride
@@ -310,7 +315,7 @@ function EditRide() {
                     </div>
                 </form>
             </div>
-        </EmployeeLayout>
+    </PageContainer>
     );
 }
 

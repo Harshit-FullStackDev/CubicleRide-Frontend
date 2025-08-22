@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import api from "../../api/axios";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSync, FaFilter, FaUser } from "react-icons/fa";
-import EmployeeLayout from "../../components/EmployeeLayout";
+// import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
+import PageContainer from "../../components/PageContainer";
 
 function JoinedHistory() {
   const [rides, setRides] = useState([]);
@@ -59,7 +60,11 @@ function JoinedHistory() {
   const statusOptions = ['ALL', ...Array.from(new Set(rides.map(r=>r.status)))];
 
   return (
-    <EmployeeLayout heading="Joined Rides History" subheading="Your past participation in rides">
+    <PageContainer>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-semibold tracking-tight'>Joined Rides History</h1>
+        <p className='text-xs text-gray-500 mt-1'>Your past participation in rides</p>
+      </div>
       <div className="relative">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
           <div>
@@ -143,7 +148,7 @@ function JoinedHistory() {
           </div>
         )}
       </div>
-    </EmployeeLayout>
+  </PageContainer>
   );
 }
 

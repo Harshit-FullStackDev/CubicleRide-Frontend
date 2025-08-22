@@ -109,6 +109,16 @@ input:focus {
   border-color: #3b82f6;
 }
 
+/* Unstyled header buttons override generic button styling */
+.unstyled-header-btn {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  line-height: 1.25rem;
+}
+
+
 /* Animations for icons */
 .animate-bounce {
   animation: bounce 1.2s infinite alternate;

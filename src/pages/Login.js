@@ -14,7 +14,7 @@ function Login() {
 
     useEffect(() => {
     const role = getRole();
-    if (role === 'EMPLOYEE') navigate('/employee/dashboard');
+    if (role === 'EMPLOYEE') navigate('/');
     else if (role === 'ADMIN') navigate('/admin/dashboard');
         // focus email on load for quick login
         setTimeout(() => emailRef.current?.focus(), 0);
@@ -37,7 +37,7 @@ function Login() {
             if (!ok) throw new Error('Invalid token');
             localStorage.setItem('email', data.email);
             const payload = JSON.parse(atob(token.split('.')[1]));
-            const redirect = location.state?.from || (payload.role === 'EMPLOYEE' ? '/employee/dashboard' : '/admin/dashboard');
+            const redirect = location.state?.from || (payload.role === 'EMPLOYEE' ? '/' : '/admin/dashboard');
             navigate(redirect, { replace: true });
         } catch (err) {
             setErrors({ form: "Invalid credentials" });

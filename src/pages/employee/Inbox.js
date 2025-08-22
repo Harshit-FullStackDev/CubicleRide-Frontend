@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import EmployeeLayout from '../../components/EmployeeLayout';
+// import EmployeeLayout from '../../components/EmployeeLayout'; // deprecated
+import PageContainer from '../../components/PageContainer';
 import api from '../../api/axios';
 import chatSocket from '../../utils/chatSocket';
 import { getEmpId } from '../../utils/auth';
@@ -287,7 +288,11 @@ function Inbox() {
   const showNewDivider = (tsNum) => tsNum > lastSeenTs;
 
   return (
-    <EmployeeLayout heading="Inbox" subheading="Chat with your ride participants">
+    <PageContainer>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-semibold tracking-tight'>Inbox</h1>
+        <p className='text-xs text-gray-500 mt-1'>Chat with your ride participants</p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-1 bg-white rounded-xl shadow border border-gray-100 overflow-hidden">
           <div className="px-3 py-2 border-b text-xs text-gray-500 flex items-center justify-between">
@@ -415,7 +420,7 @@ function Inbox() {
           </form>
         </div>
       </div>
-    </EmployeeLayout>
+  </PageContainer>
   );
 }
 
