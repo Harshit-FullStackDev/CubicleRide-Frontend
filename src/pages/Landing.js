@@ -1,10 +1,26 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ShieldCheck, MapPin, Users, Sparkles, Car, Award, Globe2, Building2, Star } from 'lucide-react';
+import {
+  ArrowRight,
+  ShieldCheck,
+  MapPin,
+  Users,
+  Sparkles,
+  Car,
+  Award,
+  Globe2,
+  Building2,
+  Star,
+  PlusCircle,
+  Bell,
+  Clock,
+  User as UserIcon
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getRole } from '../utils/auth';
 import MainHeader from '../components/MainHeader';
 import JoinRideList from '../components/JoinRideList';
+import MyRidesSummary from '../components/MyRidesSummary';
 
 // Minimal Button & Card primitives
 const Button = ({ variant = 'solid', className = '', children, type = 'button', ...rest }) => {
@@ -29,25 +45,25 @@ const CardContent = ({ className = '', children }) => <div className={className}
 
 // Your original feature set (kept)
 const features = [
-  { icon: <Car className="h-6 w-6" />, title: 'Offer or Join Rides', desc: 'Share daily office commutes across locations. Save time, cost, and the planet.' },
-  { icon: <ShieldCheck className="h-6 w-6" />, title: 'Verified Workspace', desc: 'JWT-backed access, role-based controls, transparent profiles for safer carpooling.' },
-  { icon: <Users className="h-6 w-6" />, title: 'Teams-first', desc: 'Create squads by project, pod, or department to coordinate rides & hybrid days.' },
-  { icon: <MapPin className="h-6 w-6" />, title: 'Smart Matching', desc: 'Preset pickup & drop points, seat availability, and location-based suggestions.' },
+  { icon: <Car className="h-6 w-6" />, title: 'Offer or Join', desc: 'Post a ride in seconds or join one that matches your route & timing.' },
+  { icon: <ShieldCheck className="h-6 w-6" />, title: 'Secure by Design', desc: 'Org‑only access, role permissions & provenance on every ride.' },
+  { icon: <Users className="h-6 w-6" />, title: 'People-first', desc: 'Clear capacity, profiles & history reduce chat back‑and‑forth.' },
+  { icon: <MapPin className="h-6 w-6" />, title: 'Route Intelligence', desc: 'Reusable pickup / drop catalogs keep choices fast & consistent.' },
 ];
 
 // How-it-works (kept)
 const steps = [
-  { step: '01', title: 'Sign in', desc: 'Secure sign-in with your company email.' },
-  { step: '02', title: 'Set Route', desc: 'Choose pickup and drop points, schedule preferences.' },
-  { step: '03', title: 'Offer or Join', desc: 'Publish a ride or join a matching one.' },
-  { step: '04', title: 'Ride & Save', desc: 'Cut commute stress & emissions together.' },
+  { step: '01', title: 'Sign in', desc: 'Authenticate with your company workspace token.' },
+  { step: '02', title: 'Select Route', desc: 'Pick pickup, drop & recurrence (one‑time or weekdays).' },
+  { step: '03', title: 'Offer or Join', desc: 'System surfaces matches; you confirm in one tap.' },
+  { step: '04', title: 'Ride & Improve', desc: 'Save money, reduce congestion & CO₂ each trip.' },
 ];
 
 // Testimonials (kept)
 const testimonials = [
-  { quote: 'Reduced my commute cost by ~40% and reach standups on time.', author: 'Aarav, Frontend Engineer' },
-  { quote: 'Preset pickup points make joining rides effortless for our pod.', author: 'Meera, Delivery Lead' },
-  { quote: 'Verified org profiles + ride history built real confidence.', author: 'Rohit, QA Analyst' },
+  { quote: 'My monthly commute expense dropped ~40% without adding planning overhead.', author: 'Aarav · Frontend Engineer' },
+  { quote: 'Reusable pickup points eliminated the daily “where are you?” chats.', author: 'Meera · Delivery Lead' },
+  { quote: 'Knowing profiles & past rides exist builds instant trust.', author: 'Rohit · QA Analyst' },
 ];
 
 /** --- New: OrangeMantra factual content (sourced from orangemantra.com) --- */
@@ -104,15 +120,180 @@ export default function Landing() {
   useEffect(() => {
     const role = getRole();
     if (role === 'ADMIN') navigate('/admin/dashboard');
+    document.title = role === 'EMPLOYEE' ? 'Your Commute · OrangeMantra Carpool' : 'OrangeMantra Carpool Platform';
   }, [navigate]);
 
+  const role = getRole();
+  const isEmployee = role === 'EMPLOYEE';
+
+  // Employee-specific landing (post-login) – functional first
+  if (isEmployee) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white text-gray-900 relative">
+        <a href="#employee-join" className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 bg-white shadow px-3 py-2 rounded-md text-xs font-medium text-orange-700">Skip to rides</a>
+        <MainHeader />
+        {/* Top: Join a ride with search filters */}
+        <section className="pt-8 pb-4" id="employee-join">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="flex items-center justify-between mb-5">
+                <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                  <span className="bg-[#054652] bg-clip-text text-transparent text-[32px]">Find / Join a Ride</span> 
+                </h1>
+              </div>
+              <div className="rounded-3xl border border-orange-100/70 bg-white/80 backdrop-blur p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow">
+                <JoinRideList full />
+              </div>
+              <div className="rounded-3xl border bg-white/70 backdrop-blur p-5 shadow-sm">
+                <h2 className="text-sm font-semibold mb-2 text-[#054652]">Suggestions</h2>
+                <ul className="text-[11px] text-gray-600 space-y-1">
+                  <li>• Broaden pickup or drop to surface more rides.</li>
+                  <li>• Offer a ride if you regularly commute this route.</li>
+                  <li>• Edit / approve / cancel using avatar → Manage Rides.</li>
+                </ul>
+                <button onClick={()=>navigate('/employee/offer')} className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#054652] hover:text-[#0a7f8c]">
+                  <PlusCircle className="h-3.5 w-3.5" /> Offer a ride
+                </button>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <MyRidesSummary />
+              <div className="rounded-3xl border bg-white/80 backdrop-blur p-5 shadow-sm">
+                <h2 className="text-lg font-semibold tracking-tight mb-3 text-[#054652] font-bold">Quick Actions</h2>
+                <ul className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 text-xs" aria-label="Quick actions">
+                  <li>
+                    <button onClick={()=>navigate('/employee/offer')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#054652] hover:bg-[#0a7f8c] text-white font-medium px-3 py-2 transition">
+                      <PlusCircle className="h-4 w-4" /> <span>Publish</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={()=>navigate('/employee/join')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#054652] hover:bg-[#0a7f8c] text-white font-medium px-3 py-2 transition">
+                      <Car className="h-4 w-4" /> <span>Browse</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={()=>navigate('/employee/notifications')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#054652] hover:bg-[#0a7f8c] text-white font-medium px-3 py-2 transition">
+                      <Bell className="h-4 w-4" /> <span>Alerts</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={()=>navigate('/employee/history/published')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-gray-300 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 transition">
+                      <Clock className="h-4 w-4 text-gray-500" /> <span>History</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={()=>navigate('/employee/vehicle')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-gray-300 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 transition">
+                      <Car className="h-4 w-4 text-gray-500" /> <span>Vehicle</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={()=>navigate('/employee/profile')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-gray-300 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 transition">
+                      <UserIcon className="h-4 w-4 text-gray-500" /> <span>Profile</span>
+                    </button>
+                  </li>
+                </ul>
+                <p className="text-[11px] text-gray-500 mt-4 leading-relaxed">Need deeper management? Use <span className="font-medium">Manage Rides</span> in your avatar menu.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Focused OrangeMantra context (condensed) */}
+  <section id="om" className="pt-6 md:pt-8 pb-12 md:pb-16 bg-gradient-to-b from-white to-orange-50/40" aria-labelledby="om-heading">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 md:mb-12 flex items-end justify-between gap-6 flex-wrap">
+              <div>
+                <h2 id="om-heading" className="text-2xl md:text-3xl font-semibold tracking-tight text-[#054652]">OrangeMantra at a glance</h2>
+                <p className="text-gray-600 mt-2 max-w-2xl text-sm md:text-base">Engineering, mobility, and workplace experience powering our internal commute platform.</p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {omHighlights.map((h,i)=>(
+    <div key={i} className="rounded-2xl border bg-white p-5 flex items-start gap-3 hover:shadow-sm transition-shadow">
+                  <div className="h-10 w-10 rounded-xl bg-orange-50 grid place-items-center text-orange-700">{h.icon}</div>
+                  <div>
+                    <div className="font-medium text-sm">{h.title}</div>
+                    <div className="text-[13px] text-gray-600">{h.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trust & Safety slice */}
+    <section id="trust" className="py-12 md:py-16" aria-labelledby="trust-heading">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-start">
+            <div>
+      <h2 id="trust-heading" className="text-2xl md:text-3xl font-semibold tracking-tight text-[#054652]">Trust & Safety</h2>
+              <ul className="mt-5 space-y-3 text-sm text-gray-600">
+                <li>• Organization-only access with JWT & role-based controls.</li>
+                <li>• Ride history, approval flows & verified vehicles.</li>
+                <li>• Manual or instant booking modes.</li>
+                <li>• Persistent visibility via Manage Rides modal.</li>
+              </ul>
+              <div className="mt-6 flex gap-3">
+                <button onClick={()=>navigate('/employee/offer')} className="px-5 py-2.5 rounded-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium">Publish Now</button>
+                <button onClick={()=>navigate('/employee/join')} className="px-5 py-2.5 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium">Browse Rides</button>
+              </div>
+            </div>
+            <div className="rounded-3xl border bg-white p-6 shadow-sm space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-orange-50 grid place-items-center text-orange-700"><ShieldCheck className="h-5 w-5" /></div>
+                <div className="font-medium">Controls you can trust</div>
+              </div>
+              <p className="text-sm text-gray-600">All rides are internal. Owners manage seats & approvals; employees build commute reliability.</p>
+              <div className="flex items-center gap-2 text-xs text-gray-500"><Sparkles className="h-4 w-4 text-orange-600" /> Continuous improvements shipped.</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer reused */}
+  <footer id="footer" className="py-12 border-t" aria-labelledby="footer-heading">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-4 gap-8">
+              <div className="col-span-2">
+                <div className="flex items-center gap-3">
+                  <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
+                </div>
+                <p className="text-sm text-gray-600 mt-3 max-w-md">Private internal ride sharing for OrangeMantra teams.</p>
+                <div className="mt-4 inline-flex items-center gap-2 text-xs text-gray-500">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                  <span>Developed by <span className="font-medium text-gray-700">Harshit Soni</span></span>
+                </div>
+              </div>
+              <div>
+                <div className="font-medium mb-2">Workspace</div>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li><a href="#employee-join" className="hover:text-orange-600">Find a Ride</a></li>
+                  <li><a href="/employee/offer" className="hover:text-orange-600">Offer Ride</a></li>
+                  <li><a href="/employee/history/published" className="hover:text-orange-600">History</a></li>
+                  <li><a href="/employee/vehicle" className="hover:text-orange-600">Vehicle</a></li>
+                </ul>
+              </div>
+              <div>
+                <div className="font-medium mb-2">Company</div>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li><a href="#om" className="hover:text-orange-600">About</a></li>
+                  <li><a href="#trust" className="hover:text-orange-600">Trust & Safety</a></li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-8 text-xs text-gray-500">© {new Date().getFullYear()} OrangeMantra • Internal use.</div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white text-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white text-gray-900 relative">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 bg-white shadow px-3 py-2 rounded-md text-xs font-medium text-orange-700">Skip to content</a>
       {/* Unified persistent header */}
       <MainHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden" id="hero" aria-label="Hero">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
           <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-200/50 blur-3xl" />
           <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
@@ -124,11 +305,11 @@ export default function Landing() {
                 <Sparkles className="h-3.5 w-3.5" />
                 Employee Commute, Reimagined
               </div>
-              <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight">
-                Carpool with your <span className="text-orange-600">team</span>
+              <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight" id="main">
+                Commute smarter with your <span className="text-orange-600">team</span>
               </h1>
               <p className="text-base md:text-lg text-gray-600 max-w-xl">
-                A private, secure ride-sharing experience for OrangeMantra teams. Reduce traffic, costs, and carbon—without compromising safety or control.
+                A secure internal carpool platform for OrangeMantra. Cut cost, save time & lower emissions—while retaining full control & transparency.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <Button onClick={() => navigate('/register')}>
@@ -138,8 +319,8 @@ export default function Landing() {
               </div>
               <div className="grid grid-cols-3 gap-6 pt-6 max-w-md">
                 <Stat value="8 seats" label="per ride (max)" />
-                <Stat value="50%+" label="cost savings" />
-                <Stat value="Private" label="workspace" />
+                <Stat value="≈40%" label="avg savings" />
+                <Stat value="Org-only" label="access" />
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="relative">
@@ -147,9 +328,9 @@ export default function Landing() {
                 <div className="h-full rounded-2xl border border-dashed border-orange-300/70 grid place-items-center text-center p-6">
                   <div>
                     <div className="mb-2 text-sm text-gray-500">Preview</div>
-                    <div className="text-xl font-medium">Ride Cards, Not a Search Bar</div>
+                    <div className="text-xl font-medium">Actionable Ride Cards</div>
                     <p className="text-sm text-gray-500 max-w-sm mx-auto mt-2">
-                      Surface nearby rides, matching routes, and smart suggestions—clean and distraction-free.
+                      Nearby rides & smart suggestions—no complex forms, just pick & go.
                     </p>
                     <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[1, 2, 3, 4].map((i) => (
@@ -180,33 +361,40 @@ export default function Landing() {
       {getRole() === 'EMPLOYEE' && (
         <section className="py-10 md:py-14" id="quick-join">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Available rides</h2>
-              <button onClick={() => navigate('/employee/join')} className="text-sm font-medium text-orange-600 hover:underline">View all</button>
-            </div>
-            <div className="rounded-3xl border bg-white/70 backdrop-blur p-4 md:p-6 shadow-sm">
-              <JoinRideList limit={4} />
+            <div className="grid lg:grid-cols-2 gap-10">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Available rides</h2>
+                  <button onClick={() => navigate('/employee/join')} className="text-sm font-medium text-orange-600 hover:underline">View all</button>
+                </div>
+                <div className="rounded-3xl border bg-white/70 backdrop-blur p-4 md:p-6 shadow-sm">
+                  <JoinRideList limit={4} />
+                </div>
+              </div>
+              <MyRidesSummary />
             </div>
           </div>
         </section>
       )}
 
       {/* Features */}
-      <section id="features" className="py-16 md:py-24">
+      <section id="features" className="py-16 md:py-24" aria-labelledby="features-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 md:mb-14">
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Built for modern workplaces</h2>
-            <p className="text-gray-600 mt-2 max-w-2xl">Enterprise-grade security, delightful UX, and actionable insights.</p>
+            <h2 id="features-heading" className="text-2xl md:text-3xl font-semibold tracking-tight">Built for modern workplaces</h2>
+            <p className="text-gray-600 mt-2 max-w-2xl">Enterprise-grade security, humane UX & measurable sustainability impact.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((f, idx) => (
-              <Card key={idx} className="rounded-2xl h-full">
-                <CardContent className="p-5">
-                  <div className="h-10 w-10 rounded-xl bg-orange-50 text-orange-700 grid place-items-center mb-4">{f.icon}</div>
-                  <div className="font-medium mb-1">{f.title}</div>
-                  <div className="text-sm text-gray-600">{f.desc}</div>
-                </CardContent>
-              </Card>
+              <motion.div key={idx} whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 250, damping: 18 }}>
+                <Card className="rounded-2xl h-full">
+                  <CardContent className="p-5">
+                    <div className="h-10 w-10 rounded-xl bg-orange-50 text-orange-700 grid place-items-center mb-4">{f.icon}</div>
+                    <div className="font-medium mb-1">{f.title}</div>
+                    <div className="text-sm text-gray-600">{f.desc}</div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -272,10 +460,10 @@ export default function Landing() {
       </section>
 
       {/* How it works */}
-      <section id="how" className="py-16 md:py-24">
+  <section id="how" className="py-16 md:py-24" aria-labelledby="how-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 md:mb-14">
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">How it works</h2>
+    <h2 id="how-heading" className="text-2xl md:text-3xl font-semibold tracking-tight">How it works</h2>
             <p className="text-gray-600 mt-2 max-w-2xl">Simple and safe—focus on work, not traffic.</p>
           </div>
           <div className="grid md:grid-cols-4 gap-5">
@@ -291,11 +479,11 @@ export default function Landing() {
       </section>
 
       {/* Trust & Safety */}
-      <section id="trust" className="py-16 md:py-24">
+  <section id="trust" className="py-16 md:py-24" aria-labelledby="public-trust-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Trust & Safety by design</h2>
+      <h2 id="public-trust-heading" className="text-2xl md:text-3xl font-semibold tracking-tight">Trust & Safety by design</h2>
               <ul className="mt-5 space-y-3 text-sm text-gray-600">
                 <li>• Organization-only access with JWT and role-based authorization.</li>
                 <li>• Ride history, member profiles, and admin visibility for governance.</li>
@@ -328,10 +516,10 @@ export default function Landing() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 md:py-24 bg-orange-50/60">
+  <section className="py-16 md:py-24 bg-orange-50/60" aria-labelledby="testimonials-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 md:mb-14">
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">What our teams say</h2>
+    <h2 id="testimonials-heading" className="text-2xl md:text-3xl font-semibold tracking-tight">What our teams say</h2>
             <p className="text-gray-600 mt-2 max-w-2xl">Stories from early adopters.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
@@ -348,12 +536,12 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24">
+  <section className="py-16 md:py-24" aria-labelledby="cta-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl bg-gradient-to-br from-orange-600 to-amber-500 p-8 md:p-12 text-white">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight">Ready to roll?</h3>
+        <h3 id="cta-heading" className="text-2xl md:text-3xl font-semibold tracking-tight">Ready to roll?</h3>
                 <p className="text-white/90 mt-2 max-w-xl">Launch the carpool workspace and invite your squad.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 md:justify-end">
@@ -373,7 +561,7 @@ export default function Landing() {
       </section>
 
       {/* Footer with professional credit */}
-      <footer id="footer" className="py-12 border-t">
+  <footer id="footer" className="py-12 border-t" aria-labelledby="public-footer-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="col-span-2">
@@ -435,9 +623,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="mt-8 text-xs text-gray-500">
-            © {new Date().getFullYear()} OrangeMantra • Internal use.
-          </div>
+          <div className="mt-8 text-xs text-gray-500">© {new Date().getFullYear()} OrangeMantra • Internal use.</div>
         </div>
       </footer>
     </div>

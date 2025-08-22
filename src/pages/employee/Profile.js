@@ -50,14 +50,10 @@ function Profile() {
 
   return (
     <PageContainer>
-      <div className='mb-6'>
-        <h1 className='text-2xl font-semibold tracking-tight'>My Profile</h1>
-        <p className='text-xs text-gray-500 mt-1'>View and update your personal information</p>
-      </div>
       <div className='max-w-3xl mx-auto bg-white/90 backdrop-blur border border-indigo-100 shadow-xl rounded-2xl p-6 md:p-10'>
         <div className='flex items-center justify-between mb-6'>
-          <h1 className='text-2xl md:text-3xl font-extrabold text-indigo-700 flex items-center gap-2'><FaUser/> My Profile</h1>
-          {!editing ? <button onClick={()=>setEditing(true)} className='px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold flex items-center gap-2'><FaEdit/> Edit</button> : (
+          <h1 className='text-2xl md:text-3xl font-extrabold text-[#054652] flex items-center gap-2'><FaUser/> My Profile</h1>
+          {!editing ? <button onClick={()=>setEditing(true)} className='px-4 py-2 rounded-lg bg-[#054652] hover:bg-[#043e47] text-white text-sm font-semibold flex items-center gap-2'><FaEdit/> Edit</button> : (
             <div className='flex gap-2'>
               <button onClick={save} disabled={saving} className='px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold flex items-center gap-2 disabled:opacity-60'><FaSave/>{saving?'Saving...':'Save'}</button>
               <button onClick={()=>{ setEditing(false); load(); }} className='px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-semibold'>Cancel</button>

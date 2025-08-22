@@ -25,7 +25,7 @@ function Register() {
     useEffect(() => {
         const token = localStorage.getItem("token");
         const role = localStorage.getItem("role");
-        if (token && role === "EMPLOYEE") navigate("/employee/dashboard");
+    if (token && role === "EMPLOYEE") navigate("/");
         else if (token && role === "ADMIN") navigate("/admin/dashboard");
     }, [navigate]);
 

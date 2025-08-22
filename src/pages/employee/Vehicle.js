@@ -76,13 +76,9 @@ export default function VehiclePage() {
 
   return (
     <PageContainer>
-      <div className='mb-6'>
-        <h1 className='text-2xl font-semibold tracking-tight'>My Vehicle</h1>
-        <p className='text-xs text-gray-500 mt-1'>Manage and verify your vehicle details</p>
-      </div>
       <div className="bg-white/90 shadow-2xl rounded-2xl p-8 max-w-xl w-full mx-auto">
   {/* Back button removed as per UI update */}
-        <h2 className="text-3xl font-bold text-blue-700 mb-2 flex items-center gap-2"><FaCar/> Vehicle Verification</h2>
+        <h2 className="text-3xl font-bold text-[#054652] mb-2 flex items-center gap-2"><FaCar/> Vehicle Verification</h2>
         <p className="text-gray-500 mb-4 text-sm">Provide your car details and proof image. An admin will verify it. Only approved vehicles can publish rides.</p>
         {status && (
           <div className="mb-4 flex items-center gap-3 text-sm">

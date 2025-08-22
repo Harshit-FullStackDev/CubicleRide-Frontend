@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getRole, getName, clearSession, ensureValidSession } from '../utils/auth';
-import { FaSearch, FaPlus, FaSignOutAlt, FaBell, FaHistory, FaInbox, FaCar, FaUser, FaChevronDown } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaSignOutAlt, FaBell, FaHistory, FaInbox, FaCar, FaUser, FaChevronDown, FaTachometerAlt } from 'react-icons/fa';
 import JoinRideList from './JoinRideList';
+import ManageRidesModal from './ManageRidesModal';
 
 export default function MainHeader() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function MainHeader() {
   const [name, setName] = useState(getName());
   const [menuOpen, setMenuOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
 
   useEffect(() => {
     const sync = () => { setRole(getRole()); setName(getName()); };
@@ -55,10 +57,10 @@ export default function MainHeader() {
           {isEmployee && (
             <div className="flex items-center gap-6 text-sm">
         <button onClick={() => setFindOpen(true)} className="unstyled-header-btn inline-flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium focus:outline-none">
-                <FaSearch className="text-orange-600" /> <span>Search</span>
+                <FaSearch className="text-orange-600 font-bold" /> <span>Search</span>
               </button>
         <button onClick={() => navigate('/employee/offer')} className="unstyled-header-btn hidden sm:inline-flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium focus:outline-none">
-                <FaPlus className="text-orange-600" /> <span>Publish a ride</span>
+                <FaPlus className="text-orange-600 font-bold" /> <span>Publish a ride</span>
               </button>
               <div className="relative flex items-center">
                 <button
@@ -76,6 +78,9 @@ export default function MainHeader() {
                 {menuOpen && (
           <div role="menu" className="absolute right-0 top-full mt-2 w-60 bg-white/95 backdrop-blur border border-orange-100 rounded-xl shadow-lg p-2 z-[999]">
                     <div className="px-2 py-1 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</div>
+                    <button onClick={()=>{setManageOpen(true); setMenuOpen(false);}} className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-orange-50 text-sm text-gray-700">
+                      <FaTachometerAlt className="text-xs" /> <span>Manage Rides</span>
+                    </button>
                     <MenuLink to="/employee/offer" icon={<FaPlus />}>Offer Ride</MenuLink>
                     <MenuLink to="/employee/join" icon={<FaSearch />}>Join Ride</MenuLink>
                     <MenuLink to="/employee/notifications" icon={<FaBell />}>Notifications</MenuLink>
@@ -105,6 +110,9 @@ export default function MainHeader() {
           </div>
         </div>
       )}
+      {manageOpen && isEmployee && (
+        <ManageRidesModal onClose={()=>setManageOpen(false)} />
+      )}
     </>
   );
 }
@@ -119,7 +127,7 @@ function MenuLink({ to, icon, children }) {
       onKeyDown={e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); navigate(to);} }}
       className="cursor-pointer select-none w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-orange-50 text-sm text-gray-700 focus:outline-none focus:bg-orange-50"
     >
-      <span className="text-orange-600 text-xs">{icon}</span>
+      <span className="text-[orange-600] text-xs">{icon}</span>
       <span>{children}</span>
     </div>
   );

@@ -290,8 +290,7 @@ function Inbox() {
   return (
     <PageContainer>
       <div className='mb-6'>
-        <h1 className='text-2xl font-semibold tracking-tight'>Inbox</h1>
-        <p className='text-xs text-gray-500 mt-1'>Chat with your ride participants</p>
+        <h1 className='text-4xl font-semibold tracking-tight text-center text-[#054652] bold'>Inbox</h1>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-1 bg-white rounded-xl shadow border border-gray-100 overflow-hidden">

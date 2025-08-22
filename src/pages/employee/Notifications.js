@@ -122,10 +122,6 @@ function Notifications() {
 
   return (
     <PageContainer>
-      <div className='mb-6'>
-        <h1 className='text-2xl font-semibold tracking-tight'>Notifications</h1>
-        <p className='text-xs text-gray-500 mt-1'>Stay updated with ride activity</p>
-      </div>
       <div className="relative bg-white/90 backdrop-blur rounded-2xl shadow-2xl border border-blue-100 p-6 md:p-8 w-full max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
@@ -133,7 +129,7 @@ function Notifications() {
               <FaBell className="text-white text-xl" />
             </div>
             <div>
-              <h1 className="text-xl font-extrabold tracking-tight text-blue-700">Notifications</h1>
+              <h1 className="text-xl font-extrabold tracking-tight text-[#054652]">Notifications</h1>
               <p className="text-[11px] text-gray-500">Stay updated with ride activity</p>
             </div>
           </div>
@@ -142,7 +138,7 @@ function Notifications() {
               <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
               <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-8 pr-3 py-2 rounded-lg border border-gray-200 bg-white focus:border-blue-400 focus:ring-0 outline-none text-sm" />
             </div>
-            <button onClick={load} disabled={loading} className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium flex items-center gap-1 disabled:opacity-50">
+            <button onClick={load} disabled={loading} className="px-3 py-2 rounded-lg bg-[#054652] hover:bg-[#043e47] text-white font-medium flex items-center gap-1 disabled:opacity-50">
               <FaSync className={`text-xs ${loading?'animate-spin':''}`} /> Refresh
             </button>
             <button onClick={clearAll} disabled={clearing || !notifications.length} className="px-3 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium flex items-center gap-1 disabled:opacity-40"><FaTrash className="text-xs"/> Clear All</button>

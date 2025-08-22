@@ -6,7 +6,6 @@ import {
     FaChair,
     FaCalendarAlt,
     FaClock,
-    FaArrowLeft,
     FaCheckCircle
 } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
@@ -182,6 +181,7 @@ function OfferRide() {
         setSubmitting(true);
         try {
             await api.post("/ride/offer", { ...ride, empId });
+                window.dispatchEvent(new CustomEvent('ride:updated'));
             setSuccess(true);
             setRide(r => ({
                 origin: "",
@@ -211,18 +211,17 @@ function OfferRide() {
 
     if (activeRide) return (
     <PageContainer>
-    <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Offer a Ride</h1><p className="text-xs text-gray-500 mt-1">Active ride already published</p></div>
             <div className="max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-8 flex flex-col items-center">
-                <h2 className="text-xl font-bold text-blue-700 mb-4 text-center">Active Ride Already Published</h2>
+                <h2 className="text-2xl font-bold text-[#054652] mb-4 text-center">Active Ride Already Published !</h2>
                 <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded w-full text-sm mb-4">You already have a published ride. Publish a new ride after it ends.</div>
                 <div className="w-full text-left text-sm mb-4 space-y-1">
-                    <p className="font-semibold">Current Active Ride:</p>
+                    <p className="font-semibold text-[#054652]">Current Active Ride:</p>
                     <p><strong>Route:</strong> {activeRide.origin} → {activeRide.destination}</p>
                     <p><strong>Date:</strong> {activeRide.date} at {activeRide.arrivalTime}</p>
                     <p><strong>Seats Left:</strong> {activeRide.availableSeats}</p>
                 </div>
                 <div className="flex flex-col gap-2 w-full">
-                    <button onClick={() => navigate('/employee/dashboard')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Go to Dashboard</button>
+                    <button onClick={() => navigate('/')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Go to Landing</button>
                     <button onClick={() => navigate('/employee/join')} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold transition">Browse Rides</button>
                 </div>
             </div>
@@ -244,17 +243,12 @@ function OfferRide() {
 
     return (
     <PageContainer>
-    <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Offer a Ride</h1><p className="text-xs text-gray-500 mt-1">Help colleagues commute</p></div>
             <div className="relative bg-white/90 backdrop-blur shadow-2xl rounded-2xl p-6 md:p-10 w-full max-w-5xl grid md:grid-cols-2 gap-8 border border-blue-100 mx-auto">
                 <div className="md:col-span-2 flex items-center justify-between -mt-2">
-                    <button onClick={() => navigate(-1)} className="text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium group">
-                        <FaArrowLeft className="mr-2 group-hover:-translate-x-0.5 transition-transform" /> Back
-                    </button>
-                    <span className="text-xs text-gray-400">Carpool • Offer Ride</span>
                 </div>
                 <div className="md:col-span-2">
-                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">Offer a Ride</h1>
-                    <p className="text-sm text-gray-500 mt-1">Help colleagues commute and reduce congestion. Provide accurate details for a smooth experience.</p>
+                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent text-[#054652] text-center">Offer a Ride</h1>
+                    <p className="text-sm text-gray-500 mt-1 text-center">Help colleagues commute and reduce congestion. Provide accurate details for a smooth experience.</p>
                 </div>
 
                 {success && (

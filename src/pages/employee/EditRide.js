@@ -26,7 +26,7 @@ function EditRide() {
                 if (res.data.fare != null) setFareInput(res.data.fare);
             } catch (err) {
                 alert("Failed to fetch ride details.");
-                navigate("/employee/dashboard");
+                navigate("/");
             } finally {
                 setLoading(false);
             }
@@ -129,7 +129,8 @@ function EditRide() {
             else payload.fare = null;
             await api.put(`/ride/edit/${id}`, payload);
             alert("Ride updated!");
-            navigate("/employee/dashboard");
+            window.dispatchEvent(new CustomEvent('ride:updated'));
+            navigate("/");
         } catch (err) {
             alert("Failed to update ride.");
         } finally {
@@ -141,13 +142,9 @@ function EditRide() {
 
     return (
                 <PageContainer>
-                    <div className='mb-6'>
-                        <h1 className='text-2xl font-semibold tracking-tight'>Edit Ride</h1>
-                        <p className='text-xs text-gray-500 mt-1'>Update existing ride details</p>
-                    </div>
             <div className="bg-white/90 shadow-lg rounded-xl p-8 w-full max-w-2xl mx-auto">
-                <h2 className="text-3xl font-bold mb-6 text-blue-700 flex items-center gap-2">
-                    <FaCar className="text-blue-500" /> Edit Ride
+                <h2 className="text-3xl font-bold mb-6 text-[#054652] flex items-center gap-2">
+                    <FaCar className="text-[#054652]" /> Edit Ride
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -307,7 +304,7 @@ function EditRide() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => navigate("/employee/dashboard")}
+                            onClick={() => navigate("/")}
                             className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded font-semibold transition"
                         >
                             Cancel

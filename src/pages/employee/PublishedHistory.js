@@ -61,15 +61,11 @@ function PublishedHistory() {
 
   return (
     <PageContainer>
-      <div className='mb-6'>
-        <h1 className='text-2xl font-semibold tracking-tight'>Published Ride History</h1>
-        <p className='text-xs text-gray-500 mt-1'>Review your past offered rides and performance</p>
-      </div>
       <div className="relative">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-blue-700">Published Ride History</h1>
-            <p className="text-sm text-gray-500 mt-1">Review your past offered rides and performance.</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#054652] text-center">Published Ride History</h1>
+            <p className="text-sm text-gray-500 mt-1 text-center">Review your past offered rides and performance.</p>
           </div>
           <div className="flex flex-wrap gap-3 items-center text-sm">
             <div className="relative">
@@ -85,7 +81,7 @@ function PublishedHistory() {
               <option value="TIME_ASC">Time ↑</option>
               <option value="TIME_DESC">Time ↓</option>
             </select>
-            <button onClick={load} disabled={loading} className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium flex items-center gap-1 disabled:opacity-50"><FaSync className={`text-xs ${loading?'animate-spin':''}`} />Refresh</button>
+            <button onClick={load} disabled={loading} className="px-3 py-2 rounded-lg bg-[#054652] hover:bg-[#043e47] text-white font-medium flex items-center gap-1 disabled:opacity-50"><FaSync className={`text-xs ${loading?'animate-spin':''}`} />Refresh</button>
           </div>
         </div>
 

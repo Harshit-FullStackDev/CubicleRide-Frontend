@@ -4,6 +4,7 @@ import api from "../../api/axios";
 import { FaMapMarkerAlt, FaCar, FaChair, FaCalendarAlt, FaClock, FaEdit, FaTimesCircle, FaBell, FaCheckCircle, FaPlus, FaUsers } from "react-icons/fa";
 // import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
 import PageContainer from "../../components/PageContainer";
+import MyRidesSummary from "../../components/MyRidesSummary";
 
 function EmployeeDashboard() {
     const navigate = useNavigate();
@@ -144,7 +145,10 @@ function EmployeeDashboard() {
                         </div>
                     </Link>
             </section>
-            <section className="w-full mt-2 pb-4 animate-fade-in-up">
+                        <section className="w-full mt-2 pb-4 animate-fade-in-up">
+                                        <div className="mb-10">
+                                            <MyRidesSummary />
+                                        </div>
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
                         {/* Published Column */}
                         <div className="flex flex-col min-h-[60vh]">
