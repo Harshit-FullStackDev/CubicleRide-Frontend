@@ -50,8 +50,8 @@ export default function MainHeader() {
           {/* Right actions */}
           {!isEmployee && (
             <div className="flex items-center gap-6 text-sm">
-              <button onClick={() => navigate('/login')} className="hidden sm:inline text-gray-700 hover:text-orange-600">Sign in</button>
-              <button onClick={() => navigate('/register')} className="text-orange-600 hover:text-orange-700 font-medium">Register</button>
+              <button onClick={() => navigate('/login')} className="px-4 py-2 rounded-full font-small border-black text-grey-700 hover:bg-orange-50">Sign in</button>
+              <button onClick={() => navigate('/register')} className="px-4 py-2 rounded-full font-small border border-orange-400 text-orange-700 hover:bg-orange-50">Register</button>
             </div>
           )}
           {isEmployee && (
