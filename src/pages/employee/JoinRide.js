@@ -1,16 +1,15 @@
 import React from "react";
-import PageContainer from "../../components/PageContainer";
 import JoinRideList from "../../components/JoinRideList";
+import MainHeader from "../../components/MainHeader";
 
-// Simplified after extraction of logic into JoinRideList
 export default function JoinRide() {
     return (
-        <PageContainer>
-            <div className="mb-6">
-                <h1 className="text-3xl font-semibold tracking-tight text-center text-[#054652] text-bold">Join a Ride </h1>
-                <p className="text-xs text-gray-500 mt-1 text-center">Browse and join available carpool rides</p>
-            </div>
-            <JoinRideList full />
-        </PageContainer>
+        <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50/50 via-white to-white">
+            <MainHeader />
+            <main className="flex-1 w-full py-4 md:py-6">
+                <JoinRideList full layout="search" />
+            </main>
+            <footer className="mt-auto py-10 text-center text-xs text-gray-400">© {new Date().getFullYear()} OrangeMantra Carpool</footer>
+        </div>
     );
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaCar, FaChair, FaCheckCircle, FaUserFriends } from 'react-icons/fa';
 
-export default function JoinRideList({ full = false, overlay = false, limit }) {
+export default function JoinRideList({ full = false, overlay = false, limit, layout }) {
   const [rides, setRides] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -12,7 +12,12 @@ export default function JoinRideList({ full = false, overlay = false, limit }) {
     drop: localStorage.getItem('drop') || '',
     date: localStorage.getItem('rideDate') || '',
     passengers: parseInt(localStorage.getItem('passengers') || '1', 10) || 1,
+    instant: localStorage.getItem('instant') === 'true' ? true : false,
+    sort: localStorage.getItem('sort') || 'earliest',
+    minFare: localStorage.getItem('minFare') || '',
+    maxFare: localStorage.getItem('maxFare') || ''
   });
+  const [timeFilters, setTimeFilters] = useState({ early:false, afterEvening:false });
   const empId = localStorage.getItem('empId');
 
   const applyFilters = useCallback((data, f) => {
@@ -27,13 +32,22 @@ export default function JoinRideList({ full = false, overlay = false, limit }) {
 
   const loadRides = useCallback(async (activeFilters = filters) => {
     try {
-      const { data } = await api.get('/ride/active');
+      const params = new URLSearchParams();
+      if (activeFilters.pickup) params.append('origin', activeFilters.pickup);
+      if (activeFilters.drop) params.append('destination', activeFilters.drop);
+      if (activeFilters.date) params.append('date', activeFilters.date);
+      if (activeFilters.instant) params.append('instant', 'true');
+      if (activeFilters.minFare) params.append('minFare', activeFilters.minFare);
+      if (activeFilters.maxFare) params.append('maxFare', activeFilters.maxFare);
+      if (activeFilters.passengers) params.append('passengers', String(activeFilters.passengers));
+      if (activeFilters.sort) params.append('sort', activeFilters.sort);
+      const { data } = await api.get('/ride/active?'+params.toString());
       setRides(applyFilters(data, activeFilters));
     } catch { setError('Failed to load rides.'); }
   }, [applyFilters, filters]);
 
   useEffect(() => { if(empId){ api.get('/locations').then(r=>setLocations(r.data)).catch(()=>{}); loadRides(); } }, [empId, loadRides]);
-  useEffect(() => { loadRides(); }, [filters.pickup, filters.drop, filters.date, filters.passengers, loadRides]);
+  useEffect(() => { loadRides(); }, [filters.pickup, filters.drop, filters.date, filters.passengers, filters.instant, filters.sort, filters.minFare, filters.maxFare, timeFilters, loadRides]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -48,8 +62,12 @@ export default function JoinRideList({ full = false, overlay = false, limit }) {
     setFilters(next);
     localStorage.setItem('pickup', next.pickup);
     localStorage.setItem('drop', next.drop);
-    localStorage.setItem('rideDate', next.date || '');
-    localStorage.setItem('passengers', String(next.passengers));
+  localStorage.setItem('rideDate', next.date || '');
+  localStorage.setItem('passengers', String(next.passengers));
+  localStorage.setItem('instant', next.instant ? 'true':'false');
+  localStorage.setItem('sort', next.sort || '');
+  localStorage.setItem('minFare', next.minFare || '');
+  localStorage.setItem('maxFare', next.maxFare || '');
   };
 
   const joinRide = async (id, ride) => {
@@ -67,39 +85,86 @@ export default function JoinRideList({ full = false, overlay = false, limit }) {
   const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
   const visible = limit ? rides.slice(0, limit) : rides;
 
+  // Layout override to mimic marketplace style
+  const wrapperClass = layout === 'search' ? 'max-w-7xl mx-auto px-3 md:px-6' : '';
   return (
     <div className={overlay ? 'max-h-[70vh] overflow-y-auto pr-1 custom-scroll' : ''}>
-      {full && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-          <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
-            <FaMapMarkerAlt className="text-green-500" />
-            <select name="pickup" value={filters.pickup} onChange={handleFilterChange} className="bg-transparent w-full outline-none text-sm">
-              <option value="">Pickup</option>
-              {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
-            </select>
+      {layout === 'search' && (
+        <div className="w-full bg-white shadow-sm border rounded-2xl p-4 md:p-5 mb-5 flex flex-col md:flex-row gap-4">
+          <div className="flex flex-1 flex-wrap gap-3">
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-4 py-2">
+              <FaMapMarkerAlt className="text-green-600" />
+              <select name="pickup" value={filters.pickup} onChange={handleFilterChange} className="bg-transparent outline-none text-sm min-w-[140px]">
+                <option value="">Origin</option>
+                {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+              </select>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-4 py-2">
+              <FaMapMarkerAlt className="text-red-500" />
+              <select name="drop" value={filters.drop} onChange={handleFilterChange} className="bg-transparent outline-none text-sm min-w-[140px]">
+                <option value="">Destination</option>
+                {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
+              </select>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-4 py-2">
+              <FaCalendarAlt className="text-blue-600" />
+              <input type="date" name="date" value={filters.date} onChange={handleFilterChange} min={new Date().toISOString().split('T')[0]} className="bg-transparent outline-none text-sm" />
+            </div>
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-4 py-2">
+              <FaChair className="text-pink-500" />
+              <input type="number" name="passengers" min={1} max={8} value={filters.passengers} onChange={handleFilterChange} className="w-16 bg-transparent outline-none text-sm" />
+              <span className="text-xs text-gray-500">passenger{filters.passengers>1?'s':''}</span>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-4 py-2">
+              <label className="flex items-center gap-2 text-xs font-medium text-blue-700"><input type="checkbox" name="instant" checked={filters.instant} onChange={(e)=>handleFilterChange({target:{name:'instant', value:e.target.checked}})} /> Instant</label>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-4 py-2">
+              <select name="sort" value={filters.sort} onChange={handleFilterChange} className="bg-transparent outline-none text-xs">
+                <option value="earliest">Earliest departure</option>
+                <option value="price">Lowest price</option>
+              </select>
+            </div>
           </div>
-          <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
-            <FaMapMarkerAlt className="text-red-500" />
-            <select name="drop" value={filters.drop} onChange={handleFilterChange} className="bg-transparent w-full outline-none text-sm">
-              <option value="">Drop</option>
-              {locations.map(loc => <option key={loc.id} value={loc.name}>{loc.name}</option>)}
-            </select>
-          </div>
-          <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
-            <FaCalendarAlt className="text-blue-500" />
-            <input type="date" name="date" value={filters.date} onChange={handleFilterChange} className="bg-transparent w-full outline-none text-sm" min={new Date().toISOString().split('T')[0]} />
-          </div>
-          <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
-            <FaChair className="text-pink-500" />
-            <input type="number" min={1} max={8} name="passengers" value={filters.passengers} onChange={handleFilterChange} className="bg-transparent w-full outline-none text-sm" />
+          <div className="flex items-center justify-end">
+            <button onClick={()=>loadRides()} className="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-6 py-2 rounded-xl shadow">Search</button>
           </div>
         </div>
       )}
-      {!full && <p className="text-xs text-gray-500 mb-3">Showing latest rides{(filters.pickup||filters.drop||filters.date)?` for ${filters.pickup||'any'} → ${filters.drop||'any'}${filters.date? ' on '+filters.date:''}`:''} ({filters.passengers} passenger{filters.passengers>1?'s':''})</p>}
-      {success && <div className="flex items-center bg-green-100 text-green-800 p-2 rounded mb-3 text-xs"><FaCheckCircle className="mr-2" />{success}</div>}
-      {error && <div className="bg-red-100 text-red-800 p-2 rounded mb-3 text-xs">{error}</div>}
-      {visible.length === 0 && !error && <div className="text-gray-500 text-sm py-6 text-center">No matching rides.</div>}
-      <div className="space-y-4">
+      <div className={wrapperClass + ' flex flex-col lg:flex-row gap-6'}>
+        {/* Sidebar */}
+        <aside className="lg:w-60 flex-shrink-0 space-y-6">
+          <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+            <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Sort by</h3>
+            {['earliest','price'].map(opt => (
+              <label key={opt} className={`flex items-center gap-2 text-sm cursor-pointer ${filters.sort===opt?'text-blue-600 font-medium':'text-gray-600'}`}> 
+                <input type="radio" name="sort" value={opt} checked={filters.sort===opt} onChange={handleFilterChange} /> {opt==='earliest'?'Earliest departure':'Lowest price'}
+              </label>
+            ))}
+          </div>
+          <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+            <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Departure time</h3>
+            <button type="button" onClick={()=>setTimeFilters(t=>({...t, early:!t.early}))} className={`w-full text-left text-sm px-3 py-1.5 rounded-lg border ${timeFilters.early?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}`}>12:01 - 18:00</button>
+            <button type="button" onClick={()=>setTimeFilters(t=>({...t, afterEvening:!t.afterEvening}))} className={`w-full text-left text-sm px-3 py-1.5 rounded-lg border ${timeFilters.afterEvening?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}`}>After 18:00</button>
+          </div>
+          <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+            <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Fare</h3>
+            <div className="flex items-center gap-2">
+              <input type="number" name="minFare" value={filters.minFare} onChange={handleFilterChange} placeholder="Min" className="w-1/2 text-sm border rounded-lg px-2 py-1" />
+              <input type="number" name="maxFare" value={filters.maxFare} onChange={handleFilterChange} placeholder="Max" className="w-1/2 text-sm border rounded-lg px-2 py-1" />
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+            <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Options</h3>
+            <label className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" name="instant" checked={filters.instant} onChange={(e)=>handleFilterChange({target:{name:'instant', value:e.target.checked}})} /> Instant booking</label>
+            <button type="button" onClick={()=>{ setFilters(f=>({...f, minFare:'', maxFare:'', instant:false, sort:'earliest'})); setTimeFilters({early:false, afterEvening:false}); }} className="text-xs text-blue-600 hover:underline">Clear all</button>
+          </div>
+        </aside>
+        {/* Ride list */}
+        <div className="flex-1">
+          {success && <div className="flex items-center bg-green-100 text-green-800 p-2 rounded mb-4 text-xs"><FaCheckCircle className="mr-2" />{success}</div>}
+          {error && <div className="bg-red-100 text-red-800 p-2 rounded mb-4 text-xs">{error}</div>}
+          {visible.length === 0 && !error && <div className="text-gray-500 text-sm py-10 text-center bg-white rounded-xl border">No matching rides.</div>}
+          <div className="space-y-4">
         {visible.map(ride => {
           const isFull = ride.availableSeats === 0 || (ride.status && ride.status !== 'Active');
           const isOwn = ride.ownerEmpId === empId;
@@ -154,6 +219,8 @@ export default function JoinRideList({ full = false, overlay = false, limit }) {
             </div>
           );
         })}
+          </div>
+        </div>
       </div>
     </div>
   );

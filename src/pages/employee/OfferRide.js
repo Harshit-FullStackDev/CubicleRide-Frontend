@@ -247,7 +247,7 @@ function OfferRide() {
                 <div className="md:col-span-2 flex items-center justify-between -mt-2">
                 </div>
                 <div className="md:col-span-2">
-                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent text-[#054652] text-center">Offer a Ride</h1>
+                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-center text-[#054652]">Offer a Ride</h1>
                     <p className="text-sm text-gray-500 mt-1 text-center">Help colleagues commute and reduce congestion. Provide accurate details for a smooth experience.</p>
                 </div>
 

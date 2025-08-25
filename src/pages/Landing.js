@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -10,17 +10,13 @@ import {
   Award,
   Globe2,
   Building2,
-  Star,
-  PlusCircle,
-  Bell,
-  Clock,
-  User as UserIcon
+  Star
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getRole } from '../utils/auth';
 import MainHeader from '../components/MainHeader';
-import JoinRideList from '../components/JoinRideList';
-import MyRidesSummary from '../components/MyRidesSummary';
+// Removed embedded JoinRideList & MyRidesSummary for cleaner hero-search landing for employees
+import api from '../api/axios';
 
 // Minimal Button & Card primitives
 const Button = ({ variant = 'solid', className = '', children, type = 'button', ...rest }) => {
@@ -126,160 +122,101 @@ export default function Landing() {
   const role = getRole();
   const isEmployee = role === 'EMPLOYEE';
 
-  // Employee-specific landing (post-login) – functional first
+  // Employee-specific landing – BlaBlaCar style hero search
+  const [leavingFrom, setLeavingFrom] = useState(localStorage.getItem('pickup') || '');
+  const [goingTo, setGoingTo] = useState(localStorage.getItem('drop') || '');
+  const [rideDate, setRideDate] = useState(localStorage.getItem('rideDate') || new Date().toISOString().split('T')[0]);
+  const [passengers, setPassengers] = useState(parseInt(localStorage.getItem('passengers') || '1',10));
+  const [locs, setLocs] = useState([]);
+  const [searchError, setSearchError] = useState('');
+
+  useEffect(()=>{ if(isEmployee){ api.get('/locations').then(r=>setLocs(r.data)).catch(()=>{}); } },[isEmployee]);
+
+  const doSearch = () => {
+    setSearchError('');
+    if(!leavingFrom || !goingTo){ setSearchError('Select both origin & destination'); return; }
+    if(leavingFrom === goingTo){ setSearchError('Origin and destination must differ'); return; }
+    localStorage.setItem('pickup', leavingFrom);
+    localStorage.setItem('drop', goingTo);
+    localStorage.setItem('rideDate', rideDate || '');
+    localStorage.setItem('passengers', String(passengers||1));
+    // Keep other filters predictable
+    localStorage.setItem('instant','false');
+    localStorage.setItem('sort','earliest');
+    localStorage.setItem('minFare','');
+    localStorage.setItem('maxFare','');
+    navigate('/employee/join');
+  };
+
   if (isEmployee) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white text-gray-900 relative">
-        <a href="#employee-join" className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 bg-white shadow px-3 py-2 rounded-md text-xs font-medium text-orange-700">Skip to rides</a>
+      <div className="min-h-screen flex flex-col bg-white text-gray-900">
         <MainHeader />
-        {/* Top: Join a ride with search filters */}
-        <section className="pt-8 pb-4" id="employee-join">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-3 gap-8 items-start">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center justify-between mb-5">
-                <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-                  <span className="bg-[#054652] bg-clip-text text-transparent text-[32px]">Find / Join a Ride</span> 
-                </h1>
+        {/* Hero banner */}
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-sky-700 via-sky-600 to-sky-700" />
+          <div className="absolute inset-0 opacity-20" style={{backgroundImage:'radial-gradient(circle at 30% 30%, #ffffff 0, transparent 60%)'}} />
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-14 pb-8 md:pt-20 md:pb-16 relative">
+            <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-white text-center mb-6">Your pick of rides at low prices</h1>
+            {/* Search bar */}
+            <div className="rounded-2xl md:rounded-3xl bg-white shadow-lg flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-200 overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-4 flex-1">
+                <span className="text-sky-700 text-sm font-medium w-24">Leaving from</span>
+                <select value={leavingFrom} onChange={e=>setLeavingFrom(e.target.value)} className="flex-1 bg-transparent text-sm outline-none">
+                  <option value="">Select</option>
+                  {locs.map(l=> <option key={l.id} value={l.name}>{l.name}</option>)}
+                </select>
               </div>
-              <div className="rounded-3xl border border-orange-100/70 bg-white/80 backdrop-blur p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow">
-                <JoinRideList full />
+              <div className="flex items-center gap-3 px-5 py-4 flex-1">
+                <span className="text-sky-700 text-sm font-medium w-20">Going to</span>
+                <select value={goingTo} onChange={e=>setGoingTo(e.target.value)} className="flex-1 bg-transparent text-sm outline-none">
+                  <option value="">Select</option>
+                  {locs.map(l=> <option key={l.id} value={l.name}>{l.name}</option>)}
+                </select>
               </div>
-              <div className="rounded-3xl border bg-white/70 backdrop-blur p-5 shadow-sm">
-                <h2 className="text-sm font-semibold mb-2 text-[#054652]">Suggestions</h2>
-                <ul className="text-[11px] text-gray-600 space-y-1">
-                  <li>• Broaden pickup or drop to surface more rides.</li>
-                  <li>• Offer a ride if you regularly commute this route.</li>
-                  <li>• Edit / approve / cancel using avatar → Manage Rides.</li>
-                </ul>
-                <button onClick={()=>navigate('/employee/offer')} className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#054652] hover:text-[#0a7f8c]">
-                  <PlusCircle className="h-3.5 w-3.5" /> Offer a ride
-                </button>
+              <div className="flex items-center gap-3 px-5 py-4">
+                <input type="date" value={rideDate} min={new Date().toISOString().split('T')[0]} onChange={e=>setRideDate(e.target.value)} className="bg-transparent text-sm outline-none" />
+              </div>
+              <div className="flex items-center gap-3 px-5 py-4">
+                <input type="number" min={1} max={8} value={passengers} onChange={e=>{ let v=parseInt(e.target.value||'1',10); if(v<1)v=1; if(v>8)v=8; setPassengers(v); }} className="w-16 bg-transparent text-sm outline-none" />
+                <span className="text-xs text-gray-500">passenger{passengers>1?'s':''}</span>
+              </div>
+              <button onClick={doSearch} className="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-10 md:px-12 py-4 transition">Search</button>
+            </div>
+            {searchError && <div className="text-red-100 text-xs mt-3 text-center font-medium">{searchError}</div>}
+          </div>
+        </section>
+        {/* Three value props under bar */}
+        <section className="bg-white">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid md:grid-cols-3 gap-10">
+            <div className="flex gap-4">
+              <div className="h-10 w-10 rounded-xl bg-sky-50 grid place-items-center text-sky-700"><Car className="h-5 w-5" /></div>
+              <div>
+                <div className="font-semibold text-sm">Your pick of rides at low prices</div>
+                <p className="text-xs text-gray-600 mt-1">Find rides that match your route & timing while cutting commute costs.</p>
               </div>
             </div>
-            <div className="space-y-6">
-              <MyRidesSummary />
-              <div className="rounded-3xl border bg-white/80 backdrop-blur p-5 shadow-sm">
-                <h2 className="text-lg font-semibold tracking-tight mb-3 text-[#054652] font-bold">Quick Actions</h2>
-                <ul className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 text-xs" aria-label="Quick actions">
-                  <li>
-                    <button onClick={()=>navigate('/employee/offer')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#054652] hover:bg-[#0a7f8c] text-white font-medium px-3 py-2 transition">
-                      <PlusCircle className="h-4 w-4" /> <span>Publish</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={()=>navigate('/employee/join')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#054652] hover:bg-[#0a7f8c] text-white font-medium px-3 py-2 transition">
-                      <Car className="h-4 w-4" /> <span>Browse</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={()=>navigate('/employee/notifications')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#054652] hover:bg-[#0a7f8c] text-white font-medium px-3 py-2 transition">
-                      <Bell className="h-4 w-4" /> <span>Alerts</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={()=>navigate('/employee/history/published')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-gray-300 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 transition">
-                      <Clock className="h-4 w-4 text-gray-500" /> <span>History</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={()=>navigate('/employee/vehicle')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-gray-300 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 transition">
-                      <Car className="h-4 w-4 text-gray-500" /> <span>Vehicle</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={()=>navigate('/employee/profile')} className="group w-full flex items-center justify-center gap-1.5 rounded-xl bg-gray-300 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 transition">
-                      <UserIcon className="h-4 w-4 text-gray-500" /> <span>Profile</span>
-                    </button>
-                  </li>
-                </ul>
-                <p className="text-[11px] text-gray-500 mt-4 leading-relaxed">Need deeper management? Use <span className="font-medium">Manage Rides</span> in your avatar menu.</p>
+            <div className="flex gap-4">
+              <div className="h-10 w-10 rounded-xl bg-sky-50 grid place-items-center text-sky-700"><ShieldCheck className="h-5 w-5" /></div>
+              <div>
+                <div className="font-semibold text-sm">Trust who you travel with</div>
+                <p className="text-xs text-gray-600 mt-1">Internal profiles, ride history & approvals keep journeys safe.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="h-10 w-10 rounded-xl bg-sky-50 grid place-items-center text-sky-700"><Sparkles className="h-5 w-5" /></div>
+              <div>
+                <div className="font-semibold text-sm">Scroll, click, ride</div>
+                <p className="text-xs text-gray-600 mt-1">Simple interface—search, pick seats & join instantly or request.</p>
               </div>
             </div>
           </div>
         </section>
-
-        {/* Focused OrangeMantra context (condensed) */}
-  <section id="om" className="pt-6 md:pt-8 pb-12 md:pb-16 bg-gradient-to-b from-white to-orange-50/40" aria-labelledby="om-heading">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 md:mb-12 flex items-end justify-between gap-6 flex-wrap">
-              <div>
-                <h2 id="om-heading" className="text-2xl md:text-3xl font-semibold tracking-tight text-[#054652]">OrangeMantra at a glance</h2>
-                <p className="text-gray-600 mt-2 max-w-2xl text-sm md:text-base">Engineering, mobility, and workplace experience powering our internal commute platform.</p>
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {omHighlights.map((h,i)=>(
-    <div key={i} className="rounded-2xl border bg-white p-5 flex items-start gap-3 hover:shadow-sm transition-shadow">
-                  <div className="h-10 w-10 rounded-xl bg-orange-50 grid place-items-center text-orange-700">{h.icon}</div>
-                  <div>
-                    <div className="font-medium text-sm">{h.title}</div>
-                    <div className="text-[13px] text-gray-600">{h.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Trust & Safety slice */}
-    <section id="trust" className="py-12 md:py-16" aria-labelledby="trust-heading">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-start">
-            <div>
-      <h2 id="trust-heading" className="text-2xl md:text-3xl font-semibold tracking-tight text-[#054652]">Trust & Safety</h2>
-              <ul className="mt-5 space-y-3 text-sm text-gray-600">
-                <li>• Organization-only access with JWT & role-based controls.</li>
-                <li>• Ride history, approval flows & verified vehicles.</li>
-                <li>• Manual or instant booking modes.</li>
-                <li>• Persistent visibility via Manage Rides modal.</li>
-              </ul>
-              <div className="mt-6 flex gap-3">
-                <button onClick={()=>navigate('/employee/offer')} className="px-5 py-2.5 rounded-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium">Publish Now</button>
-                <button onClick={()=>navigate('/employee/join')} className="px-5 py-2.5 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium">Browse Rides</button>
-              </div>
-            </div>
-            <div className="rounded-3xl border bg-white p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-orange-50 grid place-items-center text-orange-700"><ShieldCheck className="h-5 w-5" /></div>
-                <div className="font-medium">Controls you can trust</div>
-              </div>
-              <p className="text-sm text-gray-600">All rides are internal. Owners manage seats & approvals; employees build commute reliability.</p>
-              <div className="flex items-center gap-2 text-xs text-gray-500"><Sparkles className="h-4 w-4 text-orange-600" /> Continuous improvements shipped.</div>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer reused */}
-  <footer id="footer" className="py-12 border-t" aria-labelledby="footer-heading">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="col-span-2">
-                <div className="flex items-center gap-3">
-                  <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
-                </div>
-                <p className="text-sm text-gray-600 mt-3 max-w-md">Private internal ride sharing for OrangeMantra teams.</p>
-                <div className="mt-4 inline-flex items-center gap-2 text-xs text-gray-500">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
-                  <span>Developed by <span className="font-medium text-gray-700">Harshit Soni</span></span>
-                </div>
-              </div>
-              <div>
-                <div className="font-medium mb-2">Workspace</div>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li><a href="#employee-join" className="hover:text-orange-600">Find a Ride</a></li>
-                  <li><a href="/employee/offer" className="hover:text-orange-600">Offer Ride</a></li>
-                  <li><a href="/employee/history/published" className="hover:text-orange-600">History</a></li>
-                  <li><a href="/employee/vehicle" className="hover:text-orange-600">Vehicle</a></li>
-                </ul>
-              </div>
-              <div>
-                <div className="font-medium mb-2">Company</div>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li><a href="#om" className="hover:text-orange-600">About</a></li>
-                  <li><a href="#trust" className="hover:text-orange-600">Trust & Safety</a></li>
-                </ul>
-              </div>
-            </div>
-            <div className="mt-8 text-xs text-gray-500">© {new Date().getFullYear()} OrangeMantra • Internal use.</div>
+        {/* Minimal footer */}
+        <footer className="mt-auto py-10 border-t">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-xs text-gray-500 flex flex-col gap-2">
+            <div className="flex items-center gap-2"><img src="/OMLogo.svg" alt="OM" className="h-6" /> <span>© {new Date().getFullYear()} OrangeMantra • Internal use.</span></div>
+            <div>Developed by Harshit Soni</div>
           </div>
         </footer>
       </div>
@@ -357,25 +294,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Quick Join Section for logged-in employees */}
-      {getRole() === 'EMPLOYEE' && (
-        <section className="py-10 md:py-14" id="quick-join">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-10">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Available rides</h2>
-                  <button onClick={() => navigate('/employee/join')} className="text-sm font-medium text-orange-600 hover:underline">View all</button>
-                </div>
-                <div className="rounded-3xl border bg-white/70 backdrop-blur p-4 md:p-6 shadow-sm">
-                  <JoinRideList limit={4} />
-                </div>
-              </div>
-              <MyRidesSummary />
-            </div>
-          </div>
-        </section>
-      )}
+  {/* Removed quick join preview section for simplified public landing */}
 
       {/* Features */}
       <section id="features" className="py-16 md:py-24" aria-labelledby="features-heading">
