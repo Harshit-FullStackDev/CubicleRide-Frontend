@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaClock } from "react-icons/fa";
 import api from "../../api/axios";
@@ -13,6 +13,7 @@ function EditRide() {
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [vehicleCapacity, setVehicleCapacity] = useState(null);
     const [fareInput, setFareInput] = useState("");
@@ -97,29 +98,57 @@ function EditRide() {
         setRide({ ...ride, [name]: value });
     };
 
-    const validate = () => {
+    // Derived validation errors mirroring OfferRide constraints
+    const fieldErrors = useMemo(() => {
+        if (!ride) return {};
         const errs = {};
-        if (!ride.origin) errs.origin = "Origin is required";
-        if (!ride.destination) errs.destination = "Destination is required";
-        if (!ride.date) errs.date = "Date is required";
-        if (!ride.arrivalTime) errs.arrivalTime = "Arrival time is required";
-        if (!ride.carDetails) errs.carDetails = "Car details required";
+        if (!ride.origin) errs.origin = 'Required';
+        if (!ride.destination) errs.destination = 'Required';
+        if (ride.origin && ride.destination && ride.origin === ride.destination) errs.destination = 'Pickup and drop cannot be same';
+        if (!ride.date) errs.date = 'Required';
+        if (ride.date) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (ride.date < todayStr) errs.date = 'Cannot be past';
+        }
+        if (!ride.arrivalTime) errs.arrivalTime = 'Required';
+        if (ride.arrivalTime && ride.date) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (ride.date === todayStr) {
+                try {
+                    const selected = new Date(`${ride.date}T${ride.arrivalTime}`);
+                    if (selected < new Date()) errs.arrivalTime = 'Time already passed';
+                } catch { /* ignore */ }
+            }
+        }
+        if (!ride.carDetails) errs.carDetails = 'Car details required';
+        if (!ride.totalSeats || ride.totalSeats < 1) errs.totalSeats = 'Min 1 seat';
+        if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) errs.totalSeats = `Max ${vehicleCapacity}`;
+        if (ride.availableSeats > ride.totalSeats) errs.availableSeats = 'Cannot exceed total';
+        if (vehicleCapacity != null && ride.availableSeats > vehicleCapacity) errs.availableSeats = `Max ${vehicleCapacity}`;
         if (fareInput) {
             const f = parseFloat(fareInput);
-            if (isNaN(f) || f < 0) errs.fare = "Fare must be non-negative number";
+            if (isNaN(f) || f < 0) errs.fare = 'Invalid fare';
         }
-    if (!ride.totalSeats || ride.totalSeats < 1) errs.totalSeats = "Total seats must be at least 1";
-    if (vehicleCapacity != null && ride.totalSeats > vehicleCapacity) errs.totalSeats = `Cannot exceed vehicle capacity (${vehicleCapacity})`;
-        if (ride.availableSeats > ride.totalSeats) errs.availableSeats = "Available seats cannot exceed total seats";
-    if (vehicleCapacity != null && ride.availableSeats > vehicleCapacity) errs.availableSeats = `Cannot exceed capacity (${vehicleCapacity})`;
         return errs;
-    };
+    }, [ride, fareInput, vehicleCapacity]);
+
+    // Dynamic min time for today (mirrors OfferRide component)
+    const minTime = useMemo(() => {
+        if (!ride?.date) return undefined;
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (ride.date !== todayStr) return undefined;
+        const now = new Date();
+        const mins = now.getMinutes();
+        const rounded = new Date(now.getTime() + ((5 - (mins % 5 || 5)) * 60000));
+        return rounded.toISOString().substring(11,16);
+    }, [ride?.date]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const errs = validate();
-        if (Object.keys(errs).length) {
-            setErrors(errs);
+        // mark all touched on submit
+        setTouched({ origin:true, destination:true, date:true, arrivalTime:true, carDetails:true, totalSeats:true, availableSeats:true, fare:true });
+        if (Object.keys(fieldErrors).length) {
+            setErrors(fieldErrors);
             return;
         }
         setSubmitting(true);
@@ -136,6 +165,13 @@ function EditRide() {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const handleBlur = (e) => {
+        const { name } = e.target;
+        setTouched(t => ({ ...t, [name]: true }));
+        // sync errors on blur
+        setErrors(fieldErrors);
     };
 
     if (loading || !ride) return <PageContainer><h1 className="text-xl font-semibold mb-4">Edit Ride</h1><div className="flex items-center gap-2 text-blue-600 text-sm"><span className="animate-spin h-5 w-5 border-b-2 border-blue-500 rounded-full inline-block"/> Loading...</div></PageContainer>;
@@ -156,6 +192,7 @@ function EditRide() {
                                 name="origin"
                                 value={ride.origin}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                                 className="border p-2 w-full rounded"
                             >
                                 <option value="">Select Origin</option>
@@ -163,7 +200,7 @@ function EditRide() {
                                     <option key={loc.id} value={loc.name}>{loc.name}</option>
                                 ))}
                             </select>
-                            {errors.origin && <span className="text-red-500 text-xs">{errors.origin}</span>}
+                            {touched.origin && fieldErrors.origin && <span className="text-red-500 text-xs">{fieldErrors.origin}</span>}
                         </div>
 
                         <div>
@@ -174,6 +211,7 @@ function EditRide() {
                                 name="destination"
                                 value={ride.destination}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                                 className="border p-2 w-full rounded"
                             >
                                 <option value="">Select Destination</option>
@@ -181,7 +219,7 @@ function EditRide() {
                                     <option key={loc.id} value={loc.name}>{loc.name}</option>
                                 ))}
                             </select>
-                            {errors.destination && <span className="text-red-500 text-xs">{errors.destination}</span>}
+                            {touched.destination && fieldErrors.destination && <span className="text-red-500 text-xs">{fieldErrors.destination}</span>}
                         </div>
 
                         <div>
@@ -193,9 +231,11 @@ function EditRide() {
                                 type="date"
                                 value={ride.date}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
+                                min={new Date().toISOString().split('T')[0]}
                                 className="border p-2 w-full rounded"
                             />
-                            {errors.date && <span className="text-red-500 text-xs">{errors.date}</span>}
+                            {touched.date && fieldErrors.date && <span className="text-red-500 text-xs">{fieldErrors.date}</span>}
                         </div>
 
                         <div>
@@ -207,9 +247,12 @@ function EditRide() {
                                 type="time"
                                 value={ride.arrivalTime}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
+                                min={minTime}
                                 className="border p-2 w-full rounded"
                             />
-                            {errors.arrivalTime && <span className="text-red-500 text-xs">{errors.arrivalTime}</span>}
+                            {ride.date && minTime && <span className="text-gray-500 text-[10px] block mt-0.5">Earliest today: {minTime}</span>}
+                            {touched.arrivalTime && fieldErrors.arrivalTime && <span className="text-red-500 text-xs">{fieldErrors.arrivalTime}</span>}
                         </div>
 
                         <div>
@@ -219,34 +262,28 @@ function EditRide() {
                             <input
                                 name="carDetails"
                                 value={ride.carDetails}
-                                onChange={handleChange}
-                                className="border p-2 w-full rounded"
+                                disabled
+                                className="border p-2 w-full rounded bg-gray-100 cursor-not-allowed"
                                 placeholder="Car Details"
                             />
-                            {errors.carDetails && <span className="text-red-500 text-xs">{errors.carDetails}</span>}
+                            {touched.carDetails && fieldErrors.carDetails && <span className="text-red-500 text-xs">{fieldErrors.carDetails}</span>}
+                            <span className="text-[10px] text-gray-500">Car details come from approved vehicle. Edit on Vehicle page.</span>
                         </div>
                         <div>
                             <label className="block mb-1 font-medium">Fare (per seat, optional)</label>
                             <input
                                 name="fare"
+                                type="number"
+                                min="0"
+                                step="0.01"
                                 value={fareInput}
                                 onChange={(e)=>setFareInput(e.target.value)}
+                                onBlur={handleBlur}
                                 className="border p-2 w-full rounded"
                                 placeholder="e.g. 50"
                             />
-                            {errors.fare && <span className="text-red-500 text-xs">{errors.fare}</span>}
-                        </div>
-
-                        <div>
-                            <label className="block mb-1 font-medium">Fare (per seat, optional)</label>
-                            <input
-                                name="fare"
-                                value={fareInput}
-                                onChange={(e)=>setFareInput(e.target.value)}
-                                className="border p-2 w-full rounded"
-                                placeholder="e.g. 50"
-                            />
-                            {errors.fare && <span className="text-red-500 text-xs">{errors.fare}</span>}
+                            {touched.fare && fieldErrors.fare && <span className="text-red-500 text-xs">{fieldErrors.fare}</span>}
+                            <span className="text-[10px] text-gray-500">Leave blank for free ride.</span>
                         </div>
 
                         <div>
@@ -260,11 +297,12 @@ function EditRide() {
                                 max={vehicleCapacity != null ? vehicleCapacity : 8}
                                 value={ride.totalSeats}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                                 className="border p-2 w-full rounded"
                                 placeholder="Total Seats"
                             />
-                            {errors.totalSeats && <span className="text-red-500 text-xs">{errors.totalSeats}</span>}
-                            {vehicleCapacity != null && !errors.totalSeats && <span className="text-gray-500 text-xs">Capacity limit: {vehicleCapacity}</span>}
+                            {touched.totalSeats && fieldErrors.totalSeats && <span className="text-red-500 text-xs">{fieldErrors.totalSeats}</span>}
+                            {vehicleCapacity != null && !fieldErrors.totalSeats && <span className="text-gray-500 text-xs">Capacity limit: {vehicleCapacity}</span>}
                         </div>
 
                         <div>
@@ -278,11 +316,12 @@ function EditRide() {
                                 max={Math.min(ride.totalSeats || 0, vehicleCapacity != null ? vehicleCapacity : ride.totalSeats || 0)}
                                 value={ride.availableSeats}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                                 className="border p-2 w-full rounded"
                                 placeholder="Available Seats"
                             />
-                            {errors.availableSeats && <span className="text-red-500 text-xs">{errors.availableSeats}</span>}
-                            {vehicleCapacity != null && !errors.availableSeats && <span className="text-gray-500 text-xs">Within capacity: {vehicleCapacity}</span>}
+                            {touched.availableSeats && fieldErrors.availableSeats && <span className="text-red-500 text-xs">{fieldErrors.availableSeats}</span>}
+                            {vehicleCapacity != null && !fieldErrors.availableSeats && <span className="text-gray-500 text-xs">Within capacity: {vehicleCapacity}</span>}
                         </div>
                         <div className="col-span-1 md:col-span-2">
                             <label className="block mb-1 font-medium">Booking Mode</label>
@@ -297,10 +336,10 @@ function EditRide() {
                     <div className="flex gap-4 mt-6">
                         <button
                             type="submit"
-                            disabled={submitting}
+                            disabled={submitting || Object.keys(fieldErrors).length > 0}
                             className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold transition ${submitting ? "opacity-60 cursor-not-allowed" : ""}`}
                         >
-                            {submitting ? "Saving..." : "Save Changes"}
+                            {submitting ? "Saving..." : Object.keys(fieldErrors).length ? 'Fix Errors' : 'Save Changes'}
                         </button>
                         <button
                             type="button"
