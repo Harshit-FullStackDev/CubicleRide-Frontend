@@ -15,7 +15,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getRole } from '../utils/auth';
 import MainHeader from '../components/MainHeader';
-// Removed embedded JoinRideList & MyRidesSummary for cleaner hero-search landing for employees
 import api from '../api/axios';
 
 // Minimal Button & Card primitives
@@ -109,6 +108,27 @@ const Stat = ({ value, label }) => (
   </div>
 );
 
+// Employee landing extra content data
+const empBenefits = [
+  { title: 'Lower Monthly Spend', desc: 'Split petrol & parking instead of bearing full solo commute cost.' },
+  { title: 'Predictable Arrival', desc: 'Coordinated pickup windows reduce last‑minute scrambling.' },
+  { title: 'Greener Footprint', desc: 'Fewer vehicles – lower congestion & emissions.' },
+  { title: 'Build Connections', desc: 'Casual ride conversations strengthen cross‑team rapport.' },
+];
+const safetyPoints = [
+  'Confirm pickup point & timing inside the app – avoid external chat confusion.',
+  'Be ready 5 minutes early to keep the shared schedule reliable.',
+  'Seat count & changes must be updated – transparency keeps it fair.',
+  'Keep conversation respectful; this is a workspace extension.',
+  'Report unusual behaviour to Admin promptly through support channel.'
+];
+const faqItems = [
+  { q: 'How do I modify a ride I offered?', a: 'Go to Published History → Edit. Update seats, timing or route; passengers are auto‑notified where relevant.' },
+  { q: 'What if the driver is late?', a: 'Wait a reasonable buffer (≈7 minutes) then message politely. Consistent tardiness can be flagged to Admin.' },
+  { q: 'Instant vs review join?', a: 'Instant confirms seat immediately. Review lets the ride owner accept or reject your join request first.' },
+  { q: 'Can I charge above fuel split?', a: 'No. Pricing is intended for fair cost sharing, not profit. Admin can audit anomalies.' },
+];
+
 export default function Landing() {
   const navigate = useNavigate();
 
@@ -122,15 +142,21 @@ export default function Landing() {
   const role = getRole();
   const isEmployee = role === 'EMPLOYEE';
 
-  // Employee-specific landing – BlaBlaCar style hero search
+  // Employee-specific landing – professional dashboard + smart search
   const [leavingFrom, setLeavingFrom] = useState(localStorage.getItem('pickup') || '');
   const [goingTo, setGoingTo] = useState(localStorage.getItem('drop') || '');
   const [rideDate, setRideDate] = useState(localStorage.getItem('rideDate') || new Date().toISOString().split('T')[0]);
   const [passengers, setPassengers] = useState(parseInt(localStorage.getItem('passengers') || '1',10));
   const [locs, setLocs] = useState([]);
   const [searchError, setSearchError] = useState('');
+  const [openFaq, setOpenFaq] = useState(null); // accordion control
+  const empName = localStorage.getItem('name') || 'Employee';
+
+  // Derived analytics removed during simplification
 
   useEffect(()=>{ if(isEmployee){ api.get('/locations').then(r=>setLocs(r.data)).catch(()=>{}); } },[isEmployee]);
+
+  // Snapshot loader removed
 
   const doSearch = () => {
     setSearchError('');
@@ -157,33 +183,44 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-r from-sky-700 via-sky-600 to-sky-700" />
           <div className="absolute inset-0 opacity-20" style={{backgroundImage:'radial-gradient(circle at 30% 30%, #ffffff 0, transparent 60%)'}} />
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-14 pb-8 md:pt-20 md:pb-16 relative">
-            <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-white text-center mb-6">Your pick of rides at low prices</h1>
+            <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-white text-center mb-2">Hi {empName.split(' ')[0]}, plan your commute</h1>
+            <p className="text-sm md:text-base text-sky-100 text-center mb-6 max-w-2xl mx-auto">Search, offer or join verified co-worker rides. Cut cost, save time & lower emissions.</p>
             {/* Search bar */}
             <div className="rounded-2xl md:rounded-3xl bg-white shadow-lg flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-200 overflow-hidden">
-              <div className="flex items-center gap-3 px-5 py-4 flex-1">
-                <span className="text-sky-700 text-sm font-medium w-24">Leaving from</span>
-                <select value={leavingFrom} onChange={e=>setLeavingFrom(e.target.value)} className="flex-1 bg-transparent text-sm outline-none">
+               <div className="flex items-center gap-3 px-5 py-4 flex-1">
+                 <label className="text-sky-700 text-sm font-medium w-24" htmlFor="fromSel">Leaving from</label>
+                 <select id="fromSel" aria-label="Origin" value={leavingFrom} onChange={e=>setLeavingFrom(e.target.value)} className="flex-1 bg-transparent text-sm outline-none">
                   <option value="">Select</option>
                   {locs.map(l=> <option key={l.id} value={l.name}>{l.name}</option>)}
                 </select>
               </div>
-              <div className="flex items-center gap-3 px-5 py-4 flex-1">
-                <span className="text-sky-700 text-sm font-medium w-20">Going to</span>
-                <select value={goingTo} onChange={e=>setGoingTo(e.target.value)} className="flex-1 bg-transparent text-sm outline-none">
+               <div className="flex items-center gap-3 px-5 py-4 flex-1">
+                 <label className="text-sky-700 text-sm font-medium w-20" htmlFor="toSel">Going to</label>
+                 <select id="toSel" aria-label="Destination" value={goingTo} onChange={e=>setGoingTo(e.target.value)} className="flex-1 bg-transparent text-sm outline-none">
                   <option value="">Select</option>
                   {locs.map(l=> <option key={l.id} value={l.name}>{l.name}</option>)}
                 </select>
               </div>
-              <div className="flex items-center gap-3 px-5 py-4">
-                <input type="date" value={rideDate} min={new Date().toISOString().split('T')[0]} onChange={e=>setRideDate(e.target.value)} className="bg-transparent text-sm outline-none" />
+               <div className="flex items-center gap-3 px-5 py-4">
+                 <input aria-label="Ride date" type="date" value={rideDate} min={new Date().toISOString().split('T')[0]} onChange={e=>setRideDate(e.target.value)} className="bg-transparent text-sm outline-none" />
               </div>
-              <div className="flex items-center gap-3 px-5 py-4">
-                <input type="number" min={1} max={8} value={passengers} onChange={e=>{ let v=parseInt(e.target.value||'1',10); if(v<1)v=1; if(v>8)v=8; setPassengers(v); }} className="w-16 bg-transparent text-sm outline-none" />
+               <div className="flex items-center gap-3 px-5 py-4">
+                 <input aria-label="Passengers" type="number" min={1} max={8} value={passengers} onChange={e=>{ let v=parseInt(e.target.value||'1',10); if(v<1)v=1; if(v>8)v=8; setPassengers(v); }} className="w-16 bg-transparent text-sm outline-none" />
                 <span className="text-xs text-gray-500">passenger{passengers>1?'s':''}</span>
               </div>
               <button onClick={doSearch} className="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-10 md:px-12 py-4 transition">Search</button>
             </div>
             {searchError && <div className="text-red-100 text-xs mt-3 text-center font-medium">{searchError}</div>}
+            <div className="flex justify-center mt-4">
+              <button
+                type="button"
+                aria-label="Swap origin and destination"
+                className="text-xs text-white/80 hover:text-white underline-offset-2 hover:underline"
+                onClick={()=>{ setLeavingFrom(goingTo); setGoingTo(leavingFrom); }}
+                disabled={!leavingFrom && !goingTo}
+              >Swap</button>
+            </div>
+            {/* Quick action pills removed */}
           </div>
         </section>
         {/* Three value props under bar */}
@@ -192,27 +229,114 @@ export default function Landing() {
             <div className="flex gap-4">
               <div className="h-10 w-10 rounded-xl bg-sky-50 grid place-items-center text-sky-700"><Car className="h-5 w-5" /></div>
               <div>
-                <div className="font-semibold text-sm">Your pick of rides at low prices</div>
-                <p className="text-xs text-gray-600 mt-1">Find rides that match your route & timing while cutting commute costs.</p>
+                <div className="font-bold text-medium text-[#054652]">Your pick of rides at low prices</div>
+                <p className="text-sm text-gray-600 mt-1 text-[#6f8b90]">Find rides that match your route & timing while cutting commute costs.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <div className="h-10 w-10 rounded-xl bg-sky-50 grid place-items-center text-sky-700"><ShieldCheck className="h-5 w-5" /></div>
               <div>
-                <div className="font-semibold text-sm">Trust who you travel with</div>
-                <p className="text-xs text-gray-600 mt-1">Internal profiles, ride history & approvals keep journeys safe.</p>
+                <div className="font-bold text-medium text-[#054652]">Trust who you travel with</div>
+                <p className="text-sm text-gray-600 mt-1 text-[#6f8b90]">Internal profiles, ride history & approvals keep journeys safe.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <div className="h-10 w-10 rounded-xl bg-sky-50 grid place-items-center text-sky-700"><Sparkles className="h-5 w-5" /></div>
               <div>
-                <div className="font-semibold text-sm">Scroll, click, ride</div>
-                <p className="text-xs text-gray-600 mt-1">Simple interface—search, pick seats & join instantly or request.</p>
+                <div className="font-bold text-medium text-[#054652]">Scroll, click, ride</div>
+                <p className="text-sm text-gray-600 mt-1 text-[#6f8b90]">Simple interface—search, pick seats & join instantly or request.</p>
               </div>
             </div>
           </div>
         </section>
-        {/* Minimal footer */}
+
+        {/* Benefits Section */}
+        <section className="bg-gradient-to-b from-white to-sky-50/40 border-t">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+            <h2 className="text-xl md:text-2xl font-semibold tracking-tight mb-6 text-[#054652]">Why employees use it</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {empBenefits.map((b,i)=>(
+                <div key={i} className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm hover:shadow transition">
+                  <div className="text-sm font-medium text-sky-700 mb-1">{b.title}</div>
+                  <p className="text-xs text-[#054652] leading-relaxed">{b.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Impact snapshot */}
+        <section className="bg-white border-t">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+              <div>
+                <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-[#054652]">Impact snapshot</h2>
+                <p className="text-sm text-gray-600 mt-1 max-w-md text-[#6f8b90]">Indicative benefits as adoption grows. Real analytics can plug in later.</p>
+              </div>
+              <div className="text-[10px] uppercase tracking-wide font-medium text-sky-600 bg-sky-50 border border-sky-100 px-3 py-1 rounded-full w-fit">Pilot Metrics</div>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-6">
+              <div className="rounded-2xl border border-sky-100 bg-sky-50/40 p-6 flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-sky-700 tracking-wide">CO₂ REDUCTION</span>
+                <span className="text-2xl font-semibold tracking-tight text-[#054652]">~18%</span>
+                <span className="text-[11px] text-[#6f8b90]">vs solo baseline (est.)</span>
+              </div>
+              <div className="rounded-2xl border border-sky-100 bg-sky-50/40 p-6 flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-sky-700 tracking-wide">AVG COST SAVE</span>
+                <span className="text-2xl font-semibold tracking-tight text-[#054652]">30–45%</span>
+                <span className="text-[11px] text-[#6f8b90]">fuel / parking share</span>
+              </div>
+              <div className="rounded-2xl border border-sky-100 bg-sky-50/40 p-6 flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-sky-700 tracking-wide">SEAT UTILIZATION</span>
+                <span className="text-2xl font-semibold tracking-tight text-[#054652]">+3.1×</span>
+                <span className="text-[11px] text-[#6f8b90]">occupancy uplift</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Safety & Etiquette with illustration */}
+        <section className="relative border-t overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-sky-700 via-sky-600 to-sky-700" />
+          <div className="absolute inset-0 opacity-25" style={{backgroundImage:'radial-gradient(circle at 20% 30%, rgba(255,255,255,0.9) 0, transparent 55%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.4) 0, transparent 55%)'}} />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+            <div className="max-w-3xl">
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight mb-4 text-white">Safety & etiquette</h2>
+              <ul className="space-y-3 text-xs md:text-sm text-sky-50/90 marker:text-sky-200 list-disc pl-5">
+                {safetyPoints.map((p,i)=>(<li key={i} className="leading-relaxed">{p}</li>))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQs */}
+        <section className="bg-white border-t">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+            <h2 className="text-xl md:text-2xl font-semibold tracking-tight mb-6 text-[#054652]">FAQ</h2>
+            <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
+              {faqItems.map((f,i)=>{
+                const open = openFaq===i;
+                return (
+                  <div key={i} className={`border-t border-gray-200 first:border-t-0`}> 
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      onClick={()=>setOpenFaq(open?null:i)}
+                      className="w-full flex items-center justify-between gap-6 px-6 py-4 text-left focus:outline-none focus-visible:bg-sky-50"
+                    >
+                      <span className="text-sm font-medium text-[#054652] leading-snug">{f.q}</span>
+                      <span className={`shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-all duration-300 bg-sky-50 border border-sky-100 ${open? 'text-sky-700 rotate-180':'text-sky-600'}`}>+</span>
+                    </button>
+                    <div className={`overflow-hidden transition-all duration-300 ${open? 'max-h-40 opacity-100':'max-h-0 opacity-0'}`}> 
+                      <div className="px-6 pb-5 text-sm text-[#6f8b90] leading-relaxed">{f.a}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         <footer className="mt-auto py-10 border-t">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-xs text-gray-500 flex flex-col gap-2">
             <div className="flex items-center gap-2"><img src="/OMLogo.svg" alt="OM" className="h-6" /> <span>© {new Date().getFullYear()} OrangeMantra • Internal use.</span></div>

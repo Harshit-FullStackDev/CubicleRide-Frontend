@@ -42,10 +42,10 @@ export default function MainHeader() {
           </div>
           {/* Center Nav */}
           <nav className="hidden md:flex items-center gap-8 text-sm mx-auto">
-            <a href="/#features" className="hover:text-orange-600 transition-colors">Features</a>
-            <a href="/#om" className="hover:text-orange-600 transition-colors">OrangeMantra</a>
-            <a href="/#how" className="hover:text-orange-600 transition-colors">How it works</a>
-            <a href="/#trust" className="hover:text-orange-600 transition-colors">Trust & Safety</a>
+            <a href="/#features" className="hover:text-[#00AFF5] transition-colors">Features</a>
+            <a href="/#om" className="hover:text-[#00AFF5] transition-colors">OrangeMantra</a>
+            <a href="/#how" className="hover:text-[#00AFF5] transition-colors">How it works</a>
+            <a href="/#trust" className="hover:text-[#00AFF5] transition-colors">Trust & Safety</a>
           </nav>
           {/* Right actions */}
           {!isEmployee && (
@@ -56,11 +56,11 @@ export default function MainHeader() {
           )}
           {isEmployee && (
             <div className="flex items-center gap-6 text-sm">
-        <button onClick={() => setFindOpen(true)} className="unstyled-header-btn inline-flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium focus:outline-none">
-                <FaSearch className="text-orange-600 font-bold" /> <span>Search</span>
+        <button onClick={() => setFindOpen(true)} className="unstyled-header-btn inline-flex items-center gap-1 text-[#054652] hover:text-[#00AFF5] font-medium focus:outline-none">
+                <FaSearch className="text-[#054652] font-bold" /> <span>Search</span>
               </button>
-        <button onClick={() => navigate('/employee/offer')} className="unstyled-header-btn hidden sm:inline-flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium focus:outline-none">
-                <FaPlus className="text-orange-600 font-bold" /> <span>Publish a ride</span>
+        <button onClick={() => navigate('/employee/offer')} className="unstyled-header-btn hidden sm:inline-flex items-center gap-1 text-[#054652] hover:text-[#00AFF5] font-medium focus:outline-none">
+                <FaPlus className="text-[#054652] font-bold" /> <span>Publish a ride</span>
               </button>
               <div className="relative flex items-center">
                 <button
@@ -70,15 +70,15 @@ export default function MainHeader() {
           onClick={() => setMenuOpen(o=>!o)}
           className="unstyled-header-btn flex items-center gap-2 focus:outline-none group"
                 >
-                  <span className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white font-semibold flex items-center justify-center shadow">
+                  <span className="w-10 h-10 rounded-full bg-gradient-to-br text-[#054652] font-semibold flex items-center justify-center shadow">
                     {initials}
                   </span>
-                  <FaChevronDown className={`text-orange-600 text-xs transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
+                  <FaChevronDown className={`text-[#5f7c81] text-xs transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {menuOpen && (
           <div role="menu" className="absolute right-0 top-full mt-2 w-60 bg-white/95 backdrop-blur border border-orange-100 rounded-xl shadow-lg p-2 z-[999]">
                     <div className="px-2 py-1 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</div>
-                    <button onClick={()=>{setManageOpen(true); setMenuOpen(false);}} className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-orange-50 text-sm text-gray-700">
+                    <button onClick={()=>{setManageOpen(true); setMenuOpen(false);}} className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-orange-50 text-sm text-[#054652]">
                       <FaTachometerAlt className="text-xs" /> <span>Manage Rides</span>
                     </button>
                     <MenuLink to="/employee/offer" icon={<FaPlus />}>Offer Ride</MenuLink>
@@ -125,7 +125,7 @@ function MenuLink({ to, icon, children }) {
       tabIndex={0}
       onClick={()=>navigate(to)}
       onKeyDown={e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); navigate(to);} }}
-      className="cursor-pointer select-none w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-orange-50 text-sm text-gray-700 focus:outline-none focus:bg-orange-50"
+      className="cursor-pointer select-none w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-orange-50 text-sm text-[#054652] focus:outline-none focus:bg-orange-50"
     >
       <span className="text-[orange-600] text-xs">{icon}</span>
       <span>{children}</span>

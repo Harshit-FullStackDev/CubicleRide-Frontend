@@ -4,7 +4,7 @@ import { FaBars, FaTimes, FaPlus, FaUsers, FaBell, FaCar, FaUser, FaSignOutAlt, 
 import { ensureValidSession, getRole, getName, getEmail, clearSession } from '../utils/auth';
 
 const navItems = [
-  { to: '/employee/dashboard', label: 'Dashboard', icon: <FaUser /> },
+  { to: '/', label: 'Home', icon: <FaUser /> },
   { to: '/employee/offer', label: 'Offer Ride', icon: <FaPlus /> },
   { to: '/employee/join', label: 'Join Ride', icon: <FaUsers /> },
   { to: '/employee/inbox', label: 'Inbox', icon: <FaInbox /> },

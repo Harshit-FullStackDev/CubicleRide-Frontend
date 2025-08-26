@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const Register = lazy(() => import('./pages/Register'));
@@ -40,6 +41,8 @@ function App() {
                 <Route path="/employee/vehicle" element={<ProtectedRoute role="EMPLOYEE"><VehiclePage /></ProtectedRoute>} />
                 <Route path="/employee/profile" element={<ProtectedRoute role="EMPLOYEE"><Profile /></ProtectedRoute>} />
                 <Route path="/employee/inbox" element={<ProtectedRoute role="EMPLOYEE"><Inbox /></ProtectedRoute>} />
+                {/* Legacy dashboard path now points to landing which holds dashboard widgets */}
+                <Route path="/employee/dashboard" element={<Navigate to="/" replace />} />
                 <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/admin/employees" element={<ProtectedRoute role="ADMIN"><ViewEmployees /></ProtectedRoute>} />
                 <Route path="/admin/employees/add" element={<ProtectedRoute role="ADMIN"><AddEmployee /></ProtectedRoute>} />

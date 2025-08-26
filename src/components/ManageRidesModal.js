@@ -72,23 +72,23 @@ export default function ManageRidesModal({ onClose }) {
       <div className="relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-3xl bg-white/95 backdrop-blur border border-orange-100 shadow-xl flex flex-col">
         <header className="flex items-center justify-between px-6 py-4 border-b bg-white/60">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight flex items-center gap-3">
+            <h2 className="text-xl font-semibold tracking-tight flex items-center gap-3 text-[#054652]">
               <span>Ride Management</span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-semibold">{published.length} published</span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">{joined.length} joined</span>
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-grey text-[#054652] font-semibold">{published.length} published</span>
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-grey text-[#054652] font-semibold">{joined.length} joined</span>
               {pendingTotal>0 && <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-semibold" title="Pending join requests">{pendingTotal} pending</span>}
             </h2>
-            <p className="text-[11px] text-gray-500">Edit, approve, cancel or leave rides without leaving the page.</p>
+            <p className="text-[11px] text-[#054652]">Edit, approve, cancel or leave rides without leaving the page.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={load} className="text-xs font-semibold text-orange-600 hover:underline">Refresh</button>
-            <button onClick={onClose} className="px-3 py-1.5 rounded-full bg-orange-100 hover:bg-orange-200 text-orange-700 text-xs font-semibold">Close</button>
+            <button onClick={load} className="px-3 py-1.5 rounded-full bg-[#054652] text-white text-xs font-semibold hover-underline">Refresh</button>
+            <button onClick={onClose} className="px-3 py-1.5 rounded-full bg-[#054652] text-white text-xs font-semibold">Close</button>
           </div>
         </header>
-        <div className="px-6 pt-3 flex items-center gap-3 text-sm">
+        <div className="px-6 pt-3 flex items-center gap-3 text-sm text-[#054652]">
           <TabButton active={tab==='published'} onClick={()=>setTab('published')}>Published Rides</TabButton>
           <TabButton active={tab==='joined'} onClick={()=>setTab('joined')}>Joined Rides</TabButton>
-          <div className="ml-auto flex items-center gap-2 text-[11px] text-gray-500">
+          <div className="ml-auto flex items-center gap-2 text-[11px] text-[#054652]">
             <span className="hidden md:inline">ESC to close</span>
           </div>
         </div>
