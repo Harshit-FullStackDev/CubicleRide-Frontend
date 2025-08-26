@@ -12,7 +12,7 @@ function EditRide() {
     const [ride, setRide] = useState(null);
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [errors, setErrors] = useState({});
+    // removed separate errors state; derive validation from fieldErrors
     const [touched, setTouched] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [vehicleCapacity, setVehicleCapacity] = useState(null);
@@ -147,10 +147,7 @@ function EditRide() {
         e.preventDefault();
         // mark all touched on submit
         setTouched({ origin:true, destination:true, date:true, arrivalTime:true, carDetails:true, totalSeats:true, availableSeats:true, fare:true });
-        if (Object.keys(fieldErrors).length) {
-            setErrors(fieldErrors);
-            return;
-        }
+    if (Object.keys(fieldErrors).length) return; // prevent submit if errors
         setSubmitting(true);
         try {
             const payload = { ...ride };
@@ -171,7 +168,7 @@ function EditRide() {
         const { name } = e.target;
         setTouched(t => ({ ...t, [name]: true }));
         // sync errors on blur
-        setErrors(fieldErrors);
+    // no-op: relying on derived fieldErrors
     };
 
     if (loading || !ride) return <PageContainer><h1 className="text-xl font-semibold mb-4">Edit Ride</h1><div className="flex items-center gap-2 text-blue-600 text-sm"><span className="animate-spin h-5 w-5 border-b-2 border-blue-500 rounded-full inline-block"/> Loading...</div></PageContainer>;

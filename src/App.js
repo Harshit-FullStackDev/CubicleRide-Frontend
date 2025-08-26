@@ -5,7 +5,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 const Register = lazy(() => import('./pages/Register'));
 const Login = lazy(() => import('./pages/Login'));
-const OfferRide = lazy(() => import('./pages/employee/OfferRide'));
+const OfferRide = lazy(() => import('./pages/employee/OfferRide')); // legacy single form (kept at /employee/offer/legacy)
+const OfferRideWizard = lazy(() => import('./pages/employee/offer/OfferRideWizard'));
 const JoinRide = lazy(() => import('./pages/employee/JoinRide'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const ViewEmployees = lazy(() => import('./pages/admin/ViewEmployees'));
@@ -32,7 +33,8 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/otp-verify" element={<OtpVerify />} />
-                <Route path="/employee/offer" element={<ProtectedRoute role="EMPLOYEE"><OfferRide /></ProtectedRoute>} />
+                <Route path="/employee/offer" element={<ProtectedRoute role="EMPLOYEE"><OfferRideWizard /></ProtectedRoute>} />
+                <Route path="/employee/offer/legacy" element={<ProtectedRoute role="EMPLOYEE"><OfferRide /></ProtectedRoute>} />
                 <Route path="/employee/join" element={<ProtectedRoute role="EMPLOYEE"><JoinRide /></ProtectedRoute>} />
                 <Route path="/employee/notifications" element={<ProtectedRoute role="EMPLOYEE"><Notifications /></ProtectedRoute>} />
                 <Route path="/employee/history/published" element={<ProtectedRoute role="EMPLOYEE"><PublishedHistory /></ProtectedRoute>} />
