@@ -298,21 +298,41 @@ function Inbox() {
             <span>Conversations</span>
             <span className="text-[10px] text-gray-400">{sortedConversations.length}</span>
           </div>
-          <ul className="divide-y">
-            {loading && <li className="p-3 text-xs text-gray-400">Loading...</li>}
-            {!loading && sortedConversations.length === 0 && <li className="p-3 text-xs text-gray-400">No conversations yet</li>}
+          <ul className="space-y-4 p-4 bg-white min-h-[240px] flex flex-col justify-center">
+            {loading && <li className="py-12 text-base text-gray-400 text-center animate-pulse">Loading...</li>}
+            {!loading && sortedConversations.length === 0 && (
+              <li className="flex flex-col items-center justify-center py-20">
+                <svg width="80" height="80" fill="none" viewBox="0 0 80 80" className="mb-4 opacity-30">
+                  <rect x="10" y="20" width="60" height="40" rx="10" fill="#fbbf24"/>
+                  <rect x="18" y="28" width="44" height="8" rx="4" fill="#fde68a"/>
+                  <rect x="18" y="40" width="28" height="6" rx="3" fill="#fde68a"/>
+                </svg>
+                <div className="text-[22px] font-bold text-gray-400 mb-2 tracking-tight">No conversations yet</div>
+                <div className="text-[14px] text-gray-400">Start a ride or join one to begin chatting with co-workers.</div>
+              </li>
+            )}
             {sortedConversations.map(c => (
-              <li key={`${c.rideId}-${c.otherEmpId}`} className={`p-3 cursor-pointer hover:bg-orange-50 transition-colors ${active && active.rideId===c.rideId && active.otherEmpId===c.otherEmpId ? 'bg-orange-50' : ''}`} onClick={()=>selectConversation(c)}>
-                <div className="flex items-start gap-2">
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white text-[11px] font-semibold shadow-sm">{getInitials(c.otherName || c.otherEmpId)}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="font-medium text-sm truncate">{c.otherName || c.otherEmpId}</div>
-                      <div className="text-[10px] text-gray-400 whitespace-nowrap">{relativeTime(c.lastTs)}</div>
-                    </div>
-                    <div className="text-[11px] text-gray-500 truncate">{c.lastPreview}</div>
+              <li
+                key={`${c.rideId}-${c.otherEmpId}`}
+                className={`group rounded-2xl shadow border border-gray-100 px-5 py-4 flex items-center justify-between cursor-pointer transition-all duration-200 bg-white hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] ${active && active.rideId===c.rideId && active.otherEmpId===c.otherEmpId ? 'ring-2 ring-orange-300' : ''}`}
+                onClick={()=>selectConversation(c)}
+                tabIndex={0}
+                aria-label={`Open chat with ${c.otherName || c.otherEmpId}`}
+              >
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <div className="font-semibold text-[17px] text-[#054652] truncate leading-tight">{c.otherName || c.otherEmpId}</div>
+                  <div className="text-[14px] text-gray-600 truncate mt-0.5">{c.lastPreview}</div>
+                  <div className="text-[12px] text-gray-400 mt-1 flex items-center gap-2">
+                    <span title={c.lastTs}>{relativeTime(c.lastTs)}</span>
                   </div>
-                  {!!c.unread && <span className="ml-2 inline-block min-w-5 px-2 py-0.5 rounded-full bg-orange-600 text-white text-[10px] text-center self-start">{c.unread}</span>}
+                </div>
+                <div className="relative flex flex-col items-center ml-5">
+                  <div className="w-11 h-11 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white text-xl font-extrabold shadow-lg border-4 border-white select-none transition-all duration-200 group-hover:scale-105">
+                    {getInitials(c.otherName || c.otherEmpId)}
+                  </div>
+                  {!!c.unread && (
+                    <span className="absolute animate-bounce -top-2 -right-2 min-w-[20px] h-[20px] px-1 rounded-full bg-red-600 text-white text-[12px] flex items-center justify-center font-bold shadow z-30 border-2 border-white" title={`${c.unread} unread`}>{c.unread > 99 ? '99+' : c.unread}</span>
+                  )}
                 </div>
               </li>
             ))}
@@ -336,7 +356,7 @@ function Inbox() {
               </>
             ) : <div className="text-xs text-gray-500">Select a conversation</div>}
           </div>
-          <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-4 relative" aria-live="polite">
+          <div ref={listRef} className="flex-1 overflow-y-auto p-6 space-y-4 relative bg-orange-50/40 rounded-2xl" aria-live="polite">
             {active && grouped.map((g, gi) => {
               const incoming = g.fromEmpId !== me;
               const showAvatar = incoming; // only show avatar for incoming groups
@@ -391,7 +411,13 @@ function Inbox() {
                 <button onClick={loadOlder} className="inline-flex items-center gap-1 px-3 py-1 text-[11px] rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"><FaChevronDown/> Load older</button>
               </div>
             )}
-            {!active && (
+            {!active && sortedConversations.length === 0 && (
+              <div className="h-full flex flex-col items-center justify-center py-20">
+                <div className="text-[22px] font-semibold text-gray-400 mb-2">Select a conversation</div>
+                <div className="text-[13px] text-gray-400">Start a ride or join one to begin chatting with co-workers.</div>
+              </div>
+            )}
+            {!active && sortedConversations.length > 0 && (
               <div className="h-full flex items-center justify-center text-xs text-gray-400">Select a conversation to start chatting</div>
             )}
             {!atBottom && active && (

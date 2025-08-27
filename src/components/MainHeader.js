@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getRole, getName, clearSession, ensureValidSession } from '../utils/auth';
 import { FaSearch, FaPlus, FaSignOutAlt, FaBell, FaHistory, FaInbox, FaCar, FaUser, FaChevronDown, FaTachometerAlt } from 'react-icons/fa';
+import api from '../api/axios';
+import chatSocket from '../utils/chatSocket';
 import JoinRideList from './JoinRideList';
 import ManageRidesModal from './ManageRidesModal';
 
@@ -13,6 +15,9 @@ export default function MainHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
+  const [notifCount, setNotifCount] = useState(0);
+  const [chatUnread, setChatUnread] = useState(0);
+  const empId = localStorage.getItem('empId');
 
   useEffect(() => {
     const sync = () => { setRole(getRole()); setName(getName()); };
@@ -31,6 +36,42 @@ export default function MainHeader() {
   const initials = (name || 'E').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
   const isEmployee = role === 'EMPLOYEE';
   useEffect(() => { ensureValidSession(); }, []);
+
+  // Poll notifications & chat unread every 20s; also update on websocket events
+  useEffect(() => {
+    if (!isEmployee || !empId) return;
+    let mounted = true;
+    const fetchCounts = async () => {
+      try {
+        const [nRes, cRes] = await Promise.all([
+          api.get(`/notifications/${empId}/count`).catch(()=>({data:{unread:0}})),
+          api.get('/ride/chat/conversations').catch(()=>({data:[]}))
+        ]);
+        if (!mounted) return;
+        setNotifCount(nRes.data.unread||0);
+        const totalUnread = (cRes.data||[]).reduce((sum,c)=> sum + (c.unread||0),0);
+        setChatUnread(totalUnread);
+      } catch { /* ignore */ }
+    };
+    fetchCounts();
+    const id = setInterval(fetchCounts, 20000);
+    // chat websocket listener for live increment & read resets
+    chatSocket.connect();
+    const off = chatSocket.addListener(evt => {
+      if (evt && typeof evt === 'object') {
+        if (evt.type === 'read') {
+          // force refresh counts
+          fetchCounts();
+        } else if (evt.content) {
+          // new message delivered to me
+          if (evt.toEmpId === empId) setChatUnread(c => c + 1);
+        }
+      }
+    });
+    return () => { mounted=false; clearInterval(id); off(); };
+  }, [isEmployee, empId]);
+
+
 
   return (
     <>
@@ -83,10 +124,35 @@ export default function MainHeader() {
                     </button>
                     <MenuLink to="/employee/offer" icon={<FaPlus />}>Offer Ride</MenuLink>
                     <MenuLink to="/employee/join" icon={<FaSearch />}>Join Ride</MenuLink>
-                    <MenuLink to="/employee/notifications" icon={<FaBell />}>Notifications</MenuLink>
+                    <MenuLink
+                      to="/employee/notifications"
+                      icon={
+                        <span className="relative inline-block">
+                          <FaBell />
+                          {notifCount > 0 && (
+                            <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold shadow z-30 pointer-events-none border-2 border-white">{notifCount > 99 ? '99+' : notifCount}</span>
+                          )}
+                        </span>
+                      }
+                    >
+                      Notifications
+                    </MenuLink>
                     <MenuLink to="/employee/history/published" icon={<FaHistory />}>Published History</MenuLink>
                     <MenuLink to="/employee/history/joined" icon={<FaHistory />}>Joined History</MenuLink>
-                    <MenuLink to="/employee/inbox" icon={<FaInbox />}>Inbox</MenuLink>
+                    <MenuLink
+                      to="/employee/inbox"
+                      icon={
+                        <span className="relative inline-block">
+                          <FaInbox />
+                          {chatUnread > 0 && (
+                            <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold shadow z-30 pointer-events-none border-2 border-white">{chatUnread > 99 ? '99+' : chatUnread}</span>
+                          )}
+                        </span>
+                      }
+                    >
+                      Inbox
+                    </MenuLink>
+                    <MenuLink to="/employee/ratings" icon={<span className="font-semibold text-xs">★</span>}>Ratings</MenuLink>
                     <MenuLink to="/employee/vehicle" icon={<FaCar />}>Vehicle</MenuLink>
                     <MenuLink to="/employee/profile" icon={<FaUser />}>Profile</MenuLink>
                     <div className="mt-3 border-t pt-3">

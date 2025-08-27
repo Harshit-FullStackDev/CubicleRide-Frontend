@@ -26,6 +26,7 @@ function Notifications() {
   }, [empId]);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { if(empId) { api.post(`/notifications/${empId}/mark-all-read`).catch(()=>{}); } }, [empId]);
 
   const clearOne = async (id) => {
     try {

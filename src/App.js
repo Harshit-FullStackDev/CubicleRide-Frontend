@@ -24,6 +24,7 @@ const VehiclePage = lazy(() => import('./pages/employee/Vehicle'));
 const Profile = lazy(() => import('./pages/employee/Profile'));
 const Landing = lazy(() => import('./pages/Landing'));
 const Inbox = lazy(() => import('./pages/employee/Inbox'));
+const Ratings = lazy(() => import('./pages/employee/Ratings'));
 
 function App() {
     return (
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/employee/vehicle" element={<ProtectedRoute role="EMPLOYEE"><VehiclePage /></ProtectedRoute>} />
                 <Route path="/employee/profile" element={<ProtectedRoute role="EMPLOYEE"><Profile /></ProtectedRoute>} />
                 <Route path="/employee/inbox" element={<ProtectedRoute role="EMPLOYEE"><Inbox /></ProtectedRoute>} />
+                <Route path="/employee/ratings" element={<ProtectedRoute role="EMPLOYEE"><Ratings /></ProtectedRoute>} />
                 {/* Legacy dashboard path now points to landing which holds dashboard widgets */}
                 <Route path="/employee/dashboard" element={<Navigate to="/" replace />} />
                 <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>} />

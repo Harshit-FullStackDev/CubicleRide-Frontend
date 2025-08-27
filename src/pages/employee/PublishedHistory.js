@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSync, FaFilter, FaStar } from "react-icons/fa";
 import api from "../../api/axios";
-import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSync, FaFilter } from "react-icons/fa";
 // import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
 import PageContainer from "../../components/PageContainer";
 
@@ -58,6 +58,49 @@ function PublishedHistory() {
   }, [rides]);
 
   const statusOptions = ['ALL', ...Array.from(new Set(rides.map(r=>r.status)))];
+
+  const [ratingRide, setRatingRide] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [stars, setStars] = useState(5);
+  const [label, setLabel] = useState("Outstanding");
+  const [comment, setComment] = useState("");
+  const [ratedPairs, setRatedPairs] = useState(()=> new Set()); // key: rideId|targetEmpId
+  const [toast, setToast] = useState(null);
+
+  const openRate = (ride, passengerEmpId) => {
+    setRatingRide({...ride, targetEmpId: passengerEmpId});
+    setStars(5); setLabel("Outstanding"); setComment("");
+  };
+  const submit = async () => {
+    if (!ratingRide) return; setSubmitting(true);
+    try {
+      await api.post('/ride/ratings', { rideId: ratingRide.id, targetEmpId: ratingRide.targetEmpId, stars, label, comment });
+      const key = `${ratingRide.id}|${ratingRide.targetEmpId}`;
+      setRatedPairs(prev=> new Set(prev).add(key));
+      setToast({type:'success', msg:'Rating submitted'});
+      setRatingRide(null);
+    } catch { /* ignore */ } finally { setSubmitting(false); }
+  };
+
+  const canRatePassenger = (ride, empId) => {
+    // Only after date passed or status Completed/Cancelled
+    const today = new Date();
+    const rideDate = ride.date ? new Date(ride.date) : null;
+  const past = (ride.status && ride.status !== 'Active') || (rideDate && rideDate < new Date(today.toDateString()));
+    if (!past) return false;
+    const key = `${ride.id}|${empId}`;
+    if (ratedPairs.has(key)) return false;
+    return true;
+  };
+
+  // Optionally prefetch given ratings to populate ratedPairs (lightweight)
+  React.useEffect(()=>{
+    api.get('/ride/ratings/given').then(res=>{
+      const set = new Set();
+      (res.data||[]).forEach(r=> set.add(`${r.rideId}|${r.targetEmpId}`));
+      setRatedPairs(set);
+    }).catch(()=>{});
+  }, []);
 
   return (
     <PageContainer>
@@ -139,9 +182,15 @@ function PublishedHistory() {
                     <div className="mt-3 border-t pt-2">
                       <div className="text-[11px] font-semibold text-indigo-700 mb-1">Passengers</div>
                       <ul className="text-[11px] text-gray-600 space-y-1">
-                        {ride.joinedEmployees.map(e => (
-                          <li key={e.empId}>{e.name} ({e.empId}) {e.phone && <span className="text-green-600 font-semibold">📞 {e.phone}</span>}</li>
-                        ))}
+                        {ride.joinedEmployees.map(e => {
+                          const show = canRatePassenger(ride, e.empId);
+                          return (
+                            <li key={e.empId} className="flex items-center justify-between gap-2">
+                              <span>{e.name} ({e.empId}) {e.phone && <span className="text-green-600 font-semibold">📞 {e.phone}</span>}</span>
+                              {show && <button onClick={()=>openRate(ride, e.empId)} className="text-[10px] px-2 py-1 rounded bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 text-yellow-700 flex items-center gap-1"><FaStar className="text-[10px]" /> Rate</button>}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}
@@ -151,6 +200,35 @@ function PublishedHistory() {
           </div>
         )}
       </div>
+      {toast && (
+        <div className="fixed bottom-4 right-4 bg-[#054652] text-white text-xs px-4 py-2 rounded shadow" onAnimationEnd={()=>setTimeout(()=>setToast(null),2500)}>{toast.msg}</div>
+      )}
+      {ratingRide && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-yellow-100 p-6 relative">
+            <button onClick={()=>setRatingRide(null)} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-sm">✕</button>
+            <h3 className="text-lg font-semibold text-[#054652] mb-2 flex items-center gap-2"><FaStar className="text-yellow-400" /> Rate Passenger</h3>
+            <p className="text-xs text-gray-500 mb-4">Ride #{ratingRide.id} • {ratingRide.origin} → {ratingRide.destination}</p>
+            <div className="mb-3">
+              <div className="flex items-center gap-1 mb-2">
+                {Array.from({length:5}).map((_,i)=> (
+                  <button key={i} onClick={()=>setStars(i+1)} className="focus:outline-none">
+                    <FaStar className={`h-6 w-6 ${(i < stars)?'text-yellow-400':'text-gray-300'}`} />
+                  </button>
+                ))}
+              </div>
+              <select value={label} onChange={e=>setLabel(e.target.value)} className="w-full border rounded px-2 py-1 text-xs mb-2">
+                {['Outstanding','Good','Okay','Poor','Very disappointing'].map(l=> <option key={l}>{l}</option>)}
+              </select>
+              <textarea value={comment} onChange={e=>setComment(e.target.value)} rows={3} placeholder="Comment (optional)" className="w-full border rounded px-2 py-1 text-xs" />
+            </div>
+            <div className="flex justify-end gap-2 text-xs">
+              <button onClick={()=>setRatingRide(null)} className="px-3 py-2 rounded border text-gray-600">Cancel</button>
+              <button onClick={submit} disabled={submitting} className="px-4 py-2 rounded bg-[#054652] hover:bg-[#043f49] text-white disabled:opacity-50">Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
   </PageContainer>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSync, FaFilter, FaUser, FaStar } from "react-icons/fa";
 import api from "../../api/axios";
-import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSync, FaFilter, FaUser } from "react-icons/fa";
 // import EmployeeLayout from "../../components/EmployeeLayout"; // deprecated
 import PageContainer from "../../components/PageContainer";
 
@@ -58,6 +58,22 @@ function JoinedHistory() {
   }, [rides]);
 
   const statusOptions = ['ALL', ...Array.from(new Set(rides.map(r=>r.status)))];
+
+  const [rateDriverRide, setRateDriverRide] = useState(null);
+  const [stars, setStars] = useState(5); const [label,setLabel]=useState('Outstanding'); const [comment,setComment]=useState(''); const [submitting,setSubmitting]=useState(false);
+  const [ratedPairs,setRatedPairs] = useState(()=> new Set());
+  const [toast,setToast] = useState(null);
+  const openRate = (ride) => { setRateDriverRide(ride); setStars(5); setLabel('Outstanding'); setComment(''); };
+  const submit = async () => { if(!rateDriverRide) return; setSubmitting(true); try { await api.post('/ride/ratings',{ rideId: rateDriverRide.id, targetEmpId: rateDriverRide.ownerEmpId, stars, label, comment }); setRatedPairs(p=> new Set(p).add(`${rateDriverRide.id}|${rateDriverRide.ownerEmpId}`)); setToast({type:'success', msg:'Rating submitted'}); setRateDriverRide(null);} catch{} finally { setSubmitting(false);} };
+  React.useEffect(()=>{ api.get('/ride/ratings/given').then(res=>{ const s=new Set(); (res.data||[]).forEach(r=> s.add(`${r.rideId}|${r.targetEmpId}`)); setRatedPairs(s); }).catch(()=>{}); }, []);
+  const canRateDriver = (ride) => {
+    const today = new Date();
+    const rideDate = ride.date ? new Date(ride.date) : null;
+  const past = (ride.status && ride.status !== 'Active') || (rideDate && rideDate < new Date(today.toDateString()));
+    if (!past) return false;
+    const key = `${ride.id}|${ride.ownerEmpId}`;
+    return !ratedPairs.has(key);
+  };
 
   return (
     <PageContainer>
@@ -131,7 +147,10 @@ function JoinedHistory() {
                   <div className="mt-3 space-y-1 text-xs text-gray-600">
                     <div className="flex items-center gap-2"><FaCalendarAlt className="text-green-600" /> {formatDate(ride.date)}</div>
                     <div className="flex items-center gap-2"><FaClock className="text-yellow-600" /> {ride.arrivalTime?.slice(0,5) || '—'}</div>
-                    <div className="flex items-center gap-2"><FaUser className="text-indigo-500" /> {ride.ownerName} ({ride.ownerEmpId}) {ride.ownerPhone && <span className="text-green-600 font-semibold">📞 {ride.ownerPhone}</span>}</div>
+                    <div className="flex items-center gap-2">
+                      <FaUser className="text-indigo-500" /> {ride.ownerName} ({ride.ownerEmpId}) {ride.ownerPhone && <span className="text-green-600 font-semibold">📞 {ride.ownerPhone}</span>}
+                      {canRateDriver(ride) && <button onClick={()=>openRate(ride)} className="ml-auto text-[10px] px-2 py-1 rounded bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 text-yellow-700 flex items-center gap-1"><FaStar className="text-[10px]"/>Rate</button>}
+                    </div>
                     {ride.fare && <div className="flex items-center gap-2 text-indigo-600">Fare: ₹{ride.fare}/seat</div>}
                   </div>
                   <div className="mt-4 flex items-center justify-between">
@@ -144,6 +163,33 @@ function JoinedHistory() {
           </div>
         )}
       </div>
+      {rateDriverRide && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-yellow-100 p-6 relative">
+            <button onClick={()=>setRateDriverRide(null)} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-sm">✕</button>
+            <h3 className="text-lg font-semibold text-[#054652] mb-2 flex items-center gap-2"><FaStar className="text-yellow-400" /> Rate Driver</h3>
+            <p className="text-xs text-gray-500 mb-4">Ride #{rateDriverRide.id} • {rateDriverRide.origin} → {rateDriverRide.destination}</p>
+            <div className="mb-3">
+              <div className="flex items-center gap-1 mb-2">
+                {Array.from({length:5}).map((_,i)=> (
+                  <button key={i} onClick={()=>setStars(i+1)} className="focus:outline-none">
+                    <FaStar className={`h-6 w-6 ${(i < stars)?'text-yellow-400':'text-gray-300'}`} />
+                  </button>
+                ))}
+              </div>
+              <select value={label} onChange={e=>setLabel(e.target.value)} className="w-full border rounded px-2 py-1 text-xs mb-2">
+                {['Outstanding','Good','Okay','Poor','Very disappointing'].map(l=> <option key={l}>{l}</option>)}
+              </select>
+              <textarea value={comment} onChange={e=>setComment(e.target.value)} rows={3} placeholder="Comment (optional)" className="w-full border rounded px-2 py-1 text-xs" />
+            </div>
+            <div className="flex justify-end gap-2 text-xs">
+              <button onClick={()=>setRateDriverRide(null)} className="px-3 py-2 rounded border text-gray-600">Cancel</button>
+              <button onClick={submit} disabled={submitting} className="px-4 py-2 rounded bg-[#054652] hover:bg-[#043f49] text-white disabled:opacity-50">Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
+  {toast && <div className="fixed bottom-4 right-4 bg-[#054652] text-white text-xs px-4 py-2 rounded shadow" onAnimationEnd={()=>setTimeout(()=>setToast(null),2500)}>{toast.msg}</div>}
   </PageContainer>
   );
 }
