@@ -7,6 +7,7 @@ export default function JoinRideList({ full = false, overlay = false, limit, lay
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [locations, setLocations] = useState([]);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [filters, setFilters] = useState({
     pickup: localStorage.getItem('pickup') || '',
     drop: localStorage.getItem('drop') || '',
@@ -125,14 +126,15 @@ export default function JoinRideList({ full = false, overlay = false, limit, lay
               </select>
             </div>
           </div>
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between md:justify-end gap-3">
             <button onClick={()=>loadRides()} className="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-6 py-2 rounded-xl shadow">Search</button>
+            <button type="button" onClick={()=>setMobileFiltersOpen(true)} className="md:hidden px-4 py-2 rounded-xl border text-sm">Filters</button>
           </div>
         </div>
       )}
       <div className={wrapperClass + ' flex flex-col lg:flex-row gap-6'}>
-        {/* Sidebar */}
-        <aside className="lg:w-60 flex-shrink-0 space-y-6">
+        {/* Sidebar (hidden on mobile) */}
+        <aside className="hidden lg:block lg:w-60 flex-shrink-0 space-y-6">
           <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
             <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Sort by</h3>
             {['earliest','price'].map(opt => (
@@ -222,6 +224,46 @@ export default function JoinRideList({ full = false, overlay = false, limit, lay
           </div>
         </div>
       </div>
+
+      {/* Mobile Filters Drawer */}
+      {mobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button className="absolute inset-0 bg-black/30" aria-label="Close filters" onClick={()=>setMobileFiltersOpen(false)} />
+          <div className="absolute right-0 top-0 h-full w-11/12 max-w-sm bg-white shadow-xl p-4 overflow-y-auto">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold">Filters</h3>
+              <button onClick={()=>setMobileFiltersOpen(false)} className="text-sm px-2 py-1 rounded border">Close</button>
+            </div>
+            <div className="space-y-4">
+              <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+                <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Sort by</h3>
+                {['earliest','price'].map(opt => (
+                  <label key={opt} className={`flex items-center gap-2 text-sm cursor-pointer ${filters.sort===opt?'text-blue-600 font-medium':'text-gray-600'}`}>
+                    <input type="radio" name="sort" value={opt} checked={filters.sort===opt} onChange={handleFilterChange} /> {opt==='earliest'?'Earliest departure':'Lowest price'}
+                  </label>
+                ))}
+              </div>
+              <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+                <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Departure time</h3>
+                <button type="button" onClick={()=>setTimeFilters(t=>({...t, early:!t.early}))} className={`w-full text-left text-sm px-3 py-1.5 rounded-lg border ${timeFilters.early?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}`}>12:01 - 18:00</button>
+                <button type="button" onClick={()=>setTimeFilters(t=>({...t, afterEvening:!t.afterEvening}))} className={`w-full text-left text-sm px-3 py-1.5 rounded-lg border ${timeFilters.afterEvening?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}`}>After 18:00</button>
+              </div>
+              <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+                <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Fare</h3>
+                <div className="flex items-center gap-2">
+                  <input type="number" name="minFare" value={filters.minFare} onChange={handleFilterChange} placeholder="Min" className="w-1/2 text-sm border rounded-lg px-2 py-1" />
+                  <input type="number" name="maxFare" value={filters.maxFare} onChange={handleFilterChange} placeholder="Max" className="w-1/2 text-sm border rounded-lg px-2 py-1" />
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+                <h3 className="text-xs font-semibold tracking-wide text-gray-700 uppercase">Options</h3>
+                <label className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" name="instant" checked={filters.instant} onChange={(e)=>handleFilterChange({target:{name:'instant', value:e.target.checked}})} /> Instant booking</label>
+                <button type="button" onClick={()=>{ setFilters(f=>({...f, minFare:'', maxFare:'', instant:false, sort:'earliest'})); setTimeFilters({early:false, afterEvening:false}); }} className="text-xs text-blue-600 hover:underline">Clear all</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
