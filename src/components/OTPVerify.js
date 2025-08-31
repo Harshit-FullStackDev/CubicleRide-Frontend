@@ -71,7 +71,7 @@ function OtpVerify() {
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 via-white to-amber-50">
             <header className="h-16 flex items-center justify-between px-6 md:px-12 border-b bg-white/70 backdrop-blur sticky top-0 z-10">
                 <Link to="/" className="flex items-center gap-3">
-                    <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
+                    <img src="/OMLogo.svg" alt="CubicleRide" className="h-10 w-auto" />
                 </Link>
                 <div className="flex items-center gap-3 text-sm">
                     <Link to="/login" className="px-4 py-2 rounded-full font-medium border border-orange-200 text-orange-700 hover:bg-orange-50">Sign in</Link>
@@ -122,7 +122,7 @@ function OtpVerify() {
                     </div>
                 </div>
             </main>
-            <footer className="py-6 text-center text-xs text-gray-500">© {new Date().getFullYear()} orangemantra • Internal use</footer>
+            <footer className="py-6 text-center text-xs text-gray-500">© {new Date().getFullYear()} CubicleRide • Internal use</footer>
             <div className="text-center text-xs text-gray-500"> Developed By • Harshit Soni .</div>
         </div>
     );

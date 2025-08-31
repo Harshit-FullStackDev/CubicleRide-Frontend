@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  ShieldCheck,
-  MapPin,
-  Users,
-  Sparkles,
-  Car,
-  Award,
-  Globe2,
-  Building2,
-  Star
-} from 'lucide-react';
+import { ShieldCheck, MapPin, Users, Sparkles, Car } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getRole } from '../utils/auth';
 import MainHeader from '../components/MainHeader';
@@ -48,7 +37,7 @@ const features = [
 
 // How-it-works (kept)
 const steps = [
-  { step: '01', title: 'Sign in', desc: 'Authenticate with your company workspace token.' },
+  { step: '01', title: 'Open app', desc: 'Start from your company workspace link.' },
   { step: '02', title: 'Select Route', desc: 'Pick pickup, drop & recurrence (one‑time or weekdays).' },
   { step: '03', title: 'Offer or Join', desc: 'System surfaces matches; you confirm in one tap.' },
   { step: '04', title: 'Ride & Improve', desc: 'Save money, reduce congestion & CO₂ each trip.' },
@@ -61,49 +50,19 @@ const testimonials = [
   { quote: 'Knowing profiles & past rides exist builds instant trust.', author: 'Rohit · QA Analyst' },
 ];
 
-/** --- New: OrangeMantra factual content (sourced from orangemantra.com) --- */
+/** --- CubicleRide content --- */
 
-// High-level stats & facts (paraphrased, non-marketing)
+// Product-focused highlights for CubicleRide
 const omHighlights = [
-  {
-    icon: <Building2 className="h-5 w-5" />,
-    title: 'Founded in 2001',
-    desc: 'Two+ decades of engineering digital solutions.',
-  },
-  {
-    icon: <Star className="h-5 w-5" />,
-    title: 'Rated 4.8/5',
-    desc: 'Based on 1,085+ client reviews across 5,600+ projects.',
-  },
-  {
-    icon: <Globe2 className="h-5 w-5" />,
-    title: 'Global Delivery',
-    desc: 'Work delivered across the U.S., Europe, APAC, and MEA.',
-  },
-  {
-    icon: <Award className="h-5 w-5" />,
-    title: 'Recognized by Clutch',
-    desc: 'Top-rated app development company (India).',
-  },
+  { icon: <ShieldCheck className="h-5 w-5" />, title: 'Secure by design', desc: 'Org-only access, roles and optional approvals.' },
+  { icon: <Users className="h-5 w-5" />, title: 'People-first', desc: 'Profiles, ride history and clarity build trust.' },
+  { icon: <MapPin className="h-5 w-5" />, title: 'Route intelligence', desc: 'Cataloged pickup/drop keeps choices fast.' },
+  { icon: <Car className="h-5 w-5" />, title: 'Sustainability impact', desc: 'Fewer cars, lower congestion and emissions.' },
 ];
-
-// Top service families from OM site
-const omServices = [
-  { title: 'Ecommerce', url: 'https://www.orangemantra.com/services/', blurb: 'Storefronts, headless, marketplaces, and growth ops.' },
-  { title: 'Enterprise Development', url: 'https://www.orangemantra.com/services/', blurb: 'Custom apps, integrations, data, and automation.' },
-  { title: 'Mobile Apps', url: 'https://www.orangemantra.com/services/', blurb: 'Native iOS/Android, cross-platform, and PWA.' },
-  { title: 'Emerging Tech', url: 'https://www.orangemantra.com/services/', blurb: 'AI/ML, IoT/IIoT, analytics, and platform engineering.' },
-  { title: 'Managed IT', url: 'https://www.orangemantra.com/services/', blurb: 'SRE, cloud, security, and support.' },
-  { title: 'Digital Marketing', url: 'https://www.orangemantra.com/services/', blurb: 'Acquisition, content, and performance marketing.' },
-  { title: 'QA & Testing', url: 'https://www.orangemantra.com/services/', blurb: 'Automation, performance, and release quality.' },
-];
-
-// Representative client brands publicly featured by OM
-const omClients = ['IKEA', 'Hero', 'Nestlé', 'Panasonic', 'AND', 'Tata', 'PVR', 'Decathlon', "Haldiram’s"];
 
 const Stat = ({ value, label }) => (
   <div className="text-center">
-    <div className="text-3xl md:text-4xl font-semibold tracking-tight">{value}</div>
+    <div className="text-3xl md:text-3xl font-semibold tracking-tight">{value}</div>
     <div className="text-sm text-gray-500">{label}</div>
   </div>
 );
@@ -136,7 +95,7 @@ export default function Landing() {
   useEffect(() => {
     const role = getRole();
     if (role === 'ADMIN') navigate('/admin/dashboard');
-    document.title = role === 'EMPLOYEE' ? 'Your Commute · OrangeMantra Carpool' : 'OrangeMantra Carpool Platform';
+  document.title = role === 'EMPLOYEE' ? 'Your Commute · CubicleRide' : 'CubicleRide Platform';
   }, [navigate]);
 
   const role = getRole();
@@ -339,7 +298,7 @@ export default function Landing() {
 
         <footer className="mt-auto py-10 border-t">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-xs text-gray-500 flex flex-col gap-2">
-            <div className="flex items-center gap-2"><img src="/OMLogo.svg" alt="OM" className="h-6" /> <span>© {new Date().getFullYear()} OrangeMantra • Internal use.</span></div>
+            <div className="flex items-center gap-2"><img src="/OMLogo.svg" alt="CubicleRide" className="h-6" /> <span>© {new Date().getFullYear()} CubicleRide • Internal use.</span></div>
             <div>Developed by Harshit Soni</div>
           </div>
         </footer>
@@ -370,13 +329,13 @@ export default function Landing() {
                 Commute smarter with your <span className="text-orange-600">team</span>
               </h1>
               <p className="text-base md:text-lg text-gray-600 max-w-xl">
-                A secure internal carpool platform for OrangeMantra. Cut cost, save time & lower emissions—while retaining full control & transparency.
+                A secure internal ride-sharing platform for your workplace. Cut cost, save time & lower emissions—while retaining full control & transparency.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button onClick={() => navigate('/register')}>
-                  Get started <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <Button onClick={() => navigate('/register')}>Register</Button>
                 <Button variant="outline" onClick={() => navigate('/login')}>Sign in</Button>
+                <a href="#features" className="inline-flex items-center justify-center rounded-full text-sm font-medium px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700">Explore features</a>
+                <a href="#how" className="inline-flex items-center justify-center rounded-full text-sm font-medium px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700">How it works</a>
               </div>
               <div className="grid grid-cols-3 gap-6 pt-6 max-w-md">
                 <Stat value="8 seats" label="per ride (max)" />
@@ -443,14 +402,12 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* NEW: OrangeMantra section (facts, services, clients, awards) */}
+  {/* CubicleRide section (facts, features, benefits) */}
       <section id="om" className="py-16 md:py-24 bg-gradient-to-b from-white to-orange-50/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 md:mb-14">
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">OrangeMantra at a glance</h2>
-            <p className="text-gray-600 mt-2 max-w-2xl">
-              A trusted digital transformation partner powering products and platforms for brands worldwide.
-            </p>
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">CubicleRide at a glance</h2>
+            <p className="text-gray-600 mt-2 max-w-2xl">An internal, secure ride-sharing platform designed for teams of any size.</p>
           </div>
 
           {/* Highlights */}
@@ -466,39 +423,7 @@ export default function Landing() {
             ))}
           </div>
 
-          {/* Services */}
-          <div className="mb-12">
-            <div className="font-medium mb-3">What OrangeMantra builds</div>
-            <div className="grid md:grid-cols-3 gap-5">
-              {omServices.map((s, i) => (
-                <a
-                  key={i}
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-2xl border bg-white p-5 hover:shadow-sm transition"
-                >
-                  <div className="text-sm font-medium">{s.title}</div>
-                  <div className="text-sm text-gray-600 mt-1">{s.blurb}</div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Clients marquee */}
-          <div className="rounded-2xl border bg-white p-5 overflow-hidden">
-            <div className="text-sm font-medium mb-3">Trusted by leading brands</div>
-            <div className="whitespace-nowrap animate-[scroll_25s_linear_infinite]" style={{ maskImage: 'linear-gradient(90deg,transparent,black 10%,black 90%,transparent)' }}>
-              <div className="inline-flex gap-6 text-gray-700 text-sm">
-                {omClients.concat(omClients).map((c, i) => (
-                  <span key={`${c}-${i}`} className="px-3 py-1 rounded-full bg-orange-50 border border-orange-100">{c}</span>
-                ))}
-              </div>
-            </div>
-            <style>{`
-              @keyframes scroll { 0%{ transform: translateX(0);} 100%{ transform: translateX(-50%);} }
-            `}</style>
-          </div>
+          {/* Services and clients sections removed for a neutral, product-focused overview */}
         </div>
       </section>
 
@@ -534,8 +459,8 @@ export default function Landing() {
                 <li>• Notifications to ride owners when someone joins.</li>
               </ul>
               <div className="mt-6 flex gap-3">
-                <Button onClick={() => navigate('/security')}>Security brief</Button>
-                <Button variant="outline" onClick={() => navigate('/admin/guide')}>Admin guide</Button>
+                <a href="#trust" className="inline-flex items-center justify-center rounded-full text-sm font-medium px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700">Security brief</a>
+                <a href="#how" className="inline-flex items-center justify-center rounded-full text-sm font-medium px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700">Admin guide</a>
               </div>
             </div>
             <div>
@@ -585,18 +510,11 @@ export default function Landing() {
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
         <h3 id="cta-heading" className="text-2xl md:text-3xl font-semibold tracking-tight">Ready to roll?</h3>
-                <p className="text-white/90 mt-2 max-w-xl">Launch the carpool workspace and invite your squad.</p>
+                <p className="text-white/90 mt-2 max-w-xl">Launch CubicleRide and invite your colleagues.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 md:justify-end">
-                <Button variant="secondary" className="text-orange-700" onClick={() => navigate('/login')}>Open App</Button>
-                <a
-                  href="https://www.orangemantra.com/services/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex"
-                >
-                  <Button variant="outline" className="border-white/50 text-white hover:bg-white/10">Explore OM Services</Button>
-                </a>
+                <a href="#features" className="inline-flex items-center justify-center rounded-full text-sm font-medium px-5 py-2.5 bg-white text-orange-700 hover:bg-orange-50">Explore features</a>
+                <a href="#how" className="inline-flex items-center justify-center rounded-full text-sm font-medium px-5 py-2.5 border border-white/50 text-white hover:bg-white/10">How it works</a>
               </div>
             </div>
           </div>
@@ -609,7 +527,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-8">
             <div className="col-span-2">
               <div className="flex items-center gap-3">
-                <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
+                <img src="/OMLogo.svg" alt="CubicleRide" className="h-10 w-auto" />
               </div>
               <p className="text-sm text-gray-600 mt-3 max-w-md">An internal, secure ride-sharing experience.</p>
               <div className="mt-4 inline-flex items-center gap-2 text-xs text-gray-500">
@@ -622,51 +540,23 @@ export default function Landing() {
               <div className="font-medium mb-2">Product</div>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><a href="#features" className="hover:text-orange-600">Features</a></li>
-                <li><a href="#om" className="hover:text-orange-600">OrangeMantra</a></li>
+                <li><a href="#om" className="hover:text-orange-600">CubicleRide</a></li>
                 <li><a href="#how" className="hover:text-orange-600">How it works</a></li>
                 <li><a href="#trust" className="hover:text-orange-600">Trust & Safety</a></li>
               </ul>
             </div>
 
             <div>
-              <div className="font-medium mb-2">Company</div>
+              <div className="font-medium mb-2">Resources</div>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li>
-                  <a
-                    href="https://www.orangemantra.com/career/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 hover:text-orange-600 transition"
-                  >
-                    <span className="px-2 py-0.5 rounded-md bg-orange-100 text-[10px] font-semibold text-orange-700 group-hover:bg-orange-200">NEW</span>
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.orangemantra.com/services/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 hover:text-orange-600 transition"
-                  >
-                    Services
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.orangemantra.com/awards-and-media/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 hover:text-orange-600 transition"
-                  >
-                    Awards & Media
-                  </a>
-                </li>
+                <li><a href="#features" className="hover:text-orange-600 transition">Features</a></li>
+                <li><a href="#how" className="hover:text-orange-600 transition">How it works</a></li>
+                <li><a href="#trust" className="hover:text-orange-600 transition">Trust & Safety</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-8 text-xs text-gray-500">© {new Date().getFullYear()} OrangeMantra • Internal use.</div>
+          <div className="mt-8 text-xs text-gray-500">© {new Date().getFullYear()} CubicleRide • Internal use.</div>
         </div>
       </footer>
     </div>

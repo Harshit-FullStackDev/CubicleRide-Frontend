@@ -9,7 +9,7 @@ export default function JoinRide() {
             <main className="flex-1 w-full py-4 md:py-6">
                 <JoinRideList full layout="search" />
             </main>
-            <footer className="mt-auto py-10 text-center text-xs text-gray-400">© {new Date().getFullYear()} OrangeMantra Carpool</footer>
+            <footer className="mt-auto py-10 text-center text-xs text-gray-400">© {new Date().getFullYear()} CubicleRide</footer>
         </div>
     );
 }

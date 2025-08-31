@@ -57,7 +57,7 @@ const AdminLayout = ({ children, heading, subheading }) => {
         aria-label="Admin navigation"
       >
         <div className="flex items-center gap-3 mb-2">
-          <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
+          <img src="/OMLogo.svg" alt="CubicleRide" className="h-10 w-auto" />
         </div>
         <nav className="flex-1 flex flex-col gap-1 text-sm font-medium" role="menu">
           {adminNav.map(item => {
@@ -143,7 +143,7 @@ const AdminLayout = ({ children, heading, subheading }) => {
         </header>
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8">{children}</main>
-        <footer className="py-6 text-center text-[11px] text-orange-600 font-medium opacity-70">© {new Date().getFullYear()} OrangeMantra Carpool Platform</footer>
+  <footer className="py-6 text-center text-[11px] text-orange-600 font-medium opacity-70">© {new Date().getFullYear()} CubicleRide Platform</footer>
       </div>
     </div>
   );

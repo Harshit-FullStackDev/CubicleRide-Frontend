@@ -79,12 +79,12 @@ export default function MainHeader() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-4">
           {/* Left: Logo */}
           <div onClick={() => navigate('/')} className="cursor-pointer select-none flex items-center" aria-label="Home">
-            <img src="/OMLogo.svg" alt="OrangeMantra" className="h-10 w-auto" />
+            <img src="/OMLogo.svg" alt="CubicleRide" className="h-10 w-auto" />
           </div>
           {/* Center Nav */}
           <nav className="hidden md:flex items-center gap-8 text-sm mx-auto">
             <a href="/#features" className="hover:text-[#00AFF5] transition-colors">Features</a>
-            <a href="/#om" className="hover:text-[#00AFF5] transition-colors">OrangeMantra</a>
+            <a href="/#om" className="hover:text-[#00AFF5] transition-colors">CubicleRide</a>
             <a href="/#how" className="hover:text-[#00AFF5] transition-colors">How it works</a>
             <a href="/#trust" className="hover:text-[#00AFF5] transition-colors">Trust & Safety</a>
           </nav>
