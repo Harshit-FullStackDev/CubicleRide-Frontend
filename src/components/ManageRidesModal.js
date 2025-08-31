@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { 
-  FaMapMarkerAlt, FaCalendarAlt, FaClock, FaChair, FaCar, FaEdit, FaTimesCircle, FaUsers, FaCheckCircle, FaTimes, FaComments
+  FaMapMarkerAlt, FaCalendarAlt, FaClock, FaChair, FaCar, FaEdit, FaTimesCircle, FaUsers, FaCheckCircle, FaTimes, FaComments, FaArrowLeft
 } from 'react-icons/fa';
 
 /**
@@ -16,6 +16,7 @@ export default function ManageRidesModal({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tab, setTab] = useState('published');
+  const closedViaHistoryRef = useRef(false);
 
   const load = useCallback(async () => {
     if(!empId) return;
@@ -33,6 +34,29 @@ export default function ManageRidesModal({ onClose }) {
   }, [empId]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Allow hardware/browser back to close the modal on mobile
+  useEffect(() => {
+    const onPop = () => {
+      closedViaHistoryRef.current = true;
+      onClose();
+    };
+    // Push a new history state so Back closes the modal
+    try { window.history.pushState({ manageRides: true }, '', window.location.href); } catch {}
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      // If we are unmounting without having popped the history, clean up the extra entry
+      if (!closedViaHistoryRef.current) {
+        try { window.history.back(); } catch {}
+      }
+    };
+  }, [onClose]);
+
+  const requestClose = useCallback(() => {
+    // Trigger history back, which will invoke popstate handler to call onClose()
+    try { window.history.back(); } catch { onClose(); }
+  }, [onClose]);
 
   const formatDate = useCallback((dateStr) => {
     if(!dateStr) return '—';
@@ -68,9 +92,23 @@ export default function ManageRidesModal({ onClose }) {
   const pendingTotal = published.reduce((acc, r) => acc + (r.pendingEmployees?.length || 0), 0);
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-start md:items-center justify-center p-4 bg-black/40 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-3xl bg-white/95 backdrop-blur border border-orange-100 shadow-xl flex flex-col">
-        <header className="flex items-center justify-between px-6 py-4 border-b bg-white/60">
+    <div
+      className="fixed inset-0 z-[1000] md:z-[1000] flex items-start md:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      onMouseDown={(e) => { if (e.currentTarget === e.target) requestClose(); }}
+    >
+      <div
+        className="relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-3xl bg-white/95 backdrop-blur border border-orange-100 shadow-xl flex flex-col"
+        onMouseDown={(e)=> e.stopPropagation()}
+      >
+        <header className="sticky top-0 z-10 flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b bg-white/80 backdrop-blur">
+          {/* Mobile back */}
+          <div className="flex items-center gap-2 md:hidden">
+            <button onClick={requestClose} className="inline-flex items-center gap-2 px-3 py-2 rounded-full border text-xs font-semibold" aria-label="Back">
+              <FaArrowLeft /> Back
+            </button>
+          </div>
           <div>
             <h2 className="text-xl font-semibold tracking-tight flex items-center gap-3 text-[#054652]">
               <span>Ride Management</span>
@@ -81,18 +119,18 @@ export default function ManageRidesModal({ onClose }) {
             <p className="text-[11px] text-[#054652]">Edit, approve, cancel or leave rides without leaving the page.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={load} className="px-3 py-1.5 rounded-full bg-[#054652] text-white text-xs font-semibold hover-underline">Refresh</button>
-            <button onClick={onClose} className="px-3 py-1.5 rounded-full bg-[#054652] text-white text-xs font-semibold">Close</button>
+            <button onClick={load} className="px-3 py-2 rounded-full bg-[#054652] text-white text-xs font-semibold hover:brightness-110">Refresh</button>
+            <button onClick={requestClose} className="hidden md:inline-flex px-3 py-2 rounded-full bg-[#054652] text-white text-xs font-semibold">Close</button>
           </div>
         </header>
-        <div className="px-6 pt-3 flex items-center gap-3 text-sm text-[#054652]">
+        <div className="px-4 md:px-6 pt-3 flex items-center gap-3 text-sm text-[#054652]">
           <TabButton active={tab==='published'} onClick={()=>setTab('published')}>Published Rides</TabButton>
           <TabButton active={tab==='joined'} onClick={()=>setTab('joined')}>Joined Rides</TabButton>
           <div className="ml-auto flex items-center gap-2 text-[11px] text-[#054652]">
             <span className="hidden md:inline">ESC to close</span>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-6 mt-4 custom-scroll">
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-24 md:pb-6 space-y-6 mt-4 custom-scroll">
           {loading && <div className="text-sm text-blue-600 animate-pulse">Loading rides...</div>}
           {error && <div className="text-sm text-red-600">{error}</div>}
           {!loading && !error && tab==='published' && (
@@ -189,6 +227,13 @@ export default function ManageRidesModal({ onClose }) {
               </div>
             )
           )}
+        </div>
+        {/* Mobile bottom action bar */}
+        <div className="md:hidden border-t bg-white/80 backdrop-blur px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <button onClick={load} className="flex-1 px-3 py-2 rounded-xl border text-xs font-semibold">Refresh</button>
+            <button onClick={requestClose} className="flex-1 px-3 py-2 rounded-xl bg-[#054652] text-white text-xs font-semibold">Close</button>
+          </div>
         </div>
       </div>
     </div>

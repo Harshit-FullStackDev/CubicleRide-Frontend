@@ -91,15 +91,12 @@ export default function MainHeader() {
           {/* Right actions */}
           {!isEmployee && (
             <div className="flex items-center gap-6 text-sm">
-              <button onClick={() => navigate('/login')} className="px-4 py-2 rounded-full font-small border-black text-grey-700 hover:bg-orange-50">Sign in</button>
+              <button onClick={() => navigate('/login')} className="px-4 py-2 rounded-full font-small border border-black text-grey-700 hover:bg-orange-50">Sign in</button>
               <button onClick={() => navigate('/register')} className="px-4 py-2 rounded-full font-small border border-orange-400 text-orange-700 hover:bg-orange-50">Register</button>
             </div>
           )}
           {isEmployee && (
             <div className="flex items-center gap-6 text-sm">
-        <button onClick={() => setFindOpen(true)} className="unstyled-header-btn inline-flex items-center gap-1 text-[#054652] hover:text-[#00AFF5] font-medium focus:outline-none">
-                <FaSearch className="text-[#054652] font-bold" /> <span>Search</span>
-              </button>
         <button onClick={() => navigate('/employee/offer')} className="unstyled-header-btn hidden sm:inline-flex items-center gap-1 text-[#054652] hover:text-[#00AFF5] font-medium focus:outline-none">
                 <FaPlus className="text-[#054652] font-bold" /> <span>Publish a ride</span>
               </button>
