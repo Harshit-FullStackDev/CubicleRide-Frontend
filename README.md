@@ -1,6 +1,38 @@
-# Getting Started with Create React App
+# CubicleRide Frontend
+
+A React-based frontend application for the CubicleRide carpooling platform.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Deployment
+
+### Azure Static Web Apps (Recommended)
+
+This application is configured for deployment to Azure Static Web Apps. See [AZURE_DEPLOYMENT.md](./AZURE_DEPLOYMENT.md) for detailed deployment instructions.
+
+#### Quick Deployment:
+1. **Push to GitHub**: Push to main branch (automatic deployment via GitHub Actions)
+2. **Deploy via Azure CLI**: Run `./deploy.ps1` (Windows)
+
+#### Manual Deployment:
+```bash
+# Build the application
+npm run build
+
+# Deploy using Azure CLI
+az staticwebapp create \
+  --name your-app-name \
+  --resource-group your-resource-group \
+  --source https://github.com/your-username/CubicleRide-Frontend \
+  --location "East US2" \
+  --branch main \
+  --app-location "/" \
+  --output-location "build"
+```
+
+## Environment Variables
+
+- `REACT_APP_BASE_URL`: Backend API URL (default: http://localhost:8080)
 
 ## Available Scripts
 
