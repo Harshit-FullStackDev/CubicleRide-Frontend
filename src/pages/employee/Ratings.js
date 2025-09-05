@@ -80,7 +80,6 @@ export default function Ratings() {
             </div>
             <div className="md:col-span-2 grid grid-cols-1 gap-3">
               {[5,4,3,2,1].map(s => {
-                const val = summary[["zero","one","two","three","four","five"][s]] || summary[["one","two","three","four","five"][5-s]]; // fallback if shape changed
                 const map = {5:summary.five,4:summary.four,3:summary.three,2:summary.two,1:summary.one};
                 return (
                   <div key={s} className="flex items-center gap-2 text-[11px]">
