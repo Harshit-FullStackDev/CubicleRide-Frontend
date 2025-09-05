@@ -5,6 +5,16 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/sitemap.xml",
+      "serve": "/sitemap.xml",
+      "statusCode": 200
+    },
+    {
+      "route": "/robots.txt",
+      "serve": "/robots.txt",
+      "statusCode": 200
+    },
+    {
       "route": "/*",
       "serve": "/index.html",
       "statusCode": 200
@@ -12,9 +22,15 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,jpeg,gif}", "/css/*"]
+    "exclude": ["/images/*.{png,jpg,jpeg,gif}", "/css/*", "/sitemap.xml", "/robots.txt"]
   },
   "mimeTypes": {
-    ".json": "text/json"
+    ".json": "text/json",
+    ".xml": "application/xml"
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
   }
 }

@@ -1,3 +1,23 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for CubicleRide
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /api/
+Disallow: /otp-verify
+Disallow: /login
+Disallow: /register
+
+# Allow crawling of main public pages
+Allow: /$
+Allow: /about
+Allow: /contact
+Allow: /features
+Allow: /privacy
+Allow: /terms
+
+# Sitemap location
+Sitemap: https://www.cubicleride.me/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

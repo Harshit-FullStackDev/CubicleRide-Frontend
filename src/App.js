@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const Register = lazy(() => import('./pages/Register'));
@@ -25,12 +26,21 @@ const Profile = lazy(() => import('./pages/employee/Profile'));
 const Landing = lazy(() => import('./pages/Landing'));
 const Inbox = lazy(() => import('./pages/employee/Inbox'));
 const Ratings = lazy(() => import('./pages/employee/Ratings'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Features = lazy(() => import('./pages/Features'));
+const Blog = lazy(() => import('./pages/Blog'));
 
 function App() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-sm text-gray-500">Loading...</div>}>
+        <HelmetProvider>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-sm text-gray-500">Loading...</div>}>
             <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/features" element={<Features />} />
+                <Route path="/blog" element={<Blog />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/otp-verify" element={<OtpVerify />} />
@@ -56,7 +66,8 @@ function App() {
                 <Route path="/admin/vehicles/:empId" element={<ProtectedRoute role="ADMIN"><VehicleDetail /></ProtectedRoute>} />
                 <Route path="*" element={<div className="p-10 text-center">Not Found</div>} />
             </Routes>
-        </Suspense>
+            </Suspense>
+        </HelmetProvider>
     );
 }
 

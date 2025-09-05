@@ -27,7 +27,7 @@ const Card = ({ className = '', children }) => (
 );
 const CardContent = ({ className = '', children }) => <div className={className}>{children}</div>;
 
-// Your original feature set (kept)
+// SEO-optimized features for CubicleRide by Harshit Soni
 const features = [
   { icon: <Car className="h-6 w-6" />, title: 'Offer or Join', desc: 'Post a ride in seconds or join one that matches your route & timing.' },
   { icon: <ShieldCheck className="h-6 w-6" />, title: 'Secure by Design', desc: 'Org‑only access, role permissions & provenance on every ride.' },
@@ -95,7 +95,7 @@ export default function Landing() {
   useEffect(() => {
     const role = getRole();
     if (role === 'ADMIN') navigate('/admin/dashboard');
-  document.title = role === 'EMPLOYEE' ? 'Your Commute · CubicleRide' : 'CubicleRide Platform';
+  document.title = role === 'EMPLOYEE' ? 'Your Dashboard · CubicleRide by Harshit Soni' : 'CubicleRide - Smart Employee Carpooling Platform | Founded by Harshit Soni';
   }, [navigate]);
 
   const role = getRole();
