@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken, clearSession, isExpired } from '../utils/auth';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || '/api';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://api-gateway.jollyhill-fb788985.centralindia.azurecontainerapps.io';
 
 const api = axios.create({ baseURL: BASE_URL, timeout: 15000 });
 
