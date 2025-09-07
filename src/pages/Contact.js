@@ -56,18 +56,18 @@ export default function Contact() {
         <MainHeader />
         
         {/* Hero Section */}
-        <section className="relative py-20 md:py-28">
+        <section className="relative py-12 md:py-20 lg:py-28">
           <div className="absolute inset-0 -z-10">
             <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-200/50 blur-3xl" />
             <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
           </div>
           
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
+            <div className="max-w-3xl mx-auto text-center lg:text-left">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-4 md:mb-6">
                 Contact <span className="text-orange-600">CubicleRide</span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Get in touch with <strong>Harshit Soni</strong> and the CubicleRide team. 
                 We're here to help with partnerships, support, and any questions about our 
                 employee carpooling platform.
@@ -77,15 +77,15 @@ export default function Contact() {
         </section>
 
         {/* Contact Information */}
-        <section className="py-16 md:py-20">
+        <section className="py-12 md:py-16 lg:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-12">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
               
               {/* Contact Form */}
-              <div>
-                <h2 className="text-2xl font-semibold mb-6">Send us a message</h2>
-                <form className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+              <div className="order-2 lg:order-1">
+                <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Send us a message</h2>
+                <form className="space-y-4 md:space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-4 md:gap-6">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
                         First Name
@@ -94,7 +94,7 @@ export default function Contact() {
                         type="text"
                         id="firstName"
                         name="firstName"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-transparent outline-none transition"
+                        className="w-full px-3 md:px-4 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-transparent outline-none transition text-sm md:text-base"
                         placeholder="Your first name"
                       />
                     </div>

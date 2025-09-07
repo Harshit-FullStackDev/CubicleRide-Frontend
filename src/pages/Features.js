@@ -133,7 +133,7 @@ export default function Features() {
         <MainHeader />
         
         {/* Hero Section */}
-        <section className="relative py-20 md:py-28">
+        <section className="relative py-12 md:py-20 lg:py-28">
           <div className="absolute inset-0 -z-10">
             <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-200/50 blur-3xl" />
             <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
@@ -141,10 +141,10 @@ export default function Features() {
           
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-4 md:mb-6">
                 <span className="text-orange-600">CubicleRide</span> Features
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Discover the comprehensive features designed by <strong>Harshit Soni</strong> to make 
                 employee carpooling secure, efficient, and user-friendly for modern organizations.
               </p>
@@ -153,26 +153,26 @@ export default function Features() {
         </section>
 
         {/* Features Grid */}
-        <section className="py-16 md:py-20">
+        <section className="py-12 md:py-16 lg:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {features.map((feature, index) => (
-                <div key={index} className="bg-white rounded-2xl border border-orange-100 p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-10 w-10 rounded-xl bg-orange-50 grid place-items-center text-orange-600">
+                <div key={index} className="bg-white rounded-2xl border border-orange-100 p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-3 md:mb-4">
+                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-xl bg-orange-50 grid place-items-center text-orange-600 flex-shrink-0">
                       {feature.icon}
                     </div>
-                    <h3 className="font-semibold text-lg">{feature.title}</h3>
+                    <h3 className="font-semibold text-base md:text-lg">{feature.title}</h3>
                   </div>
                   
-                  <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                  <p className="text-gray-600 mb-3 md:mb-4 text-sm leading-relaxed">
                     {feature.description}
                   </p>
                   
-                  <ul className="space-y-2">
+                  <ul className="space-y-1.5 md:space-y-2">
                     {feature.details.map((detail, detailIndex) => (
-                      <li key={detailIndex} className="flex items-center gap-2 text-sm text-gray-500">
-                        <div className="h-1.5 w-1.5 rounded-full bg-orange-400"></div>
+                      <li key={detailIndex} className="flex items-start gap-2 text-xs md:text-sm text-gray-500">
+                        <div className="h-1.5 w-1.5 rounded-full bg-orange-400 flex-shrink-0 mt-1.5"></div>
                         {detail}
                       </li>
                     ))}
