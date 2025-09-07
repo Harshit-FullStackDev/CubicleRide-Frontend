@@ -68,62 +68,157 @@ function OtpVerify() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 via-white to-amber-50">
-            <header className="h-16 flex items-center justify-between px-6 md:px-12 border-b bg-white/70 backdrop-blur sticky top-0 z-10">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <header className="h-16 flex items-center justify-between px-4 md:px-6 lg:px-12 border-b bg-white/80 backdrop-blur sticky top-0 z-10">
                 <Link to="/" className="flex items-center gap-3">
                     <img src="/OMLogo.svg" alt="CubicleRide" className="h-10 w-auto" />
                 </Link>
                 <div className="flex items-center gap-3 text-sm">
-                    <Link to="/login" className="px-4 py-2 rounded-full font-medium border border-orange-200 text-orange-700 hover:bg-orange-50">Sign in</Link>
+                    <Link to="/login" className="px-4 py-2 rounded-full font-medium border border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">Sign in</Link>
                 </div>
             </header>
-            <main className="flex-1 w-full mx-auto max-w-7xl grid lg:grid-cols-2 gap-10 items-center px-6 md:px-12 py-10">
+            <main className="flex-1 w-full mx-auto max-w-7xl grid lg:grid-cols-2 gap-10 items-center px-4 md:px-6 lg:px-12 py-10">
                 <div className="hidden lg:flex flex-col gap-6 pr-8">
-                    <h1 className="text-4xl font-semibold leading-tight tracking-tight">Almost there<span className="text-orange-600">!</span></h1>
-                    <p className="text-gray-600 text-lg max-w-md">We just need to confirm your work email before you can start sharing or joining rides.</p>
-                    <ul className="space-y-3 text-sm text-gray-600">
-                        <li className="flex items-start gap-2"><span className="mt-1 text-orange-500">•</span><span>Secure internal-only verification.</span></li>
-                        <li className="flex items-start gap-2"><span className="mt-1 text-orange-500">•</span><span>Protecting employee network integrity.</span></li>
-                        <li className="flex items-start gap-2"><span className="mt-1 text-orange-500">•</span><span>Fast resend and smart session checks.</span></li>
-                    </ul>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mb-2">
+                        <FaKey className="h-4 w-4" />
+                        Secure Verification
+                    </div>
+                    <h1 className="text-4xl xl:text-5xl font-bold leading-tight tracking-tight">
+                        Verify your email
+                        <span className="block text-blue-600 text-3xl xl:text-4xl mt-2">
+                            Quick & Secure
+                        </span>
+                    </h1>
+                    <p className="text-gray-600 text-lg leading-relaxed max-w-md">
+                        We've sent a verification code to your email. Enter it below to confirm your account and get started with CubicleRide.
+                    </p>
+                    <div className="space-y-4 text-sm text-gray-600">
+                        <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-blue-600 font-semibold text-xs">1</span>
+                            </div>
+                            <span>Check your email inbox (and spam folder)</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-blue-600 font-semibold text-xs">2</span>
+                            </div>
+                            <span>Enter the 6-digit verification code below</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-blue-600 font-semibold text-xs">3</span>
+                            </div>
+                            <span>Complete registration and start using CubicleRide</span>
+                        </div>
+                    </div>
                 </div>
                 <div className="w-full max-w-md mx-auto">
-                    <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg ring-1 ring-orange-100 p-8 relative overflow-hidden">
-                        <div className="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-orange-100 blur-2xl opacity-70" />
+                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl ring-1 ring-gray-200 p-6 md:p-8 relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-gradient-to-br from-blue-200 to-purple-200 blur-3xl opacity-60" />
+                        <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-gradient-to-br from-purple-200 to-blue-200 blur-3xl opacity-40" />
                         <div className="relative">
-                            <h2 className="text-2xl font-semibold tracking-tight mb-1">Verify your email</h2>
-                            <p className="text-sm text-gray-500 mb-6">Enter the code we sent to <span className="font-medium text-orange-600">{email || 'your email'}</span></p>
-                            {info && <div className="bg-orange-50 text-orange-700 border border-orange-200 text-xs p-3 rounded-lg mb-4">{info}</div>}
-                            {error && <div className="bg-red-50 text-red-700 border border-red-200 text-xs p-3 rounded-lg mb-4">{error}</div>}
-                            <form onSubmit={verify} className="space-y-5">
-                                <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-600">Email</label>
-                                    <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                                        <FaEnvelope className="text-orange-400" />
-                                        <input value={email} onChange={e=>setEmail(e.target.value)} type="email" required className="bg-transparent w-full outline-none text-sm" />
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <FaEnvelope className="h-7 w-7 text-white" />
+                                </div>
+                                <h2 className="text-2xl font-bold tracking-tight mb-2">Check Your Email</h2>
+                                <p className="text-sm text-gray-600">
+                                    We sent a verification code to
+                                    <br />
+                                    <span className="font-semibold text-blue-600">{email || 'your email'}</span>
+                                </p>
+                            </div>
+                            
+                            {info && (
+                                <div className="bg-blue-50 text-blue-800 border border-blue-200 text-sm p-4 rounded-lg mb-4 flex items-start gap-2">
+                                    <FaEnvelope className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                    <span>{info}</span>
+                                </div>
+                            )}
+                            {error && (
+                                <div className="bg-red-50 text-red-800 border border-red-200 text-sm p-4 rounded-lg mb-4 flex items-start gap-2">
+                                    <span className="text-red-500 font-bold">!</span>
+                                    <span>{error}</span>
+                                </div>
+                            )}
+                            
+                            <form onSubmit={verify} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700">Email Address</label>
+                                    <div className="relative">
+                                        <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={e => setEmail(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-gray-50 text-gray-600"
+                                            placeholder="your.email@company.com"
+                                            disabled
+                                        />
                                     </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-600">One-Time Password</label>
-                                    <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                                        <FaKey className="text-orange-400" />
-                                        <input ref={otpRef} value={otp} onChange={e=>setOtp(e.target.value)} inputMode="numeric" maxLength={8} placeholder="Enter code" className="bg-transparent w-full outline-none tracking-widest text-sm font-medium" required />
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700">Verification Code</label>
+                                    <div className="relative">
+                                        <FaKey className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                        <input
+                                            ref={otpRef}
+                                            type="text"
+                                            value={otp}
+                                            onChange={e => setOtp(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-center text-lg font-mono tracking-widest"
+                                            placeholder="Enter 6-digit code"
+                                            maxLength={6}
+                                            autoComplete="one-time-code"
+                                            inputMode="numeric"
+                                            required
+                                        />
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-between text-[11px] text-gray-500">
-                                    <button type="button" onClick={resend} disabled={resendCooldown>0} className={`inline-flex items-center gap-1 font-medium ${resendCooldown>0? 'text-gray-400 cursor-not-allowed':'text-orange-600 hover:underline'}`}>
-                                        <FaRedo className="text-[10px]" /> {resendCooldown>0? `Resend in ${resendCooldown}s`:'Resend code'}
+                                
+                                <div className="flex items-center justify-between text-sm">
+                                    <button 
+                                        type="button" 
+                                        onClick={resend} 
+                                        disabled={resendCooldown>0} 
+                                        className={`inline-flex items-center gap-2 font-medium transition-colors ${
+                                            resendCooldown>0 
+                                                ? 'text-gray-400 cursor-not-allowed'
+                                                : 'text-blue-600 hover:text-blue-700'
+                                        }`}
+                                    >
+                                        <FaRedo className="h-3 w-3" /> 
+                                        {resendCooldown>0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
                                     </button>
-                                    <Link to="/register" className="hover:underline">Back to register</Link>
+                                    <Link to="/register" className="text-gray-500 hover:text-gray-700 transition-colors">
+                                        Back to register
+                                    </Link>
                                 </div>
-                                <button type="submit" disabled={loading} className="w-full bg-orange-600 hover:bg-orange-700 disabled:opacity-60 text-white py-3 rounded-xl text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600">{loading? 'Verifying...':'Verify & Continue'}</button>
+                                
+                                <button
+                                    type="submit"
+                                    disabled={loading || !otp.trim()}
+                                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                >
+                                    {loading ? (
+                                        <div className="flex items-center justify-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            <span>Verifying...</span>
+                                        </div>
+                                    ) : (
+                                        'Verify & Continue'
+                                    )}
+                                </button>
                             </form>
                         </div>
                     </div>
                 </div>
             </main>
-            <footer className="py-6 text-center text-xs text-gray-500">© {new Date().getFullYear()} CubicleRide • Internal use</footer>
-            <div className="text-center text-xs text-gray-500"> Developed By • Harshit Soni .</div>
+            <footer className="py-6 text-center text-xs text-gray-500">
+                <div>© {new Date().getFullYear()} CubicleRide • Smart Employee Carpooling Platform</div>
+                <div className="mt-1">Developed by Harshit Soni</div>
+            </footer>
         </div>
     );
 }

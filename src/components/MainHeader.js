@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getRole, getName, clearSession, ensureValidSession } from '../utils/auth';
-import { FaSearch, FaPlus, FaSignOutAlt, FaBell, FaHistory, FaInbox, FaCar, FaUser, FaChevronDown, FaTachometerAlt } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaSignOutAlt, FaBell, FaHistory, FaInbox, FaCar, FaUser, FaChevronDown, FaTachometerAlt, FaBars, FaTimes } from 'react-icons/fa';
 import api from '../api/axios';
 import chatSocket from '../utils/chatSocket';
 import JoinRideList from './JoinRideList';
@@ -13,6 +13,7 @@ export default function MainHeader() {
   const [role, setRole] = useState(getRole());
   const [name, setName] = useState(getName());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
@@ -25,11 +26,12 @@ export default function MainHeader() {
     return () => window.removeEventListener('storage', sync);
   }, []);
 
-  useEffect(() => { setMenuOpen(false); setFindOpen(false); }, [location.pathname]);
+  useEffect(() => { setMenuOpen(false); setFindOpen(false); setMobileMenuOpen(false); }, [location.pathname]);
 
   const logout = useCallback(() => {
     clearSession();
     setMenuOpen(false);
+    setMobileMenuOpen(false);
     navigate('/login');
   }, [navigate]);
 
@@ -79,24 +81,37 @@ export default function MainHeader() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-4">
           {/* Left: Logo */}
           <div onClick={() => navigate('/')} className="cursor-pointer select-none flex items-center" aria-label="Home">
-            <img src="/OMLogo.svg" alt="CubicleRide by Harshit Soni - Smart Employee Carpooling Platform" className="h-10 w-auto" />
+            <img src="/OMLogo.svg" alt="CubicleRide - Smart Employee Carpooling Platform" className="h-10 w-auto" />
           </div>
-          {/* Center Nav */}
+          
+          {/* Mobile Menu Button */}
+          <div className="md:hidden ml-auto">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-gray-600 hover:text-orange-600 focus:outline-none focus:text-orange-600"
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <FaTimes className="h-5 w-5" /> : <FaBars className="h-5 w-5" />}
+            </button>
+          </div>
+          
+          {/* Center Nav - Desktop */}
           <nav className="hidden md:flex items-center gap-8 text-sm mx-auto">
             <a href="/features" className="hover:text-[#00AFF5] transition-colors">Features</a>
             <a href="/about" className="hover:text-[#00AFF5] transition-colors">About</a>
             <a href="/blog" className="hover:text-[#00AFF5] transition-colors">Blog</a>
             <a href="/contact" className="hover:text-[#00AFF5] transition-colors">Contact</a>
           </nav>
-          {/* Right actions */}
+          
+          {/* Right actions - Desktop */}
           {!isEmployee && (
-            <div className="flex items-center gap-6 text-sm">
+            <div className="hidden md:flex items-center gap-6 text-sm">
               <button onClick={() => navigate('/login')} className="px-4 py-2 rounded-full font-small border border-black text-grey-700 hover:bg-orange-50">Sign in</button>
               <button onClick={() => navigate('/register')} className="px-4 py-2 rounded-full font-small border border-orange-400 text-orange-700 hover:bg-orange-50">Register</button>
             </div>
           )}
           {isEmployee && (
-            <div className="flex items-center gap-6 text-sm">
+            <div className="hidden md:flex items-center gap-6 text-sm">
         <button onClick={() => navigate('/employee/offer')} className="unstyled-header-btn hidden sm:inline-flex items-center gap-1 text-[#054652] hover:text-[#00AFF5] font-medium focus:outline-none">
                 <FaPlus className="text-[#054652] font-bold" /> <span>Publish a ride</span>
               </button>
@@ -163,6 +178,137 @@ export default function MainHeader() {
             </div>
           )}
         </div>
+        
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}>
+            <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl transform transition-transform">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-8">
+                  <img src="/OMLogo.svg" alt="CubicleRide" className="h-8 w-auto" />
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-2 text-gray-400 hover:text-gray-600"
+                  >
+                    <FaTimes className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                <nav className="space-y-4">
+                  <a 
+                    href="/features" 
+                    className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Features
+                  </a>
+                  <a 
+                    href="/about" 
+                    className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    About
+                  </a>
+                  <a 
+                    href="/blog" 
+                    className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Blog
+                  </a>
+                  <a 
+                    href="/contact" 
+                    className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </a>
+                  
+                  {!isEmployee && (
+                    <div className="pt-4 border-t space-y-3">
+                      <button 
+                        onClick={() => { navigate('/login'); setMobileMenuOpen(false); }} 
+                        className="w-full px-4 py-2 text-left text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        Sign in
+                      </button>
+                      <button 
+                        onClick={() => { navigate('/register'); setMobileMenuOpen(false); }} 
+                        className="w-full px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+                      >
+                        Register
+                      </button>
+                    </div>
+                  )}
+                  
+                  {isEmployee && (
+                    <div className="pt-4 border-t space-y-3">
+                      <button 
+                        onClick={() => { navigate('/employee/offer'); setMobileMenuOpen(false); }} 
+                        className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        <FaPlus className="text-sm" />
+                        Publish a ride
+                      </button>
+                      <button 
+                        onClick={() => { setManageOpen(true); setMobileMenuOpen(false); }} 
+                        className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        <FaTachometerAlt className="text-sm" />
+                        Manage Rides
+                      </button>
+                      <button 
+                        onClick={() => { navigate('/employee/join'); setMobileMenuOpen(false); }} 
+                        className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        <FaSearch className="text-sm" />
+                        Join Ride
+                      </button>
+                      <button 
+                        onClick={() => { navigate('/employee/notifications'); setMobileMenuOpen(false); }} 
+                        className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        <FaBell className="text-sm" />
+                        Notifications
+                        {notifCount > 0 && (
+                          <span className="ml-auto bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                            {notifCount > 99 ? '99+' : notifCount}
+                          </span>
+                        )}
+                      </button>
+                      <button 
+                        onClick={() => { navigate('/employee/inbox'); setMobileMenuOpen(false); }} 
+                        className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        <FaInbox className="text-sm" />
+                        Inbox
+                        {chatUnread > 0 && (
+                          <span className="ml-auto bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                            {chatUnread > 99 ? '99+' : chatUnread}
+                          </span>
+                        )}
+                      </button>
+                      <button 
+                        onClick={() => { navigate('/employee/profile'); setMobileMenuOpen(false); }} 
+                        className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        <FaUser className="text-sm" />
+                        Profile
+                      </button>
+                      <button 
+                        onClick={logout} 
+                        className="w-full flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                      >
+                        <FaSignOutAlt className="text-sm" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </nav>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
       {findOpen && isEmployee && (
         <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center p-4 bg-black/40 backdrop-blur-sm" role="dialog" aria-modal="true">
