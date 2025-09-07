@@ -85,7 +85,16 @@ function Register() {
         setVerifying(true);
         setInfoMsg("");
         try {
-            await api.post('/auth/verify-otp', { email: data.email, otp: otp.trim() });
+            await api.post('/auth/verify-otp', { 
+                email: data.email, 
+                otp: otp.trim(),
+                platform: 'CubicleRide',
+                templateConfig: {
+                    appName: 'CubicleRide',
+                    brandName: 'CubicleRide',
+                    companyName: 'CubicleRide'
+                }
+            });
             setStep('success');
             setInfoMsg('Email verified! Redirecting to sign in...');
             setTimeout(() => navigate('/login', { replace: true }), 1800);
@@ -105,9 +114,44 @@ function Register() {
         setErrors(prev => ({ ...prev, resend: undefined }));
         setInfoMsg('Resending code...');
         const attempts = [
-            { url: '/auth/resend-otp', payload: { email: data.email } },
-            { url: '/auth/otp/resend', payload: { email: data.email } },
-            { url: '/auth/resend-otp', payload: { emailId: data.email } }, // alternate key naming
+            { 
+                url: '/auth/resend-otp', 
+                payload: { 
+                    email: data.email,
+                    platform: 'CubicleRide',
+                    templateConfig: {
+                        appName: 'CubicleRide',
+                        brandName: 'CubicleRide',
+                        companyName: 'CubicleRide',
+                        subject: 'CubicleRide Email Verification',
+                        title: 'Verify Your CubicleRide Account'
+                    }
+                } 
+            },
+            { 
+                url: '/auth/otp/resend', 
+                payload: { 
+                    email: data.email,
+                    platform: 'CubicleRide',
+                    templateConfig: {
+                        appName: 'CubicleRide',
+                        brandName: 'CubicleRide',
+                        companyName: 'CubicleRide'
+                    }
+                } 
+            },
+            { 
+                url: '/auth/resend-otp', 
+                payload: { 
+                    emailId: data.email,
+                    platform: 'CubicleRide',
+                    templateConfig: {
+                        appName: 'CubicleRide',
+                        brandName: 'CubicleRide',
+                        companyName: 'CubicleRide'
+                    }
+                } 
+            }, // alternate key naming
         ];
         for (let i = 0; i < attempts.length; i++) {
             try {

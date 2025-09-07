@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import api from "../api/axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FaEnvelope, FaKey, FaRedo } from "react-icons/fa";
+import BRANDING_CONFIG from "../config/branding";
 
 function OtpVerify() {
     const [email, setEmail] = useState("");
@@ -35,7 +36,15 @@ function OtpVerify() {
         setLoading(true);
         setError("");
         try {
-            await api.post('/auth/verify-otp', { email, otp: otp.trim() });
+            await api.post('/auth/verify-otp', { 
+                email, 
+                otp: otp.trim(),
+                ...BRANDING_CONFIG.apiConfig,
+                templateConfig: {
+                    ...BRANDING_CONFIG.apiConfig.templateConfig,
+                    ...BRANDING_CONFIG.emailTemplates.otp
+                }
+            });
             setInfo('Verified! Redirecting...');
             setTimeout(()=>navigate('/login', { replace:true }), 1500);
         } catch (err) {
@@ -51,7 +60,14 @@ function OtpVerify() {
         setError("");
         setInfo('Resending code...');
         try {
-            await api.post('/auth/resend-otp', { email });
+            await api.post('/auth/resend-otp', { 
+                email,
+                ...BRANDING_CONFIG.apiConfig,
+                templateConfig: {
+                    ...BRANDING_CONFIG.apiConfig.templateConfig,
+                    ...BRANDING_CONFIG.emailTemplates.otp
+                }
+            });
             setInfo('New code sent.');
             setResendCooldown(30);
             timerRef.current && clearInterval(timerRef.current);
